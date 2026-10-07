@@ -48,7 +48,7 @@ export const Header: React.FC = () => {
 
   return (
     <header className="bg-[#FAF9F6] border-b border-[#E8E2DC] sticky top-0 z-30 shadow-xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap md:flex-nowrap items-center justify-between gap-3 sm:gap-4">
         {/* Logo */}
         <div
           onClick={() => {
@@ -72,7 +72,7 @@ export const Header: React.FC = () => {
         {/* Search Bar */}
         <form
           onSubmit={handleSearchSubmit}
-          className="flex-1 max-w-2xl mx-2 sm:mx-6 flex items-center"
+          className="order-last md:order-none w-full md:w-auto md:flex-1 max-w-2xl mx-0 md:mx-6 mt-1 md:mt-0 flex items-center"
         >
           <div className="relative w-full flex items-center rounded-lg border border-[#C6B8AB] focus-within:border-[#8C6F52] focus-within:ring-2 focus-within:ring-[#E8E2DC] transition-all bg-white hover:border-[#8C6F52]">
             {/* Category Filter Select */}

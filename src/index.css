@@ -59,3 +59,17 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #8C6F52;
 }
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.mobile-marquee {
+  animation: marquee 15s linear infinite;
+}
+@media (min-width: 768px) {
+  .mobile-marquee {
+    animation: none !important;
+    transform: none !important;
+  }
+}

@@ -45,12 +45,12 @@ export const BrandsSection: React.FC = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
+      <div className="flex overflow-x-auto gap-3 pb-2 no-scrollbar">
         {activeBrands.map((brand) => (
           <div
             key={brand.id}
             onClick={() => handleBrandClick(brand.name)}
-            className="bg-white rounded-xl border border-[#E8E2DC] p-3 flex flex-col items-center justify-center min-h-[96px] hover:shadow-md hover:border-[#8C6F52] cursor-pointer transition-all group relative overflow-hidden"
+            className="shrink-0 w-[130px] sm:w-[150px] bg-white rounded-xl border border-[#E8E2DC] p-3 flex flex-col items-center justify-center min-h-[96px] hover:shadow-md hover:border-[#8C6F52] cursor-pointer transition-all group relative overflow-hidden"
             title={`Browse ${brand.name} products`}
           >
             {brand.logoUrl ? (
