@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ivory: #FAF9F6;
+  --color-section-grey: #E8E2DC;
+  --color-card-beige: #D9CFC6;
+  --color-primary-taupe: #8C6F52;
+  --color-header-dark: #1F1F1F;
+  --color-section-light: #F5F1EC;
+  --color-border-beige: #C6B8AB;
+  --color-accent-soft: #A8927D;
+  --color-accent-hover: #6B5B4A;
+  --color-muted-dark: #3A3A3A;
+  --color-deal-tag: #D4A373;
+  --color-soft-accent: #E8C9A8;
+  --color-light-card: #EDE6E1;
+  --color-sale-red: #E63946;
+  --color-success-green: #2E7D32;
+  --color-star-gold: #F59E0B;
+}
+
+:root {
+  --ivory: #FAF9F6;
+  --section-grey: #E8E2DC;
+  --card-beige: #D9CFC6;
+  --primary-taupe: #8C6F52;
+  --header-dark: #1F1F1F;
+  --section-light: #F5F1EC;
+  --border-beige: #C6B8AB;
+  --accent-soft: #A8927D;
+  --accent-hover: #6B5B4A;
+  --muted-dark: #3A3A3A;
+  --deal-tag: #D4A373;
+  --soft-accent: #E8C9A8;
+  --light-card: #EDE6E1;
+  --sale-red: #E63946;
+  --success-green: #2E7D32;
+  --star-gold: #F59E0B;
+}
+
+body {
+  background-color: #FAF9F6;
+  color: #1F1F1F;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Custom Scrollbar styled with palette */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F5F1EC;
+}
+::-webkit-scrollbar-thumb {
+  background: #C6B8AB;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8C6F52;
+}

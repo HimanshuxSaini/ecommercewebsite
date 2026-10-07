@@ -1,0 +1,6 @@
+{
+  "name": "ShopVerse - Modern E-Commerce & Admin Platform",
+  "description": "A full-featured e-commerce platform with customer storefront, authentication, RBAC admin panel, coupon engine, inventory management, banners, categories, and analytics dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
