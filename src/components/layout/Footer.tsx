@@ -233,20 +233,20 @@ export const Footer: React.FC = () => {
 
           {/* Payment Badges */}
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
-            <div className="px-2.5 py-1 rounded bg-[#F5F1EC] border border-[#C6B8AB] h-7 flex items-center justify-center">
-              <img src="https://img.icons8.com/color/1200/visa.png" alt="VISA" className="h-3.5 object-contain" />
+            <div className="px-3 py-1.5 rounded bg-[#F5F1EC] border border-[#C6B8AB] h-8 flex items-center justify-center">
+              <img src="https://img.icons8.com/color/1200/visa.png" alt="VISA" className="h-6 object-contain scale-125" />
             </div>
-            <div className="px-2.5 py-1 rounded bg-[#F5F1EC] border border-[#C6B8AB] h-7 flex items-center justify-center">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-4 object-contain" />
+            <div className="px-3 py-1.5 rounded bg-[#F5F1EC] border border-[#C6B8AB] h-8 flex items-center justify-center">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-5 object-contain" />
             </div>
-            <div className="px-2.5 py-1 rounded bg-[#F5F1EC] border border-[#C6B8AB] h-7 flex items-center justify-center">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/c/cb/Rupay-Logo.png" alt="RuPay" className="h-3.5 object-contain" />
+            <div className="px-3 py-1.5 rounded bg-[#F5F1EC] border border-[#C6B8AB] h-8 flex items-center justify-center">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/c/cb/Rupay-Logo.png" alt="RuPay" className="h-6 object-contain scale-110" />
             </div>
-            <div className="px-2.5 py-1 rounded bg-[#F5F1EC] border border-[#C6B8AB] h-7 flex items-center justify-center">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" alt="UPI" className="h-3.5 object-contain" />
+            <div className="px-3 py-1.5 rounded bg-[#F5F1EC] border border-[#C6B8AB] h-8 flex items-center justify-center">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" alt="UPI" className="h-5 object-contain" />
             </div>
-            <div className="px-2.5 py-1 rounded bg-[#F5F1EC] border border-[#C6B8AB] h-7 flex items-center justify-center">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo_%28standalone%29.svg" alt="Paytm" className="h-3.5 object-contain" />
+            <div className="px-3 py-1.5 rounded bg-[#F5F1EC] border border-[#C6B8AB] h-8 flex items-center justify-center">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo_%28standalone%29.svg" alt="Paytm" className="h-4 object-contain scale-110" />
             </div>
           </div>
 
