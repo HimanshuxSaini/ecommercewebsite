@@ -4,30 +4,26 @@ import { ProductCard } from './ProductCard';
 import { useApp } from '../../context/AppContext';
 
 export const NewArrivalsSection: React.FC = () => {
-  const { products, setSelectedCategory } = useApp();
+  const { products, navigateToShop } = useApp();
 
   const newProducts = products.filter((p) => p.isNewArrival);
 
   return (
     <section id="new-arrivals" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Section Header */}
-      <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#E8E2DC]">
+      <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#D7E0D6]">
         <div className="flex items-center gap-2">
           <span className="bg-[#2E7D32] text-white text-[11px] font-bold px-2 py-0.5 rounded tracking-wide uppercase">
             New
           </span>
-          <h2 className="text-lg sm:text-xl font-extrabold text-[#1F1F1F] tracking-tight">
+          <h2 className="text-lg sm:text-xl font-extrabold text-[#2E342D] tracking-tight">
             New Arrivals
           </h2>
         </div>
 
         <button
-          onClick={() => {
-            setSelectedCategory(null);
-            const el = document.getElementById('catalog-section');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }}
-          className="text-xs sm:text-sm font-semibold text-[#8C6F52] hover:text-[#6B5B4A] flex items-center gap-1 transition-colors cursor-pointer"
+          onClick={navigateToShop}
+          className="text-xs sm:text-sm font-semibold text-[#173F30] hover:text-[#2E5E46] flex items-center gap-1 transition-colors cursor-pointer"
         >
           <span>View All</span>
           <ArrowRight className="w-4 h-4" />

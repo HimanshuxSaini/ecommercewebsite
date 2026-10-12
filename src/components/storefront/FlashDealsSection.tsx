@@ -4,7 +4,7 @@ import { ProductCard } from './ProductCard';
 import { useApp } from '../../context/AppContext';
 
 export const FlashDealsSection: React.FC = () => {
-  const { products, setSelectedCategory, flashDealConfig } = useApp();
+  const { products, navigateToShop, flashDealConfig } = useApp();
 
   // Filter flash deal items
   const flashProducts = products.filter((p) => p.isFlashDeal);
@@ -53,37 +53,33 @@ export const FlashDealsSection: React.FC = () => {
   return (
     <section id="flash-deals" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3 border-b border-[#E8E2DC]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-3 border-b border-[#D7E0D6]">
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-1.5 text-[#1F1F1F] font-extrabold text-lg sm:text-xl tracking-tight">
+          <div className="flex items-center gap-1.5 text-[#2E342D] font-extrabold text-lg sm:text-xl tracking-tight">
             <Zap className="w-5 h-5 fill-[#E63946] text-[#E63946] animate-pulse" />
             <span>{flashDealConfig.dealTitle || 'Flash Deals'}</span>
           </div>
 
           {/* Countdown Display */}
-          <div className="flex items-center gap-1 text-xs font-mono font-bold bg-[#F5F1EC] text-[#1F1F1F] px-2.5 py-1 rounded-md border border-[#C6B8AB] shadow-2xs">
-            <Clock className="w-3.5 h-3.5 text-[#8C6F52] mr-1 hidden xs:inline" />
-            <span className="bg-[#1F1F1F] text-white px-1.5 py-0.5 rounded">
+          <div className="flex items-center gap-1 text-xs font-mono font-bold bg-[#E9EBDD] text-[#2E342D] px-2.5 py-1 rounded-md border border-[#B9A48B] shadow-2xs">
+            <Clock className="w-3.5 h-3.5 text-[#173F30] mr-1 hidden xs:inline" />
+            <span className="bg-[#2E342D] text-white px-1.5 py-0.5 rounded">
               {format2(timeLeft.hours)}
             </span>
             <span>:</span>
-            <span className="bg-[#1F1F1F] text-white px-1.5 py-0.5 rounded">
+            <span className="bg-[#2E342D] text-white px-1.5 py-0.5 rounded">
               {format2(timeLeft.minutes)}
             </span>
             <span>:</span>
-            <span className="bg-[#1F1F1F] text-white px-1.5 py-0.5 rounded">
+            <span className="bg-[#2E342D] text-white px-1.5 py-0.5 rounded">
               {format2(timeLeft.seconds)}
             </span>
           </div>
         </div>
 
         <button
-          onClick={() => {
-            setSelectedCategory(null);
-            const el = document.getElementById('catalog-section');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }}
-          className="text-xs sm:text-sm font-semibold text-[#8C6F52] hover:text-[#6B5B4A] flex items-center gap-1 transition-colors self-start sm:self-auto cursor-pointer"
+          onClick={navigateToShop}
+          className="text-xs sm:text-sm font-semibold text-[#173F30] hover:text-[#2E5E46] flex items-center gap-1 transition-colors self-start sm:self-auto cursor-pointer"
         >
           <span>View All</span>
           <ArrowRight className="w-4 h-4" />

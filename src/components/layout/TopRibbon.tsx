@@ -5,22 +5,22 @@ import { useApp } from '../../context/AppContext';
 const RibbonContent = ({ handleTrackOrder }: { handleTrackOrder: () => void }) => (
   <>
     {/* Left Side: Guarantees */}
-    <div className="flex items-center gap-x-5 text-[#3A3A3A] font-medium shrink-0">
+    <div className="flex items-center gap-x-5 text-[#6B7068] font-medium shrink-0">
       <div className="flex items-center gap-1.5">
-        <Truck className="w-3.5 h-3.5 text-[#8C6F52] shrink-0" />
-        <span>Free Shipping on Orders Above <strong className="text-[#1F1F1F]">₹499</strong></span>
+        <Truck className="w-3.5 h-3.5 text-[#173F30] shrink-0" />
+        <span>Free Shipping on Orders Above <strong className="text-[#2E342D]">₹499</strong></span>
       </div>
-      <span className="text-[#C6B8AB] hidden sm:inline">|</span>
+      <span className="text-[#B9A48B] hidden sm:inline">|</span>
       <div className="flex items-center gap-1.5">
-        <RotateCcw className="w-3.5 h-3.5 text-[#8C6F52] shrink-0" />
+        <RotateCcw className="w-3.5 h-3.5 text-[#173F30] shrink-0" />
         <span>Easy Returns</span>
       </div>
-      <span className="text-[#C6B8AB] hidden sm:inline">|</span>
+      <span className="text-[#B9A48B] hidden sm:inline">|</span>
       <div className="flex items-center gap-1.5">
-        <Banknote className="w-3.5 h-3.5 text-[#8C6F52] shrink-0" />
+        <Banknote className="w-3.5 h-3.5 text-[#173F30] shrink-0" />
         <span>Cash on Delivery</span>
       </div>
-      <span className="text-[#C6B8AB] hidden sm:inline">|</span>
+      <span className="text-[#B9A48B] hidden sm:inline">|</span>
       <div className="flex items-center gap-1.5">
         <ShieldCheck className="w-3.5 h-3.5 text-[#2E7D32] shrink-0" />
         <span>100% Secure Payments</span>
@@ -28,22 +28,22 @@ const RibbonContent = ({ handleTrackOrder }: { handleTrackOrder: () => void }) =
     </div>
 
     {/* Right Side: Links */}
-    <div className="flex items-center gap-4 text-[#3A3A3A] font-medium shrink-0">
+    <div className="flex items-center gap-4 text-[#6B7068] font-medium shrink-0">
       <button
         onClick={handleTrackOrder}
-        className="flex items-center gap-1 hover:text-[#8C6F52] transition-colors cursor-pointer"
+        className="flex items-center gap-1 hover:text-[#173F30] transition-colors cursor-pointer"
       >
-        <Package className="w-3.5 h-3.5 text-[#8C6F52]" />
+        <Package className="w-3.5 h-3.5 text-[#173F30]" />
         <span>Track Order</span>
       </button>
-      <span className="text-[#C6B8AB]">|</span>
+      <span className="text-[#B9A48B]">|</span>
       <button
         onClick={() => {
           window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }}
-        className="flex items-center gap-1 hover:text-[#8C6F52] transition-colors cursor-pointer"
+        className="flex items-center gap-1 hover:text-[#173F30] transition-colors cursor-pointer"
       >
-        <HelpCircle className="w-3.5 h-3.5 text-[#8C6F52]" />
+        <HelpCircle className="w-3.5 h-3.5 text-[#173F30]" />
         <span>Help & Support</span>
       </button>
     </div>
@@ -62,7 +62,7 @@ export const TopRibbon: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#F5F1EC] text-[#3A3A3A] text-xs border-b border-[#E8E2DC] overflow-hidden flex items-center h-10">
+    <div className="bg-[#E9EBDD] text-[#6B7068] text-xs border-b border-[#D7E0D6] overflow-hidden flex items-center h-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full overflow-hidden">
         {/* Container with Marquee on mobile and normal flex on desktop */}
         <div className="flex items-center w-max md:w-full whitespace-nowrap mobile-marquee hover:animate-paused md:animate-none md:whitespace-normal">

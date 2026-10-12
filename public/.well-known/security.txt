@@ -1,0 +1,7 @@
+# Velneer Security Policy (RFC 9116)
+Contact: mailto:security@velneer.com
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: en, hi
+Canonical: https://velneer.com/.well-known/security.txt
+Policy: https://velneer.com/security-policy
+Acknowledgments: https://velneer.com/security-hall-of-fame

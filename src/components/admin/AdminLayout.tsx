@@ -59,7 +59,7 @@ export const AdminLayout: React.FC = () => {
 
           <div className="pt-2 space-y-2">
             <button
-              onClick={() => login('admin@shopverse.in', 'admin')}
+              onClick={() => login('admin@velneer.in', 'admin')}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded-xl transition-colors cursor-pointer shadow-sm"
             >
               👑 Elevate to Super Admin (Demo Switch)
@@ -92,20 +92,20 @@ export const AdminLayout: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8F5EF] flex flex-col font-sans">
       {/* Top Admin Bar */}
-      <header className="bg-[#1F1F1F] text-white border-b border-[#3A3A3A] sticky top-0 z-40">
+      <header className="bg-white text-[#2E342D] border-b border-[#D7E0D6] sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center text-lg font-black tracking-tight cursor-pointer" onClick={() => setCurrentView('store')}>
-              <span>Shop</span>
-              <span className="text-[#8C6F52]">Verse</span>
-              <span className="ml-2 text-[10px] font-bold uppercase tracking-wider bg-[#8C6F52] text-white px-2 py-0.5 rounded">
+              <span className="text-[#2E342D]">Vel</span>
+              <span className="text-[#173F30]">neer</span>
+              <span className="ml-2 text-[10px] font-bold uppercase tracking-wider bg-[#173F30] text-white px-2.5 py-0.5 rounded shadow-2xs">
                 Control Hub
               </span>
             </div>
-            <span className="text-[#3A3A3A] hidden sm:inline">/</span>
-            <span className="text-xs text-[#A8927D] hidden sm:inline capitalize">
+            <span className="text-[#B9A48B] hidden sm:inline">/</span>
+            <span className="text-xs font-semibold text-[#173F30] bg-[#E9EBDD] px-2.5 py-0.5 rounded hidden sm:inline capitalize border border-[#B9A48B]/30">
               {adminTab}
             </span>
           </div>
@@ -113,23 +113,23 @@ export const AdminLayout: React.FC = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setCurrentView('store')}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#3A3A3A] hover:bg-[#8C6F52] text-xs font-semibold text-white transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#E9EBDD] hover:bg-[#173F30] text-[#173F30] hover:text-white border border-[#B9A48B]/40 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
             >
-              <Store className="w-3.5 h-3.5 text-[#D4A373]" />
+              <Store className="w-3.5 h-3.5" />
               <span>Back to Storefront</span>
             </button>
 
-            <div className="h-4 w-px bg-[#3A3A3A]" />
+            <div className="h-4 w-px bg-[#D7E0D6]" />
 
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-[#8C6F52] text-white font-bold flex items-center justify-center text-xs">
+              <div className="w-8 h-8 rounded-full bg-[#173F30] text-white font-bold flex items-center justify-center text-xs shadow-2xs">
                 {currentUser.name.charAt(0)}
               </div>
               <div className="hidden md:block text-left">
-                <span className="text-xs font-bold text-white block leading-tight">
+                <span className="text-xs font-bold text-[#2E342D] block leading-tight">
                   {currentUser.name}
                 </span>
-                <span className="text-[10px] text-[#D4A373] font-semibold capitalize block">
+                <span className="text-[10px] text-[#6B7068] font-semibold capitalize block">
                   {currentUser.role === 'admin' ? 'Super Admin' : 'Store Manager'}
                 </span>
               </div>
@@ -137,7 +137,7 @@ export const AdminLayout: React.FC = () => {
 
             <button
               onClick={logout}
-              className="p-1.5 text-[#A8927D] hover:text-[#E63946] cursor-pointer"
+              className="p-1.5 text-[#6B7068] hover:text-[#E63946] hover:bg-[#E9EBDD] rounded-lg transition-colors cursor-pointer"
               title="Logout"
             >
               <LogOut className="w-4 h-4" />
@@ -150,8 +150,8 @@ export const AdminLayout: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 flex flex-col md:flex-row gap-6">
         {/* Sidebar Navigation */}
         <aside className="w-full md:w-64 shrink-0 space-y-1">
-          <div className="bg-white rounded-2xl border border-[#E8E2DC] shadow-xs p-3 space-y-1">
-            <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A8927D]">
+          <div className="bg-white rounded-2xl border border-[#D7E0D6] shadow-xs p-3 space-y-1">
+            <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#D8C8B3]">
               Admin Navigation
             </p>
             {menuItems.map((item) => {
@@ -166,18 +166,18 @@ export const AdminLayout: React.FC = () => {
                   onClick={() => setAdminTab(item.id as any)}
                   className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
                     isDisabled
-                      ? 'opacity-40 cursor-not-allowed text-[#A8927D]'
+                      ? 'opacity-40 cursor-not-allowed text-[#D8C8B3]'
                       : isActive
-                      ? 'bg-[#8C6F52] text-white shadow-xs'
-                      : 'text-[#3A3A3A] hover:bg-[#F5F1EC] hover:text-[#1F1F1F]'
+                      ? 'bg-[#173F30] text-white shadow-xs'
+                      : 'text-[#6B7068] hover:bg-[#E9EBDD] hover:text-[#2E342D]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#8C6F52]'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#173F30]'}`} />
                     <span>{item.label}</span>
                   </div>
                   {item.superOnly && !isSuperAdmin && (
-                    <span className="text-[9px] bg-[#E8E2DC] text-[#3A3A3A] px-1 py-0.5 rounded">
+                    <span className="text-[9px] bg-[#D7E0D6] text-[#6B7068] px-1 py-0.5 rounded">
                       Admin Only
                     </span>
                   )}
@@ -187,12 +187,12 @@ export const AdminLayout: React.FC = () => {
           </div>
 
           {/* Quick Info Box */}
-          <div className="bg-[#F5F1EC] border border-[#C6B8AB] rounded-2xl p-4 text-xs text-[#1F1F1F] space-y-2">
-            <div className="flex items-center gap-1.5 font-bold text-[#8C6F52]">
-              <Shield className="w-4 h-4 text-[#8C6F52]" />
+          <div className="bg-[#E9EBDD] border border-[#B9A48B] rounded-2xl p-4 text-xs text-[#2E342D] space-y-2">
+            <div className="flex items-center gap-1.5 font-bold text-[#173F30]">
+              <Shield className="w-4 h-4 text-[#173F30]" />
               <span>RBAC Policy Active</span>
             </div>
-            <p className="text-[11px] text-[#3A3A3A] leading-relaxed">
+            <p className="text-[11px] text-[#6B7068] leading-relaxed">
               Logged in with role <strong>{currentUser.role}</strong>. Any changes in inventory, discounts, or catalog instantly update the public customer storefront.
             </p>
           </div>

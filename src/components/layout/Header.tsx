@@ -19,6 +19,8 @@ export const Header: React.FC = () => {
     setIsAuthOpen,
     setIsProfileOpen,
     setIsCartOpen,
+    isWishlistOpen,
+    setIsWishlistOpen,
     cartCount,
     wishlist,
     currentView,
@@ -30,6 +32,10 @@ export const Header: React.FC = () => {
     categories,
     hasPermission,
     login,
+    navigateToHome,
+    navigateToShop,
+    navigateToCategory,
+    currentPage,
   } = useApp();
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -40,31 +46,26 @@ export const Header: React.FC = () => {
     // Sanitize input to prevent SQLi / XSS scripts in search queries
     const sanitized = localSearch.replace(/[<>'";]/g, '').trim();
     setSearchQuery(sanitized);
-    const element = document.getElementById('catalog-section');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    navigateToShop();
   };
 
   return (
-    <header className="bg-[#FAF9F6] border-b border-[#E8E2DC] sticky top-0 z-30 shadow-xs">
+    <header className="bg-[#F8F5EF] border-b border-[#D7E0D6] sticky top-0 z-30 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap md:flex-nowrap items-center justify-between gap-3 sm:gap-4">
         {/* Logo */}
         <div
           onClick={() => {
-            setCurrentView('store');
-            setSelectedCategory(null);
+            navigateToHome();
             setSearchQuery('');
             setLocalSearch('');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           className="cursor-pointer shrink-0 group flex flex-col"
         >
           <div className="flex items-center text-2xl sm:text-3xl font-extrabold tracking-tight">
-            <span className="text-[#1F1F1F] group-hover:text-[#8C6F52] transition-colors">Shop</span>
-            <span className="text-[#8C6F52]">Verse</span>
+            <span className="text-[#2E342D] group-hover:text-[#173F30] transition-colors">Vel</span>
+            <span className="text-[#173F30]">neer</span>
           </div>
-          <span className="text-[10px] text-[#8C6F52]/80 font-medium tracking-wide -mt-1 hidden sm:block">
+          <span className="text-[10px] text-[#173F30]/80 font-medium tracking-wide -mt-1 hidden sm:block">
             Everything You Need, Everyday
           </span>
         </div>
@@ -74,12 +75,18 @@ export const Header: React.FC = () => {
           onSubmit={handleSearchSubmit}
           className="order-last md:order-none w-full md:w-auto md:flex-1 max-w-2xl mx-0 md:mx-6 mt-1 md:mt-0 flex items-center"
         >
-          <div className="relative w-full flex items-center rounded-lg border border-[#C6B8AB] focus-within:border-[#8C6F52] focus-within:ring-2 focus-within:ring-[#E8E2DC] transition-all bg-white hover:border-[#8C6F52]">
+          <div className="relative w-full flex items-center rounded-lg border border-[#B9A48B] focus-within:border-[#173F30] focus-within:ring-2 focus-within:ring-[#D7E0D6] transition-all bg-white hover:border-[#173F30]">
             {/* Category Filter Select */}
             <select
-              value={selectedCategory || ''}
-              onChange={(e) => setSelectedCategory(e.target.value || null)}
-              className="text-xs text-[#3A3A3A] bg-transparent pl-3 pr-2 py-2.5 border-r border-[#E8E2DC] focus:outline-none cursor-pointer hidden md:block max-w-[130px] truncate"
+              value={currentPage === 'category' ? selectedCategory || '' : ''}
+              onChange={(e) => {
+                if (e.target.value) {
+                  navigateToCategory(e.target.value);
+                } else {
+                  navigateToShop();
+                }
+              }}
+              className="text-xs text-[#6B7068] bg-transparent pl-3 pr-2 py-2.5 border-r border-[#D7E0D6] focus:outline-none cursor-pointer hidden md:block max-w-[130px] truncate"
             >
               <option value="">All Categories</option>
               {categories.map((c) => (
@@ -94,7 +101,7 @@ export const Header: React.FC = () => {
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               placeholder="Search products, brands and more..."
-              className="w-full text-sm text-[#1F1F1F] placeholder-[#A9A9A9] px-3.5 py-2.5 bg-transparent focus:outline-none"
+              className="w-full text-sm text-[#2E342D] placeholder-[#6B7068] px-3.5 py-2.5 bg-transparent focus:outline-none"
             />
 
             {localSearch && (
@@ -104,7 +111,7 @@ export const Header: React.FC = () => {
                   setLocalSearch('');
                   setSearchQuery('');
                 }}
-                className="text-xs text-[#A9A9A9] hover:text-[#1F1F1F] px-2 cursor-pointer"
+                className="text-xs text-[#6B7068] hover:text-[#2E342D] px-2 cursor-pointer"
               >
                 Clear
               </button>
@@ -112,7 +119,7 @@ export const Header: React.FC = () => {
 
             <button
               type="submit"
-              className="bg-[#1F1F1F] hover:bg-[#3A3A3A] text-white p-2.5 sm:px-5 rounded-r-md transition-colors flex items-center justify-center shrink-0 cursor-pointer shadow-sm"
+              className="bg-[#173F30] hover:bg-[#2E5E46] text-white p-2.5 sm:px-5 rounded-r-md transition-colors flex items-center justify-center shrink-0 cursor-pointer shadow-sm"
               title="Search"
             >
               <Search className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -128,11 +135,11 @@ export const Header: React.FC = () => {
               onClick={() => setCurrentView(currentView === 'admin' ? 'store' : 'admin')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
                 currentView === 'admin'
-                  ? 'bg-[#F5F1EC] text-[#8C6F52] border-[#C6B8AB] shadow-xs'
-                  : 'bg-[#1F1F1F] text-white border-[#1F1F1F] hover:bg-[#3A3A3A]'
+                  ? 'bg-[#E9EBDD] text-[#173F30] border-[#B9A48B] shadow-xs'
+                  : 'bg-[#2E342D] text-white border-[#2E342D] hover:bg-[#6B7068]'
               }`}
             >
-              <Shield className="w-3.5 h-3.5 text-[#D4A373]" />
+              <Shield className="w-3.5 h-3.5 text-[#D8C8B3]" />
               <span className="hidden md:inline">
                 {currentView === 'admin' ? 'Back to Store' : 'Admin Panel'}
               </span>
@@ -141,13 +148,13 @@ export const Header: React.FC = () => {
           ) : (
             <button
               onClick={() => {
-                login('admin@shopverse.in', 'admin');
+                login('admin@velneer.in', 'admin');
                 setCurrentView('admin');
               }}
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium bg-[#F5F1EC] text-[#8C6F52] border border-[#C6B8AB] hover:bg-[#E8E2DC] transition-colors cursor-pointer"
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium bg-[#E9EBDD] text-[#173F30] border border-[#B9A48B] hover:bg-[#D7E0D6] transition-colors cursor-pointer"
               title="Click to test Admin features directly"
             >
-              <Shield className="w-3 h-3 text-[#8C6F52]" />
+              <Shield className="w-3 h-3 text-[#173F30]" />
               <span>Demo Admin</span>
             </button>
           )}
@@ -158,28 +165,28 @@ export const Header: React.FC = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex flex-col items-center justify-center text-[#1F1F1F] hover:text-[#8C6F52] transition-colors py-0.5 px-1 cursor-pointer group"
+                  className="flex flex-col items-center justify-center text-[#2E342D] hover:text-[#173F30] transition-colors py-0.5 px-1 cursor-pointer group"
                   title="My Profile & Account"
                 >
-                  <div className="w-8 h-8 rounded-full bg-[#F5F1EC] text-[#8C6F52] font-bold flex items-center justify-center text-xs overflow-hidden border-2 border-[#C6B8AB] group-hover:border-[#8C6F52] transition-colors shadow-2xs">
+                  <div className="w-8 h-8 rounded-full bg-[#E9EBDD] text-[#173F30] font-bold flex items-center justify-center text-xs overflow-hidden border-2 border-[#B9A48B] group-hover:border-[#173F30] transition-colors shadow-2xs">
                     {currentUser.avatar ? (
                       <img src={currentUser.avatar} alt={currentUser.name} className="w-full h-full object-cover" />
                     ) : (
-                      <UserIcon className="w-4 h-4 text-[#8C6F52]" />
+                      <UserIcon className="w-4 h-4 text-[#173F30]" />
                     )}
                   </div>
-                  <span className="text-[11px] font-semibold text-[#1F1F1F] group-hover:text-[#8C6F52] transition-colors mt-0.5 leading-tight">
+                  <span className="text-[11px] font-semibold text-[#2E342D] group-hover:text-[#173F30] transition-colors mt-0.5 leading-tight">
                     Profile
                   </span>
                 </button>
 
                 {/* Dropdown Menu */}
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-[#C6B8AB] py-2 z-50 animate-in fade-in zoom-in duration-100">
-                    <div className="px-4 py-2 border-b border-[#E8E2DC]">
-                      <p className="text-xs font-bold text-[#1F1F1F]">{currentUser.name}</p>
-                      <p className="text-[11px] text-[#3A3A3A] truncate">{currentUser.email}</p>
-                      <div className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-[#F5F1EC] text-[#8C6F52] border border-[#C6B8AB]">
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-[#B9A48B] py-2 z-50 animate-in fade-in zoom-in duration-100">
+                    <div className="px-4 py-2 border-b border-[#D7E0D6]">
+                      <p className="text-xs font-bold text-[#2E342D]">{currentUser.name}</p>
+                      <p className="text-[11px] text-[#6B7068] truncate">{currentUser.email}</p>
+                      <div className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-[#E9EBDD] text-[#173F30] border border-[#B9A48B]">
                         <Shield className="w-3 h-3" />
                         <span className="capitalize">{currentUser.role}</span>
                       </div>
@@ -190,9 +197,9 @@ export const Header: React.FC = () => {
                         setIsUserMenuOpen(false);
                         setIsProfileOpen(true);
                       }}
-                      className="w-full px-4 py-2 text-left text-xs font-medium text-[#1F1F1F] hover:bg-[#F5F1EC] flex items-center gap-2 cursor-pointer"
+                      className="w-full px-4 py-2 text-left text-xs font-medium text-[#2E342D] hover:bg-[#E9EBDD] flex items-center gap-2 cursor-pointer"
                     >
-                      <UserIcon className="w-3.5 h-3.5 text-[#8C6F52]" />
+                      <UserIcon className="w-3.5 h-3.5 text-[#173F30]" />
                       <span>My Profile & Orders</span>
                     </button>
 
@@ -202,51 +209,51 @@ export const Header: React.FC = () => {
                           setIsUserMenuOpen(false);
                           setCurrentView('admin');
                         }}
-                        className="w-full px-4 py-2 text-left text-xs font-medium text-[#1F1F1F] hover:bg-[#F5F1EC] flex items-center gap-2 cursor-pointer"
+                        className="w-full px-4 py-2 text-left text-xs font-medium text-[#2E342D] hover:bg-[#E9EBDD] flex items-center gap-2 cursor-pointer"
                       >
-                        <LayoutDashboard className="w-3.5 h-3.5 text-[#8C6F52]" />
+                        <LayoutDashboard className="w-3.5 h-3.5 text-[#173F30]" />
                         <span>Admin Dashboard</span>
                       </button>
                     )}
 
                     {/* Role quick switchers */}
-                    <div className="border-t border-[#E8E2DC] my-1 pt-1 px-3">
-                      <p className="text-[10px] font-semibold text-[#A9A9A9] uppercase tracking-wider mb-1">
+                    <div className="border-t border-[#D7E0D6] my-1 pt-1 px-3">
+                      <p className="text-[10px] font-semibold text-[#6B7068] uppercase tracking-wider mb-1">
                         Switch Demo Role
                       </p>
                       <button
                         onClick={() => {
-                          login('admin@shopverse.in', 'admin');
+                          login('admin@velneer.in', 'admin');
                           setIsUserMenuOpen(false);
                         }}
-                        className="w-full text-left py-1 text-[11px] text-[#3A3A3A] hover:text-[#8C6F52] flex items-center justify-between cursor-pointer"
+                        className="w-full text-left py-1 text-[11px] text-[#6B7068] hover:text-[#173F30] flex items-center justify-between cursor-pointer"
                       >
                         <span>Super Admin</span>
-                        {currentUser.role === 'admin' && <CheckCircle2 className="w-3 h-3 text-[#8C6F52]" />}
+                        {currentUser.role === 'admin' && <CheckCircle2 className="w-3 h-3 text-[#173F30]" />}
                       </button>
                       <button
                         onClick={() => {
-                          login('manager@shopverse.in', 'manager');
+                          login('manager@velneer.in', 'manager');
                           setIsUserMenuOpen(false);
                         }}
-                        className="w-full text-left py-1 text-[11px] text-[#3A3A3A] hover:text-[#8C6F52] flex items-center justify-between cursor-pointer"
+                        className="w-full text-left py-1 text-[11px] text-[#6B7068] hover:text-[#173F30] flex items-center justify-between cursor-pointer"
                       >
                         <span>Store Manager</span>
-                        {currentUser.role === 'manager' && <CheckCircle2 className="w-3 h-3 text-[#8C6F52]" />}
+                        {currentUser.role === 'manager' && <CheckCircle2 className="w-3 h-3 text-[#173F30]" />}
                       </button>
                       <button
                         onClick={() => {
                           login('rahul@example.com', 'customer');
                           setIsUserMenuOpen(false);
                         }}
-                        className="w-full text-left py-1 text-[11px] text-[#3A3A3A] hover:text-[#8C6F52] flex items-center justify-between cursor-pointer"
+                        className="w-full text-left py-1 text-[11px] text-[#6B7068] hover:text-[#173F30] flex items-center justify-between cursor-pointer"
                       >
                         <span>Customer</span>
-                        {currentUser.role === 'customer' && <CheckCircle2 className="w-3 h-3 text-[#8C6F52]" />}
+                        {currentUser.role === 'customer' && <CheckCircle2 className="w-3 h-3 text-[#173F30]" />}
                       </button>
                     </div>
 
-                    <div className="border-t border-[#E8E2DC] mt-1 pt-1">
+                    <div className="border-t border-[#D7E0D6] mt-1 pt-1">
                       <button
                         onClick={() => {
                           setIsUserMenuOpen(false);
@@ -264,13 +271,13 @@ export const Header: React.FC = () => {
             ) : (
               <button
                 onClick={() => setIsAuthOpen(true)}
-                className="flex flex-col items-center justify-center text-[#1F1F1F] hover:text-[#8C6F52] transition-colors py-0.5 px-1 cursor-pointer group"
+                className="flex flex-col items-center justify-center text-[#2E342D] hover:text-[#173F30] transition-colors py-0.5 px-1 cursor-pointer group"
                 title="Login / Sign Up"
               >
-                <div className="w-8 h-8 rounded-full bg-[#F5F1EC] text-[#8C6F52] flex items-center justify-center border-2 border-[#C6B8AB] group-hover:border-[#8C6F52] transition-colors shadow-2xs">
-                  <UserIcon className="w-4 h-4 text-[#8C6F52]" />
+                <div className="w-8 h-8 rounded-full bg-[#E9EBDD] text-[#173F30] flex items-center justify-center border-2 border-[#B9A48B] group-hover:border-[#173F30] transition-colors shadow-2xs">
+                  <UserIcon className="w-4 h-4 text-[#173F30]" />
                 </div>
-                <span className="text-[11px] font-semibold text-[#1F1F1F] group-hover:text-[#8C6F52] transition-colors mt-0.5 leading-tight">
+                <span className="text-[11px] font-semibold text-[#2E342D] group-hover:text-[#173F30] transition-colors mt-0.5 leading-tight">
                   Login
                 </span>
               </button>
@@ -279,20 +286,14 @@ export const Header: React.FC = () => {
 
           {/* Wishlist */}
           <button
-            onClick={() => {
-              if (!currentUser) {
-                setIsAuthOpen(true);
-              } else {
-                setIsProfileOpen(true);
-              }
-            }}
-            className="flex items-center gap-1.5 text-[#1F1F1F] hover:text-[#8C6F52] transition-colors relative cursor-pointer"
-            title="Wishlist"
+            onClick={() => setIsWishlistOpen(true)}
+            className="flex items-center gap-1.5 text-[#2E342D] hover:text-[#173F30] transition-colors relative cursor-pointer"
+            title="Wishlist Side Panel"
           >
             <div className="relative">
-              <Heart className="w-5 h-5 text-[#1F1F1F] hover:text-[#E63946] transition-colors" />
+              <Heart className="w-5 h-5 text-[#2E342D] hover:text-[#E63946] transition-colors" />
               {wishlist.length > 0 && (
-                <span className="absolute -top-1.5 -right-2 bg-[#E63946] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-[#FAF9F6]">
+                <span className="absolute -top-1.5 -right-2 bg-[#E63946] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-[#F8F5EF]">
                   {wishlist.length}
                 </span>
               )}
@@ -303,13 +304,13 @@ export const Header: React.FC = () => {
           {/* Cart */}
           <button
             onClick={() => setIsCartOpen(true)}
-            className="flex items-center gap-2 text-[#1F1F1F] hover:text-[#8C6F52] transition-colors relative cursor-pointer"
+            className="flex items-center gap-2 text-[#2E342D] hover:text-[#173F30] transition-colors relative cursor-pointer"
             title="Cart"
           >
             <div className="relative">
-              <ShoppingCart className="w-5 h-5 text-[#1F1F1F]" />
+              <ShoppingCart className="w-5 h-5 text-[#2E342D]" />
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-2 bg-[#8C6F52] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-[#FAF9F6]">
+                <span className="absolute -top-1.5 -right-2 bg-[#173F30] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center ring-2 ring-[#F8F5EF]">
                   {cartCount}
                 </span>
               )}

@@ -20,6 +20,7 @@ import {
   NavItem,
   Order,
   Product,
+  StorePage,
   Toast,
   User,
   UserRole,
@@ -112,6 +113,11 @@ interface AppContextType {
   // UI & Nav State
   currentView: 'store' | 'admin';
   setCurrentView: (view: 'store' | 'admin') => void;
+  currentPage: StorePage;
+  setCurrentPage: (page: StorePage) => void;
+  navigateToHome: () => void;
+  navigateToShop: () => void;
+  navigateToCategory: (categoryId: string) => void;
   adminTab: 'dashboard' | 'products' | 'inventory' | 'categories' | 'coupons' | 'banners' | 'orders' | 'flash-deals' | 'navigation' | 'brands';
   setAdminTab: (tab: 'dashboard' | 'products' | 'inventory' | 'categories' | 'coupons' | 'banners' | 'orders' | 'flash-deals' | 'navigation' | 'brands') => void;
   brands: Brand[];
@@ -135,6 +141,8 @@ interface AppContextType {
   setQuickViewProduct: (product: Product | null) => void;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
+  isWishlistOpen: boolean;
+  setIsWishlistOpen: (open: boolean) => void;
   isCheckoutOpen: boolean;
   setIsCheckoutOpen: (open: boolean) => void;
   isAuthOpen: boolean;
@@ -224,6 +232,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // UI state
   const [currentView, setCurrentView] = useState<'store' | 'admin'>('store');
+  const [currentPage, setCurrentPage] = useState<StorePage>(() => {
+    const saved = localStorage.getItem('sv_currentPage');
+    return saved === 'shop' || saved === 'category' ? saved : 'home';
+  });
   const [adminTab, setAdminTab] = useState<'dashboard' | 'products' | 'inventory' | 'categories' | 'coupons' | 'banners' | 'orders' | 'flash-deals' | 'navigation' | 'brands'>('dashboard');
   const [brands, setBrands] = useState<Brand[]>(() => {
     const saved = localStorage.getItem('sv_brands');
@@ -235,12 +247,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
   const [navItems, setNavItems] = useState<NavItem[]>(() => {
     const saved = localStorage.getItem('sv_navItems');
-    return saved ? JSON.parse(saved) : INITIAL_NAV_ITEMS;
+    if (saved) {
+      try {
+        const parsed: NavItem[] = JSON.parse(saved);
+        if (!parsed.some((i) => i.linkType === 'shop' || i.targetValue === 'shop')) {
+          const homeIndex = parsed.findIndex((i) => i.linkType === 'home');
+          const shopItem: NavItem = {
+            id: 'nav-shop',
+            label: 'Shop',
+            linkType: 'shop',
+            targetValue: 'shop',
+            order: homeIndex >= 0 ? parsed[homeIndex].order + 1 : 2,
+            isActive: true,
+          };
+          const updated = [...parsed];
+          updated.splice(homeIndex >= 0 ? homeIndex + 1 : 1, 0, shopItem);
+          return updated.map((item, idx) => ({ ...item, order: idx + 1 }));
+        }
+        return parsed;
+      } catch {
+        return INITIAL_NAV_ITEMS;
+      }
+    }
+    return INITIAL_NAV_ITEMS;
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -317,6 +352,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('sv_isBrandsSectionVisible', JSON.stringify(isBrandsSectionVisible));
   }, [isBrandsSectionVisible]);
 
+  useEffect(() => {
+    localStorage.setItem('sv_currentPage', currentPage);
+  }, [currentPage]);
+
+  // Page Navigation Helpers
+  const navigateToHome = () => {
+    setCurrentView('store');
+    setSelectedCategory(null);
+    setCurrentPage('home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToShop = () => {
+    setCurrentView('store');
+    setSelectedCategory(null);
+    setCurrentPage('shop');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToCategory = (categoryId: string) => {
+    setCurrentView('store');
+    setSelectedCategory(categoryId);
+    setCurrentPage('category');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSetSelectedCategory = (categoryId: string | null) => {
+    setSelectedCategory(categoryId);
+    if (categoryId) {
+      setCurrentPage('category');
+    }
+  };
+
   // Toast Helper
   const showToast = (message: string, type: Toast['type'] = 'success') => {
     const id = Date.now().toString() + Math.random().toString(36).substring(2, 5);
@@ -381,7 +449,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     loginRateLimiter.resetAttempts(email);
     setUsers((prev) => [...prev, newUser]);
     setCurrentUser(newUser);
-    showToast(`Welcome to ShopVerse, ${newUser.name}!`);
+    showToast(`Welcome to Velneer, ${newUser.name}!`);
     return true;
   };
 
@@ -972,35 +1040,65 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
-  // Place Order
+  // Place Order (with anti-tampering server/canonical price verification)
   const placeOrder = (
     shippingAddress: Address,
     paymentMethod: Order['paymentMethod']
   ): Order => {
+    if (cart.length === 0) {
+      throw new Error('Your shopping bag is empty.');
+    }
+
+    // Verify each item's price against the canonical catalog to prevent client-side cart tampering
+    let canonicalSubtotal = 0;
+    const verifiedItems = cart.map((item) => {
+      const canonicalProd = products.find((p) => p.id === item.product.id) || item.product;
+      const canonicalPrice = Number(canonicalProd.price) || 0;
+      canonicalSubtotal += canonicalPrice * item.quantity;
+      return {
+        productId: canonicalProd.id,
+        productTitle: canonicalProd.title,
+        price: canonicalPrice,
+        quantity: Math.max(1, Math.floor(item.quantity)),
+        imageUrl: canonicalProd.imageUrl,
+      };
+    });
+
+    // Recompute discount securely
+    let verifiedDiscount = 0;
+    if (appliedCoupon) {
+      if (appliedCoupon.discountType === 'percentage') {
+        const rawDiscount = (canonicalSubtotal * appliedCoupon.discountValue) / 100;
+        verifiedDiscount = appliedCoupon.maxDiscount
+          ? Math.min(rawDiscount, appliedCoupon.maxDiscount)
+          : rawDiscount;
+      } else {
+        verifiedDiscount = appliedCoupon.discountValue;
+      }
+      verifiedDiscount = Math.round(verifiedDiscount);
+    }
+
+    const verifiedShippingFee = canonicalSubtotal > 0 && canonicalSubtotal < 499 ? 40 : 0;
+    const verifiedTotal = Math.max(0, canonicalSubtotal - verifiedDiscount + verifiedShippingFee);
+
     const newOrder: Order = {
       id: `ORD-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
       userId: currentUser?.id || 'guest',
       customerName: currentUser?.name || shippingAddress.fullName,
-      customerEmail: currentUser?.email || 'customer@example.com',
+      customerEmail: currentUser?.email || 'customer@velneer.com',
       customerPhone: currentUser?.phone || shippingAddress.phone,
       shippingAddress,
-      items: cart.map((item) => ({
-        productId: item.product.id,
-        productTitle: item.product.title,
-        price: item.product.price,
-        quantity: item.quantity,
-        imageUrl: item.product.imageUrl,
-      })),
-      subtotal: cartSubtotal,
-      discount: cartDiscount,
+      items: verifiedItems,
+      subtotal: canonicalSubtotal,
+      discount: verifiedDiscount,
       couponCode: appliedCoupon?.code,
-      shippingFee,
-      total: cartTotal,
+      shippingFee: verifiedShippingFee,
+      total: verifiedTotal,
       paymentMethod,
       status: 'Processing',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      trackingNumber: `SV-TRK-${Math.floor(100000 + Math.random() * 900000)}`,
+      trackingNumber: `VEL-TRK-${Math.floor(100000 + Math.random() * 900000)}`,
     };
 
     // Deduct stock in real-time
@@ -1025,7 +1123,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setOrders((prev) => [newOrder, ...prev]);
     clearCart();
-    showToast('🎉 Order placed successfully! Thank you for shopping with ShopVerse.');
+    showToast('🎉 Order placed successfully! Thank you for shopping with Velneer.');
     return newOrder;
   };
 
@@ -1103,6 +1201,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateOrderStatus,
         currentView,
         setCurrentView,
+        currentPage,
+        setCurrentPage,
+        navigateToHome,
+        navigateToShop,
+        navigateToCategory,
         adminTab,
         setAdminTab,
         brands,
@@ -1121,11 +1224,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         searchQuery,
         setSearchQuery,
         selectedCategory,
-        setSelectedCategory,
+        setSelectedCategory: handleSetSelectedCategory,
         quickViewProduct,
         setQuickViewProduct,
         isCartOpen,
         setIsCartOpen,
+        isWishlistOpen,
+        setIsWishlistOpen,
         isCheckoutOpen,
         setIsCheckoutOpen,
         isAuthOpen,

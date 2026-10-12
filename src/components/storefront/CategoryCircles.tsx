@@ -2,16 +2,10 @@ import React from 'react';
 import { useApp } from '../../context/AppContext';
 
 export const CategoryCircles: React.FC = () => {
-  const { categories, selectedCategory, setSelectedCategory } = useApp();
+  const { categories, selectedCategory, navigateToCategory } = useApp();
 
   const handleCategoryClick = (catId: string) => {
-    if (selectedCategory === catId) {
-      setSelectedCategory(null);
-    } else {
-      setSelectedCategory(catId);
-      const el = document.getElementById('catalog-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }
+    navigateToCategory(catId);
   };
 
   return (
@@ -27,10 +21,10 @@ export const CategoryCircles: React.FC = () => {
             >
               {/* Circular Avatar Container */}
               <div
-                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden p-0.5 border-2 transition-all bg-[#F5F1EC] shadow-xs ${
+                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden p-0.5 border-2 transition-all bg-[#E9EBDD] shadow-xs ${
                   isSelected
-                    ? 'border-[#8C6F52] ring-2 ring-[#D9CFC6] ring-offset-2'
-                    : 'border-[#E8E2DC] group-hover:border-[#8C6F52] group-hover:shadow-md'
+                    ? 'border-[#173F30] ring-2 ring-[#D7E0D6] ring-offset-2'
+                    : 'border-[#D7E0D6] group-hover:border-[#173F30] group-hover:shadow-md'
                 }`}
               >
                 <img
@@ -45,8 +39,8 @@ export const CategoryCircles: React.FC = () => {
               <span
                 className={`mt-2 text-xs leading-tight line-clamp-2 font-medium transition-colors ${
                   isSelected
-                    ? 'text-[#8C6F52] font-bold'
-                    : 'text-[#1F1F1F] group-hover:text-[#8C6F52]'
+                    ? 'text-[#173F30] font-bold'
+                    : 'text-[#2E342D] group-hover:text-[#173F30]'
                 }`}
               >
                 {cat.name}

@@ -3,18 +3,18 @@ import { ArrowRight } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const TriplePromoCards: React.FC = () => {
-  const { setSelectedCategory } = useApp();
+  const { navigateToCategory } = useApp();
 
   const promoCards = [
     {
       tag: 'Deal of the Day',
-      tagColor: 'bg-[#D4A373]/20 text-[#8C6F52] border-[#D4A373]/40',
+      tagColor: 'bg-[#D8C8B3]/20 text-[#173F30] border-[#D8C8B3]/40',
       title: 'Top Deals on Electronics',
       subtitle: 'Up to 60% OFF',
       description: 'On selected audio, laptops & wearables',
       buttonText: 'Shop Deals',
-      buttonClass: 'bg-[#1F1F1F] hover:bg-[#3A3A3A] text-white',
-      cardClass: 'bg-[#F5F1EC] border-[#C6B8AB] text-[#1F1F1F]',
+      buttonClass: 'bg-[#2E342D] hover:bg-[#6B7068] text-white',
+      cardClass: 'bg-[#E9EBDD] border-[#B9A48B] text-[#2E342D]',
       imageUrl: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500&auto=format&fit=crop&q=80',
       categoryId: 'cat-electronics',
       targetId: 'flash-deals',
@@ -26,31 +26,29 @@ export const TriplePromoCards: React.FC = () => {
       subtitle: 'Fresh Finds • Min 40% OFF',
       description: 'Check out the latest apparel just for you',
       buttonText: 'Explore Now',
-      buttonClass: 'bg-[#8C6F52] hover:bg-[#6B5B4A] text-white',
-      cardClass: 'bg-[#EDE6E1] border-[#C6B8AB] text-[#1F1F1F]',
+      buttonClass: 'bg-[#173F30] hover:bg-[#2E5E46] text-white',
+      cardClass: 'bg-[#E9EBDD] border-[#B9A48B] text-[#2E342D]',
       imageUrl: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&auto=format&fit=crop&q=80',
       categoryId: 'cat-fashion',
       targetId: 'flash-deals',
     },
     {
       tag: 'Member Exclusive',
-      tagColor: 'bg-[#D4A373]/30 text-[#D4A373] border-[#D4A373]/50',
+      tagColor: 'bg-[#D8C8B3]/30 text-[#D8C8B3] border-[#D8C8B3]/50',
       title: 'Home Essentials Sale',
       subtitle: 'Extra 10% OFF',
       description: 'On luxury furniture, cookware & decor',
       buttonText: 'Shop Now',
-      buttonClass: 'bg-[#8C6F52] hover:bg-[#A8927D] text-white',
-      cardClass: 'bg-[#1F1F1F] border-[#3A3A3A] text-white',
+      buttonClass: 'bg-[#173F30] hover:bg-[#D8C8B3] text-white',
+      cardClass: 'bg-[#2E342D] border-[#6B7068] text-white',
       imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500&auto=format&fit=crop&q=80',
       categoryId: 'cat-home',
       targetId: 'best-sellers',
     },
   ];
 
-  const handleClick = (categoryId: string, targetId: string) => {
-    setSelectedCategory(categoryId);
-    const el = document.getElementById(targetId) || document.getElementById('catalog-section');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  const handleClick = (categoryId: string) => {
+    navigateToCategory(categoryId);
   };
 
   return (
@@ -75,7 +73,7 @@ export const TriplePromoCards: React.FC = () => {
                 {card.description}
               </p>
               <button
-                onClick={() => handleClick(card.categoryId, card.targetId)}
+                onClick={() => handleClick(card.categoryId)}
                 className={`inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg transition-all shadow-xs cursor-pointer ${card.buttonClass}`}
               >
                 <span>{card.buttonText}</span>

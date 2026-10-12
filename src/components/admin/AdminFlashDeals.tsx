@@ -115,7 +115,7 @@ export const AdminFlashDeals: React.FC = () => {
     createAndAddFlashDeal({
       title: newTitle.trim(),
       slug,
-      brand: newBrand.trim() || 'ShopVerse Choice',
+      brand: newBrand.trim() || 'Velneer Choice',
       categoryId: newCategoryId,
       price: Number(newFlashPrice),
       originalPrice: Number(newRegularPrice),
@@ -140,11 +140,11 @@ export const AdminFlashDeals: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-[#1F1F1F] tracking-tight flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-black text-[#2E342D] tracking-tight flex items-center gap-2">
             <Zap className="w-6 h-6 text-[#E63946] fill-[#E63946]" />
             <span>Flash Deals & Timer Control</span>
           </h1>
-          <p className="text-xs text-[#3A3A3A] mt-0.5">
+          <p className="text-xs text-[#6B7068] mt-0.5">
             Configure live countdown clock time, add custom discounted deals, and manage deal products in real-time.
           </p>
         </div>
@@ -152,7 +152,7 @@ export const AdminFlashDeals: React.FC = () => {
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <button
             onClick={() => setIsAddExistingOpen(true)}
-            className="bg-[#8C6F52] hover:bg-[#6B5B4A] text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+            className="bg-[#173F30] hover:bg-[#2E5E46] text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
           >
             <Plus className="w-4 h-4" />
             <span>Add From Catalog</span>
@@ -160,31 +160,31 @@ export const AdminFlashDeals: React.FC = () => {
 
           <button
             onClick={() => setIsCreateCustomOpen(true)}
-            className="bg-[#1F1F1F] hover:bg-[#3A3A3A] text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+            className="bg-[#2E342D] hover:bg-[#6B7068] text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
           >
-            <Sparkles className="w-4 h-4 text-[#D4A373]" />
+            <Sparkles className="w-4 h-4 text-[#D8C8B3]" />
             <span>Create New Custom Deal</span>
           </button>
         </div>
       </div>
 
       {/* Timer Management Panel */}
-      <div className="bg-white rounded-2xl border border-[#E8E2DC] shadow-xs p-5 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E8E2DC]">
+      <div className="bg-white rounded-2xl border border-[#D7E0D6] shadow-xs p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#D7E0D6]">
           <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-[#8C6F52]" />
+            <Clock className="w-5 h-5 text-[#173F30]" />
             <div>
-              <h2 className="text-sm font-bold text-[#1F1F1F]">
+              <h2 className="text-sm font-bold text-[#2E342D]">
                 Live Storefront Countdown Timer Settings
               </h2>
-              <p className="text-[11px] text-[#A8927D]">
+              <p className="text-[11px] text-[#D8C8B3]">
                 Controls the live countdown banner displayed on the customer homepage.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-[#1F1F1F]">Status:</span>
+            <span className="text-xs font-semibold text-[#2E342D]">Status:</span>
             <button
               onClick={() => {
                 const next = !isTimerActive;
@@ -194,7 +194,7 @@ export const AdminFlashDeals: React.FC = () => {
               className={`px-3 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer ${
                 isTimerActive
                   ? 'bg-emerald-50 text-[#2E7D32] border border-emerald-200'
-                  : 'bg-[#F5F1EC] text-[#A8927D] border border-[#C6B8AB]'
+                  : 'bg-[#E9EBDD] text-[#D8C8B3] border border-[#B9A48B]'
               }`}
             >
               {isTimerActive ? 'Active on Storefront' : 'Paused / Hidden'}
@@ -297,7 +297,7 @@ export const AdminFlashDeals: React.FC = () => {
 
             <button
               type="submit"
-              className="bg-[#1F1F1F] hover:bg-[#3A3A3A] text-white text-xs font-bold px-5 py-2.5 rounded-lg transition-colors cursor-pointer shadow-xs"
+              className="bg-[#2E342D] hover:bg-[#6B7068] text-white text-xs font-bold px-5 py-2.5 rounded-lg transition-colors cursor-pointer shadow-xs"
             >
               Update Flash Timer
             </button>
@@ -493,7 +493,7 @@ export const AdminFlashDeals: React.FC = () => {
                 <button
                   type="submit"
                   disabled={!selectedProductId}
-                  className="bg-[#8C6F52] hover:bg-[#6B5B4A] disabled:bg-slate-300 text-white font-semibold px-5 py-2 rounded-lg cursor-pointer"
+                  className="bg-[#173F30] hover:bg-[#2E5E46] disabled:bg-slate-300 text-white font-semibold px-5 py-2 rounded-lg cursor-pointer"
                 >
                   Add to Flash Deals
                 </button>
@@ -663,7 +663,7 @@ export const AdminFlashDeals: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#8C6F52] hover:bg-[#6B5B4A] text-white font-semibold px-5 py-2 rounded-lg cursor-pointer"
+                  className="bg-[#173F30] hover:bg-[#2E5E46] text-white font-semibold px-5 py-2 rounded-lg cursor-pointer"
                 >
                   Create & Launch Flash Deal
                 </button>

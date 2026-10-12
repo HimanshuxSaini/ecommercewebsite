@@ -124,22 +124,22 @@ export const AdminNavigation: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[#E8E2DC] shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[#D7E0D6] shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <Compass className="w-5 h-5 text-[#8C6F52]" />
-            <h2 className="text-base sm:text-lg font-extrabold text-[#1F1F1F]">
+            <Compass className="w-5 h-5 text-[#173F30]" />
+            <h2 className="text-base sm:text-lg font-extrabold text-[#2E342D]">
               Header Navigation Menu Manager
             </h2>
           </div>
-          <p className="text-xs text-[#3A3A3A] mt-1">
+          <p className="text-xs text-[#6B7068] mt-1">
             Add, edit, remove, reorder, or toggle live navigation links displayed under the main search bar on the storefront.
           </p>
         </div>
 
         <button
           onClick={openCreateModal}
-          className="bg-[#1F1F1F] hover:bg-[#8C6F52] text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2 transition-colors cursor-pointer shrink-0 shadow-xs"
+          className="bg-[#2E342D] hover:bg-[#173F30] text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2 transition-colors cursor-pointer shrink-0 shadow-xs"
         >
           <Plus className="w-4 h-4" />
           <span>Add Nav Link</span>
@@ -147,22 +147,22 @@ export const AdminNavigation: React.FC = () => {
       </div>
 
       {/* Live Preview Strip */}
-      <div className="bg-[#FAF9F6] border border-[#E8E2DC] rounded-2xl p-4 space-y-2">
+      <div className="bg-[#F8F5EF] border border-[#D7E0D6] rounded-2xl p-4 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-[#A8927D] uppercase tracking-wider">
+          <span className="text-[11px] font-bold text-[#D8C8B3] uppercase tracking-wider">
             Live Storefront Navbar Preview:
           </span>
           <span className="text-[10px] text-[#2E7D32] font-semibold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
             {sortedItems.filter((i) => i.isActive).length} Active Links Visible
           </span>
         </div>
-        <div className="bg-white rounded-xl border border-[#E8E2DC] p-2.5 flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <div className="bg-white rounded-xl border border-[#D7E0D6] p-2.5 flex items-center gap-2 overflow-x-auto no-scrollbar">
           {sortedItems
             .filter((i) => i.isActive)
             .map((item) => (
               <span
                 key={item.id}
-                className="whitespace-nowrap px-3 py-1 bg-[#F5F1EC] text-[#1F1F1F] text-xs font-semibold rounded-lg border border-[#C6B8AB]/60 flex items-center gap-1.5"
+                className="whitespace-nowrap px-3 py-1 bg-[#E9EBDD] text-[#2E342D] text-xs font-semibold rounded-lg border border-[#B9A48B]/60 flex items-center gap-1.5"
               >
                 {item.label}
               </span>
@@ -171,19 +171,19 @@ export const AdminNavigation: React.FC = () => {
       </div>
 
       {/* Navigation Items Table */}
-      <div className="bg-white rounded-2xl border border-[#E8E2DC] shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-[#E8E2DC] flex items-center justify-between">
-          <h3 className="text-sm font-bold text-[#1F1F1F]">
+      <div className="bg-white rounded-2xl border border-[#D7E0D6] shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-[#D7E0D6] flex items-center justify-between">
+          <h3 className="text-sm font-bold text-[#2E342D]">
             Configured Navigation Links ({sortedItems.length})
           </h3>
-          <span className="text-xs text-[#A8927D]">
+          <span className="text-xs text-[#D8C8B3]">
             Use arrows to reorder tabs left-to-right
           </span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF9F6] text-[#A8927D] font-semibold border-b border-[#E8E2DC]">
+            <thead className="bg-[#F8F5EF] text-[#D8C8B3] font-semibold border-b border-[#D7E0D6]">
               <tr>
                 <th className="p-3.5 pl-5 w-16">Order</th>
                 <th className="p-3.5">Menu Label</th>
@@ -193,24 +193,26 @@ export const AdminNavigation: React.FC = () => {
                 <th className="p-3.5 pr-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E8E2DC]">
+            <tbody className="divide-y divide-[#D7E0D6]">
               {sortedItems.map((item, index) => {
                 let targetDisplay = item.targetValue;
                 if (item.linkType === 'category') {
                   const cat = categories.find((c) => c.id === item.targetValue);
-                  targetDisplay = cat ? `Category: ${cat.name}` : item.targetValue;
+                  targetDisplay = cat ? `Category Page: ${cat.name}` : item.targetValue;
+                } else if (item.linkType === 'shop') {
+                  targetDisplay = 'Shop (All Products Catalog)';
                 } else if (item.linkType === 'section') {
                   targetDisplay = `Page Section: #${item.targetValue}`;
                 } else if (item.linkType === 'home') {
-                  targetDisplay = 'Storefront Home (Top)';
+                  targetDisplay = 'Storefront Home';
                 }
 
                 return (
-                  <tr key={item.id} className="hover:bg-[#FAF9F6] transition-colors">
+                  <tr key={item.id} className="hover:bg-[#F8F5EF] transition-colors">
                     {/* Order & Reorder Arrows */}
                     <td className="p-3.5 pl-5">
                       <div className="flex items-center gap-1">
-                        <span className="font-bold text-[#1F1F1F] w-4 text-center">
+                        <span className="font-bold text-[#2E342D] w-4 text-center">
                           {item.order}
                         </span>
                         <div className="flex flex-col gap-0.5">
@@ -218,7 +220,7 @@ export const AdminNavigation: React.FC = () => {
                             type="button"
                             disabled={index === 0}
                             onClick={() => handleMove(index, 'up')}
-                            className="p-1 rounded hover:bg-[#E8E2DC] text-[#1F1F1F] disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer"
+                            className="p-1 rounded hover:bg-[#D7E0D6] text-[#2E342D] disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer"
                             title="Move left/up"
                           >
                             <MoveUp className="w-3 h-3" />
@@ -227,7 +229,7 @@ export const AdminNavigation: React.FC = () => {
                             type="button"
                             disabled={index === sortedItems.length - 1}
                             onClick={() => handleMove(index, 'down')}
-                            className="p-1 rounded hover:bg-[#E8E2DC] text-[#1F1F1F] disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer"
+                            className="p-1 rounded hover:bg-[#D7E0D6] text-[#2E342D] disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer"
                             title="Move right/down"
                           >
                             <MoveDown className="w-3 h-3" />
@@ -238,21 +240,21 @@ export const AdminNavigation: React.FC = () => {
 
                     {/* Label */}
                     <td className="p-3.5">
-                      <span className="font-bold text-sm text-[#1F1F1F]">
+                      <span className="font-bold text-sm text-[#2E342D]">
                         {item.label}
                       </span>
                     </td>
 
                     {/* Target Destination */}
-                    <td className="p-3.5 text-[#3A3A3A]">
-                      <span className="font-mono text-xs bg-[#F5F1EC] border border-[#C6B8AB] px-2 py-0.5 rounded">
+                    <td className="p-3.5 text-[#6B7068]">
+                      <span className="font-mono text-xs bg-[#E9EBDD] border border-[#B9A48B] px-2 py-0.5 rounded">
                         {targetDisplay}
                       </span>
                     </td>
 
                     {/* Link Type Badge */}
                     <td className="p-3.5">
-                      <span className="capitalize px-2 py-0.5 rounded text-[11px] font-semibold bg-[#FAF9F6] border border-[#E8E2DC] text-[#8C6F52]">
+                      <span className="capitalize px-2 py-0.5 rounded text-[11px] font-semibold bg-[#F8F5EF] border border-[#D7E0D6] text-[#173F30]">
                         {item.linkType}
                       </span>
                     </td>
@@ -267,7 +269,7 @@ export const AdminNavigation: React.FC = () => {
                         className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold cursor-pointer transition-colors ${
                           item.isActive
                             ? 'bg-emerald-50 text-[#2E7D32] border border-emerald-200'
-                            : 'bg-slate-100 text-[#A8927D] border border-slate-200'
+                            : 'bg-slate-100 text-[#D8C8B3] border border-slate-200'
                         }`}
                       >
                         {item.isActive ? (
@@ -288,7 +290,7 @@ export const AdminNavigation: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => openEditModal(item)}
-                          className="p-1.5 rounded-lg text-[#3A3A3A] hover:bg-[#F5F1EC] hover:text-[#8C6F52] transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg text-[#6B7068] hover:bg-[#E9EBDD] hover:text-[#173F30] transition-colors cursor-pointer"
                           title="Edit link"
                         >
                           <Edit2 className="w-4 h-4" />
@@ -304,7 +306,7 @@ export const AdminNavigation: React.FC = () => {
                               deleteNavItem(item.id);
                             }
                           }}
-                          className="p-1.5 rounded-lg text-[#A8927D] hover:bg-rose-50 hover:text-[#E63946] transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg text-[#D8C8B3] hover:bg-rose-50 hover:text-[#E63946] transition-colors cursor-pointer"
                           title="Delete link"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -331,10 +333,10 @@ export const AdminNavigation: React.FC = () => {
             </button>
 
             <div className="mb-5">
-              <h3 className="text-base font-bold text-[#1F1F1F]">
+              <h3 className="text-base font-bold text-[#2E342D]">
                 {editingItem ? 'Edit Navigation Link' : 'Add New Navigation Link'}
               </h3>
-              <p className="text-xs text-[#A8927D] mt-0.5">
+              <p className="text-xs text-[#D8C8B3] mt-0.5">
                 Customize label, target category or page section for customer browsing.
               </p>
             </div>
@@ -349,7 +351,7 @@ export const AdminNavigation: React.FC = () => {
             <form onSubmit={handleSave} className="space-y-4 text-xs">
               {/* Menu Label */}
               <div>
-                <label className="font-semibold text-[#1F1F1F] block mb-1">
+                <label className="font-semibold text-[#2E342D] block mb-1">
                   Display Label *
                 </label>
                 <input
@@ -358,13 +360,13 @@ export const AdminNavigation: React.FC = () => {
                   value={label}
                   onChange={(e) => setLabel(e.target.value)}
                   placeholder="e.g. Flash Sales, Watches, Kitchen, Footwear"
-                  className="w-full bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg p-2.5 text-xs text-[#1F1F1F] focus:outline-none focus:ring-1 focus:ring-[#8C6F52] focus:bg-white"
+                  className="w-full bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2.5 text-xs text-[#2E342D] focus:outline-none focus:ring-1 focus:ring-[#173F30] focus:bg-white"
                 />
               </div>
 
               {/* Link Type */}
               <div>
-                <label className="font-semibold text-[#1F1F1F] block mb-1">
+                <label className="font-semibold text-[#2E342D] block mb-1">
                   Link Destination Type *
                 </label>
                 <select
@@ -373,15 +375,17 @@ export const AdminNavigation: React.FC = () => {
                     const nextType = e.target.value as NavItem['linkType'];
                     setLinkType(nextType);
                     if (nextType === 'home') setTargetValue('home');
+                    else if (nextType === 'shop') setTargetValue('shop');
                     else if (nextType === 'section') setTargetValue('flash-deals');
                     else if (nextType === 'category') setTargetValue(categories[0]?.id || 'cat-mobiles');
                     else if (nextType === 'external') setTargetValue('https://');
                   }}
-                  className="w-full bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg p-2.5 text-xs text-[#1F1F1F] focus:outline-none focus:ring-1 focus:ring-[#8C6F52]"
+                  className="w-full bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2.5 text-xs text-[#2E342D] focus:outline-none focus:ring-1 focus:ring-[#173F30]"
                 >
+                  <option value="home">Store Home</option>
+                  <option value="shop">Shop Page (All Products)</option>
+                  <option value="category">Store Product Category Page</option>
                   <option value="section">Page Section (Flash Deals, Best Sellers, etc.)</option>
-                  <option value="category">Store Product Category</option>
-                  <option value="home">Store Home (Scroll Top)</option>
                   <option value="external">Custom URL / External Link</option>
                 </select>
               </div>
@@ -389,13 +393,13 @@ export const AdminNavigation: React.FC = () => {
               {/* Destination Value based on Link Type */}
               {linkType === 'section' && (
                 <div>
-                  <label className="font-semibold text-[#1F1F1F] block mb-1">
+                  <label className="font-semibold text-[#2E342D] block mb-1">
                     Select Page Section
                   </label>
                   <select
                     value={targetValue}
                     onChange={(e) => setTargetValue(e.target.value)}
-                    className="w-full bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg p-2.5 text-xs text-[#1F1F1F] focus:outline-none focus:ring-1 focus:ring-[#8C6F52]"
+                    className="w-full bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2.5 text-xs text-[#2E342D] focus:outline-none focus:ring-1 focus:ring-[#173F30]"
                   >
                     <option value="flash-deals">⚡ Today's Flash Deals (#flash-deals)</option>
                     <option value="new-arrivals">✨ New Arrivals (#new-arrivals)</option>
@@ -408,13 +412,13 @@ export const AdminNavigation: React.FC = () => {
 
               {linkType === 'category' && (
                 <div>
-                  <label className="font-semibold text-[#1F1F1F] block mb-1">
+                  <label className="font-semibold text-[#2E342D] block mb-1">
                     Select Category
                   </label>
                   <select
                     value={targetValue}
                     onChange={(e) => setTargetValue(e.target.value)}
-                    className="w-full bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg p-2.5 text-xs text-[#1F1F1F] focus:outline-none focus:ring-1 focus:ring-[#8C6F52]"
+                    className="w-full bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2.5 text-xs text-[#2E342D] focus:outline-none focus:ring-1 focus:ring-[#173F30]"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -427,7 +431,7 @@ export const AdminNavigation: React.FC = () => {
 
               {linkType === 'external' && (
                 <div>
-                  <label className="font-semibold text-[#1F1F1F] block mb-1">
+                  <label className="font-semibold text-[#2E342D] block mb-1">
                     Target URL Address
                   </label>
                   <input
@@ -436,16 +440,16 @@ export const AdminNavigation: React.FC = () => {
                     value={targetValue}
                     onChange={(e) => setTargetValue(e.target.value)}
                     placeholder="https://example.com/special-campaign"
-                    className="w-full bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg p-2.5 text-xs text-[#1F1F1F] focus:outline-none focus:ring-1 focus:ring-[#8C6F52] focus:bg-white"
+                    className="w-full bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2.5 text-xs text-[#2E342D] focus:outline-none focus:ring-1 focus:ring-[#173F30] focus:bg-white"
                   />
                   <label className="flex items-center gap-2 mt-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={openInNewTab}
                       onChange={(e) => setOpenInNewTab(e.target.checked)}
-                      className="rounded text-[#8C6F52] focus:ring-[#8C6F52]"
+                      className="rounded text-[#173F30] focus:ring-[#173F30]"
                     />
-                    <span className="text-xs text-[#3A3A3A]">Open in new tab</span>
+                    <span className="text-xs text-[#6B7068]">Open in new tab</span>
                   </label>
                 </div>
               )}
@@ -457,26 +461,26 @@ export const AdminNavigation: React.FC = () => {
                     type="checkbox"
                     checked={isActive}
                     onChange={(e) => setIsActive(e.target.checked)}
-                    className="rounded text-[#8C6F52] focus:ring-[#8C6F52]"
+                    className="rounded text-[#173F30] focus:ring-[#173F30]"
                   />
-                  <span className="text-xs font-semibold text-[#1F1F1F]">
+                  <span className="text-xs font-semibold text-[#2E342D]">
                     Display actively on public header navbar
                   </span>
                 </label>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-3 border-t border-[#E8E2DC] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-[#D7E0D6] flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-lg border border-[#C6B8AB] text-[#3A3A3A] font-semibold text-xs hover:bg-[#F5F1EC] cursor-pointer"
+                  className="px-4 py-2 rounded-lg border border-[#B9A48B] text-[#6B7068] font-semibold text-xs hover:bg-[#E9EBDD] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-[#1F1F1F] hover:bg-[#8C6F52] text-white font-bold text-xs transition-colors cursor-pointer shadow-sm"
+                  className="px-5 py-2 rounded-lg bg-[#2E342D] hover:bg-[#173F30] text-white font-bold text-xs transition-colors cursor-pointer shadow-sm"
                 >
                   {editingItem ? 'Save Changes' : 'Add Link'}
                 </button>

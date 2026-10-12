@@ -20,11 +20,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const cartItem = cart.find((i) => i.product.id === product.id);
 
   return (
-    <div className="bg-white rounded-xl border border-[#E8E2DC] p-3.5 flex flex-col justify-between hover:shadow-md hover:border-[#8C6F52] transition-all duration-200 group relative">
+    <div className="bg-white rounded-xl border border-[#D7E0D6] p-3.5 flex flex-col justify-between hover:shadow-md hover:border-[#173F30] transition-all duration-200 group relative">
       {/* Top Bar: Discount Badge & Wishlist Heart */}
       <div className="flex items-center justify-between mb-2">
         {product.discountPercentage > 0 ? (
-          <span className="bg-[#D4A373] text-[#1F1F1F] text-[10px] font-bold px-2 py-0.5 rounded tracking-wide uppercase">
+          <span className="bg-[#D8C8B3] text-[#2E342D] text-[10px] font-bold px-2 py-0.5 rounded tracking-wide uppercase">
             {product.discountPercentage}% OFF
           </span>
         ) : (
@@ -36,8 +36,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             e.stopPropagation();
             toggleWishlist(product.id);
           }}
-          className={`p-1.5 rounded-full hover:bg-[#F5F1EC] transition-colors cursor-pointer ${
-            isWishlisted ? 'text-[#E63946]' : 'text-[#A9A9A9] hover:text-[#E63946]'
+          className={`p-1.5 rounded-full hover:bg-[#E9EBDD] transition-colors cursor-pointer ${
+            isWishlisted ? 'text-[#E63946]' : 'text-[#6B7068] hover:text-[#E63946]'
           }`}
           title={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
@@ -50,7 +50,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {/* Product Image (clickable for quick view) */}
       <div
         onClick={() => setQuickViewProduct(product)}
-        className="w-full aspect-square rounded-lg overflow-hidden bg-[#F5F1EC] flex items-center justify-center p-2 mb-3 cursor-pointer"
+        className="w-full aspect-square rounded-lg overflow-hidden bg-[#E9EBDD] flex items-center justify-center p-2 mb-3 cursor-pointer"
       >
         <img
           src={product.imageUrl}
@@ -66,17 +66,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           onClick={() => setQuickViewProduct(product)}
           className="cursor-pointer"
         >
-          <h3 className="text-xs sm:text-sm font-semibold text-[#1F1F1F] line-clamp-2 leading-snug group-hover:text-[#8C6F52] transition-colors">
+          <h3 className="text-xs sm:text-sm font-semibold text-[#2E342D] line-clamp-2 leading-snug group-hover:text-[#173F30] transition-colors">
             {product.title}
           </h3>
 
           {/* Pricing */}
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-sm sm:text-base font-bold text-[#1F1F1F]">
+            <span className="text-sm sm:text-base font-bold text-[#2E342D]">
               ₹{product.price.toLocaleString('en-IN')}
             </span>
             {product.originalPrice > product.price && (
-              <span className="text-xs text-[#A9A9A9] line-through">
+              <span className="text-xs text-[#6B7068] line-through">
                 ₹{product.originalPrice.toLocaleString('en-IN')}
               </span>
             )}
@@ -84,7 +84,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
 
         {/* Rating and Add to Cart Row */}
-        <div className="mt-3 flex items-center justify-between pt-2 border-t border-[#E8E2DC]">
+        <div className="mt-3 flex items-center justify-between pt-2 border-t border-[#D7E0D6]">
           <div className="flex items-center gap-1 text-[11px] text-[#F59E0B] font-medium">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
@@ -93,12 +93,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   className={`w-3 h-3 ${
                     i < Math.floor(product.rating)
                       ? 'fill-[#F59E0B] text-[#F59E0B]'
-                      : 'text-[#E8E2DC]'
+                      : 'text-[#D7E0D6]'
                   }`}
                 />
               ))}
             </div>
-            <span className="text-[#3A3A3A] text-[10px] ml-0.5">({product.rating})</span>
+            <span className="text-[#6B7068] text-[10px] ml-0.5">({product.rating})</span>
           </div>
 
           <button
@@ -106,15 +106,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             disabled={product.stock <= 0}
             className={`p-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer ${
               product.stock <= 0
-                ? 'bg-[#F5F1EC] text-[#A9A9A9] cursor-not-allowed'
+                ? 'bg-[#E9EBDD] text-[#6B7068] cursor-not-allowed'
                 : cartItem
-                ? 'bg-[#F5F1EC] text-[#2E7D32] border border-[#2E7D32]/30 hover:bg-[#E8E2DC]'
-                : 'bg-[#F5F1EC] hover:bg-[#1F1F1F] hover:text-white text-[#1F1F1F] border border-[#E8E2DC]'
+                ? 'bg-[#E9EBDD] text-[#173F30] border border-[#173F30]/40 hover:bg-[#D7E0D6]'
+                : 'bg-[#E9EBDD] hover:bg-[#173F30] hover:text-white text-[#173F30] border border-[#B9A48B]/30'
             }`}
             title={product.stock <= 0 ? 'Out of stock' : cartItem ? 'In Cart' : 'Add to Cart'}
           >
             {cartItem ? (
-              <Check className="w-4 h-4 text-[#2E7D32]" />
+              <Check className="w-4 h-4 text-[#173F30]" />
             ) : (
               <ShoppingCart className="w-4 h-4" />
             )}

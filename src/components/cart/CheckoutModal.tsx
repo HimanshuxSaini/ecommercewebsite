@@ -12,6 +12,12 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Address, Order } from '../../types';
+import {
+  sanitizeInput,
+  isValidPhone,
+  isValidPincode,
+  checkoutRateLimiter,
+} from '../../utils/security';
 
 export const CheckoutModal: React.FC = () => {
   const {
@@ -34,6 +40,7 @@ export const CheckoutModal: React.FC = () => {
   );
   const [paymentMethod, setPaymentMethod] = useState<Order['paymentMethod']>('upi');
   const [isAddingNewAddr, setIsAddingNewAddr] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [newAddr, setNewAddr] = useState({
     fullName: currentUser?.name || '',
     phone: currentUser?.phone || '',
@@ -53,30 +60,130 @@ export const CheckoutModal: React.FC = () => {
 
   const handleSaveNewAddress = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAddr.fullName || !newAddr.phone || !newAddr.street) return;
-    addAddress(newAddr);
+    setErrorMsg(null);
+
+    const cleanName = sanitizeInput(newAddr.fullName);
+    const cleanPhone = sanitizeInput(newAddr.phone);
+    const cleanStreet = sanitizeInput(newAddr.street);
+    const cleanCity = sanitizeInput(newAddr.city);
+    const cleanState = sanitizeInput(newAddr.state);
+    const cleanPincode = sanitizeInput(newAddr.pincode);
+
+    if (!cleanName || cleanName.length < 2) {
+      setErrorMsg('Please enter a valid full name (at least 2 characters).');
+      return;
+    }
+    if (!isValidPhone(cleanPhone)) {
+      setErrorMsg('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+    if (!cleanStreet || cleanStreet.length < 5) {
+      setErrorMsg('Please provide a complete street address.');
+      return;
+    }
+    if (!isValidPincode(cleanPincode)) {
+      setErrorMsg('Please enter a valid 6-digit postal PIN code.');
+      return;
+    }
+
+    addAddress({
+      fullName: cleanName,
+      phone: cleanPhone,
+      street: cleanStreet,
+      city: cleanCity,
+      state: cleanState,
+      pincode: cleanPincode,
+      type: newAddr.type,
+      isDefault: newAddr.isDefault,
+    });
     setIsAddingNewAddr(false);
   };
 
   const handleConfirmOrder = () => {
-    if (!currentSelectedAddr) return;
-    const order = placeOrder(currentSelectedAddr, paymentMethod);
-    setCompletedOrder(order);
-    setStep('success');
+    setErrorMsg(null);
+    if (!currentSelectedAddr) {
+      setErrorMsg('Please select or add a delivery address to proceed.');
+      return;
+    }
+
+    const rateCheck = checkoutRateLimiter.check();
+    if (!rateCheck.allowed) {
+      setErrorMsg(rateCheck.message || 'Too many checkout attempts. Please wait.');
+      return;
+    }
+
+    try {
+      const order = placeOrder(currentSelectedAddr, paymentMethod);
+      setCompletedOrder(order);
+      setStep('success');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'An error occurred during order confirmation.';
+      setErrorMsg(message);
+    }
   };
 
   const shippingFee = cartSubtotal > 0 && cartSubtotal < 499 ? 40 : 0;
 
+  // Close on ESC key press
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isCheckoutOpen) {
+        setIsCheckoutOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isCheckoutOpen, setIsCheckoutOpen]);
+
+  // Lock body scroll while open
+  React.useEffect(() => {
+    if (isCheckoutOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isCheckoutOpen]);
+
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-7 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
-        {/* Close Button */}
-        <button
-          onClick={() => setIsCheckoutOpen(false)}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-colors cursor-pointer"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <div className="fixed inset-0 z-50 overflow-hidden">
+      {/* Backdrop */}
+      <div
+        onClick={() => setIsCheckoutOpen(false)}
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+      />
+
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
+        <div className="w-screen max-w-xl bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-250 border-l border-[#D7E0D6]">
+          {/* Header */}
+          <div className="px-5 py-4 border-b border-[#D7E0D6] bg-[#E9EBDD] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-[#173F30]/10 text-[#173F30] flex items-center justify-center">
+                <ShieldCheck className="w-4 h-4 text-[#173F30]" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-[#2E342D] leading-tight">
+                  Secure Checkout
+                </h3>
+                <span className="text-[10px] text-[#6B7068]">
+                  256-bit Encrypted Velneer Express Checkout
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsCheckoutOpen(false)}
+              className="p-1.5 rounded-full hover:bg-[#D7E0D6] text-[#6B7068] hover:text-[#2E342D] transition-colors cursor-pointer"
+              title="Close Checkout"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Scrollable Body */}
+          <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
 
         {step === 'success' && completedOrder ? (
           /* Order Placed Success Screen */
@@ -85,36 +192,36 @@ export const CheckoutModal: React.FC = () => {
               <CheckCircle2 className="w-10 h-10" />
             </div>
 
-            <h2 className="text-2xl font-extrabold text-[#1F1F1F]">
+            <h2 className="text-2xl font-extrabold text-[#2E342D]">
               Order Confirmed!
             </h2>
-            <p className="text-sm text-[#3A3A3A] max-w-md mx-auto">
-              Thank you for ordering with ShopVerse. We have received your order{' '}
-              <strong className="text-[#8C6F52]">#{completedOrder.id}</strong>.
+            <p className="text-sm text-[#6B7068] max-w-md mx-auto">
+              Thank you for ordering with Velneer. We have received your order{' '}
+              <strong className="text-[#173F30]">#{completedOrder.id}</strong>.
             </p>
 
-            <div className="bg-[#F5F1EC] border border-[#E8E2DC] rounded-xl p-4 max-w-md mx-auto text-left text-xs space-y-2">
+            <div className="bg-[#E9EBDD] border border-[#D7E0D6] rounded-xl p-4 max-w-md mx-auto text-left text-xs space-y-2">
               <div className="flex justify-between">
-                <span className="text-[#A8927D]">Tracking Number:</span>
-                <span className="font-mono font-semibold text-[#1F1F1F]">
+                <span className="text-[#D8C8B3]">Tracking Number:</span>
+                <span className="font-mono font-semibold text-[#2E342D]">
                   {completedOrder.trackingNumber}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#A8927D]">Deliver To:</span>
-                <span className="font-semibold text-[#1F1F1F]">
+                <span className="text-[#D8C8B3]">Deliver To:</span>
+                <span className="font-semibold text-[#2E342D]">
                   {completedOrder.shippingAddress.fullName}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#A8927D]">Payment:</span>
-                <span className="font-semibold text-[#1F1F1F] uppercase">
+                <span className="text-[#D8C8B3]">Payment:</span>
+                <span className="font-semibold text-[#2E342D] uppercase">
                   {completedOrder.paymentMethod}
                 </span>
               </div>
-              <div className="flex justify-between text-sm font-bold text-[#1F1F1F] border-t border-[#E8E2DC] pt-2">
+              <div className="flex justify-between text-sm font-bold text-[#2E342D] border-t border-[#D7E0D6] pt-2">
                 <span>Amount Paid:</span>
-                <span className="text-[#8C6F52]">₹{completedOrder.total.toLocaleString('en-IN')}</span>
+                <span className="text-[#173F30]">₹{completedOrder.total.toLocaleString('en-IN')}</span>
               </div>
             </div>
 
@@ -124,13 +231,13 @@ export const CheckoutModal: React.FC = () => {
                   setIsCheckoutOpen(false);
                   setIsProfileOpen(true);
                 }}
-                className="w-full sm:w-auto bg-[#1F1F1F] hover:bg-[#3A3A3A] text-white text-xs font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer"
+                className="w-full sm:w-auto bg-[#2E342D] hover:bg-[#6B7068] text-white text-xs font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer"
               >
                 View in Order History
               </button>
               <button
                 onClick={() => setIsCheckoutOpen(false)}
-                className="w-full sm:w-auto bg-[#8C6F52] hover:bg-[#6B5B4A] text-white text-xs font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer shadow-sm"
+                className="w-full sm:w-auto bg-[#173F30] hover:bg-[#2E5E46] text-white text-xs font-semibold px-6 py-2.5 rounded-lg transition-colors cursor-pointer shadow-sm"
               >
                 Continue Shopping
               </button>
@@ -140,12 +247,12 @@ export const CheckoutModal: React.FC = () => {
           /* Multi-step Checkout Flow */
           <div>
             {/* Step Indicators */}
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#E8E2DC]">
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#D7E0D6]">
               <div className="flex items-center gap-2">
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                     step === 'address'
-                      ? 'bg-[#8C6F52] text-white'
+                      ? 'bg-[#173F30] text-white'
                       : 'bg-[#2E7D32] text-white'
                   }`}
                 >
@@ -153,34 +260,47 @@ export const CheckoutModal: React.FC = () => {
                 </div>
                 <span
                   className={`text-xs font-bold ${
-                    step === 'address' ? 'text-[#8C6F52]' : 'text-[#1F1F1F]'
+                    step === 'address' ? 'text-[#173F30]' : 'text-[#2E342D]'
                   }`}
                 >
                   Delivery Address
                 </span>
               </div>
 
-              <div className="w-12 h-0.5 bg-[#E8E2DC]" />
+              <div className="w-12 h-0.5 bg-[#D7E0D6]" />
 
               <div className="flex items-center gap-2">
                 <div
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
                     step === 'payment'
-                      ? 'bg-[#8C6F52] text-white'
-                      : 'bg-[#E8E2DC] text-[#3A3A3A]'
+                      ? 'bg-[#173F30] text-white'
+                      : 'bg-[#D7E0D6] text-[#6B7068]'
                   }`}
                 >
                   2
                 </div>
                 <span
                   className={`text-xs font-bold ${
-                    step === 'payment' ? 'text-[#8C6F52]' : 'text-[#A8927D]'
+                    step === 'payment' ? 'text-[#173F30]' : 'text-[#D8C8B3]'
                   }`}
                 >
                   Payment & Review
                 </span>
               </div>
             </div>
+
+            {errorMsg && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center justify-between">
+                <span>{errorMsg}</span>
+                <button
+                  type="button"
+                  onClick={() => setErrorMsg(null)}
+                  className="text-red-500 hover:text-red-800 text-xs font-bold ml-2 cursor-pointer"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
 
             {step === 'address' ? (
               <div className="space-y-4">
@@ -349,7 +469,7 @@ export const CheckoutModal: React.FC = () => {
               /* Step 2: Payment */
               <div className="space-y-5">
                 <div>
-                  <h3 className="text-sm font-bold text-[#1F1F1F] mb-2">
+                  <h3 className="text-sm font-bold text-[#2E342D] mb-2">
                     Choose Payment Method
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -364,8 +484,8 @@ export const CheckoutModal: React.FC = () => {
                         onClick={() => setPaymentMethod(m.id as Order['paymentMethod'])}
                         className={`p-3 rounded-xl border cursor-pointer transition-all ${
                           paymentMethod === m.id
-                            ? 'border-[#8C6F52] bg-[#F5F1EC] ring-1 ring-[#8C6F52]'
-                            : 'border-[#E8E2DC] hover:border-[#C6B8AB] bg-white'
+                            ? 'border-[#173F30] bg-[#E9EBDD] ring-1 ring-[#173F30]'
+                            : 'border-[#D7E0D6] hover:border-[#B9A48B] bg-white'
                         }`}
                       >
                         <div className="flex items-center gap-2">
@@ -374,40 +494,40 @@ export const CheckoutModal: React.FC = () => {
                             name="payment_choice"
                             checked={paymentMethod === m.id}
                             onChange={() => setPaymentMethod(m.id as Order['paymentMethod'])}
-                            className="accent-[#8C6F52]"
+                            className="accent-[#173F30]"
                           />
-                          <span className="text-xs font-bold text-[#1F1F1F]">
+                          <span className="text-xs font-bold text-[#2E342D]">
                             {m.label}
                           </span>
                         </div>
-                        <p className="text-[10px] text-[#A8927D] ml-5 mt-0.5">{m.desc}</p>
+                        <p className="text-[10px] text-[#D8C8B3] ml-5 mt-0.5">{m.desc}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Items & Amount Summary */}
-                <div className="bg-[#F5F1EC] border border-[#E8E2DC] rounded-xl p-4 text-xs space-y-2">
-                  <h4 className="font-bold text-[#1F1F1F] pb-1 border-b border-[#E8E2DC]">
+                <div className="bg-[#E9EBDD] border border-[#D7E0D6] rounded-xl p-4 text-xs space-y-2">
+                  <h4 className="font-bold text-[#2E342D] pb-1 border-b border-[#D7E0D6]">
                     Order Summary ({cart.length} unique items)
                   </h4>
-                  <div className="max-h-28 overflow-y-auto divide-y divide-[#E8E2DC] pr-1">
+                  <div className="max-h-28 overflow-y-auto divide-y divide-[#D7E0D6] pr-1">
                     {cart.map((i) => (
                       <div key={i.product.id} className="py-1 flex justify-between">
-                        <span className="truncate max-w-[240px] text-[#3A3A3A]">
+                        <span className="truncate max-w-[240px] text-[#6B7068]">
                           {i.quantity}x {i.product.title}
                         </span>
-                        <span className="font-semibold text-[#1F1F1F]">
+                        <span className="font-semibold text-[#2E342D]">
                           ₹{(i.product.price * i.quantity).toLocaleString('en-IN')}
                         </span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="border-t border-[#E8E2DC] pt-2 space-y-1">
-                    <div className="flex justify-between text-[#A8927D]">
+                  <div className="border-t border-[#D7E0D6] pt-2 space-y-1">
+                    <div className="flex justify-between text-[#D8C8B3]">
                       <span>Subtotal</span>
-                      <span className="text-[#1F1F1F] font-semibold">₹{cartSubtotal.toLocaleString('en-IN')}</span>
+                      <span className="text-[#2E342D] font-semibold">₹{cartSubtotal.toLocaleString('en-IN')}</span>
                     </div>
                     {cartDiscount > 0 && (
                       <div className="flex justify-between text-[#2E7D32] font-semibold">
@@ -415,13 +535,13 @@ export const CheckoutModal: React.FC = () => {
                         <span>-₹{cartDiscount.toLocaleString('en-IN')}</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-[#A8927D]">
+                    <div className="flex justify-between text-[#D8C8B3]">
                       <span>Shipping</span>
                       <span className="text-[#2E7D32] font-semibold">{shippingFee === 0 ? 'FREE' : `₹${shippingFee}`}</span>
                     </div>
-                    <div className="flex justify-between text-sm font-bold text-[#1F1F1F] pt-1 border-t border-[#E8E2DC]">
+                    <div className="flex justify-between text-sm font-bold text-[#2E342D] pt-1 border-t border-[#D7E0D6]">
                       <span>Total Payable</span>
-                      <span className="text-[#8C6F52]">
+                      <span className="text-[#173F30]">
                         ₹{cartTotal.toLocaleString('en-IN')}
                       </span>
                     </div>
@@ -431,14 +551,14 @@ export const CheckoutModal: React.FC = () => {
                 <div className="flex items-center justify-between pt-2">
                   <button
                     onClick={() => setStep('address')}
-                    className="text-xs text-[#3A3A3A] hover:text-[#1F1F1F] font-medium cursor-pointer"
+                    className="text-xs text-[#6B7068] hover:text-[#2E342D] font-medium cursor-pointer"
                   >
                     &larr; Back to Address
                   </button>
 
                   <button
                     onClick={handleConfirmOrder}
-                    className="bg-[#8C6F52] hover:bg-[#6B5B4A] text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-md flex items-center gap-2"
+                    className="bg-[#173F30] hover:bg-[#2E5E46] text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-md flex items-center gap-2"
                   >
                     <PackageCheck className="w-4 h-4" />
                     <span>Confirm & Place Order</span>
@@ -450,5 +570,7 @@ export const CheckoutModal: React.FC = () => {
         )}
       </div>
     </div>
+  </div>
+</div>
   );
 };

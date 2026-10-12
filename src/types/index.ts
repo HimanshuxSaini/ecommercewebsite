@@ -142,11 +142,13 @@ export interface FlashDealConfig {
   targetEndTime?: string;
 }
 
+export type StorePage = 'home' | 'shop' | 'category';
+
 export interface NavItem {
   id: string;
   label: string;
-  linkType: 'home' | 'section' | 'category' | 'external';
-  targetValue: string; // section id (e.g., 'flash-deals'), category id ('cat-electronics'), or external url
+  linkType: 'home' | 'shop' | 'section' | 'category' | 'external';
+  targetValue: string; // 'home', 'shop', section id (e.g. 'flash-deals'), category id ('cat-electronics'), or external url
   order: number;
   isActive: boolean;
   openInNewTab?: boolean;

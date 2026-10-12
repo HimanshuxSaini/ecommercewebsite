@@ -53,22 +53,22 @@ export const CatalogSection: React.FC = () => {
   return (
     <section id="catalog-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Title & Filter Bar */}
-      <div className="bg-white rounded-2xl border border-[#E8E2DC] p-5 shadow-xs mb-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#E8E2DC]">
+      <div className="bg-white rounded-2xl border border-[#D7E0D6] p-5 shadow-xs mb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#D7E0D6]">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-extrabold text-[#1F1F1F] tracking-tight">
+              <h2 className="text-xl font-extrabold text-[#2E342D] tracking-tight">
                 {currentCategoryObj
                   ? currentCategoryObj.name
                   : searchQuery
                   ? `Search: "${searchQuery}"`
                   : 'All Catalog Products'}
               </h2>
-              <span className="text-xs bg-[#F5F1EC] text-[#8C6F52] font-bold px-2 py-0.5 rounded border border-[#C6B8AB]">
+              <span className="text-xs bg-[#E9EBDD] text-[#173F30] font-bold px-2 py-0.5 rounded border border-[#B9A48B]">
                 {filtered.length} Items Found
               </span>
             </div>
-            <p className="text-xs text-[#3A3A3A] mt-1">
+            <p className="text-xs text-[#6B7068] mt-1">
               {currentCategoryObj
                 ? `Browsing verified genuine items in ${currentCategoryObj.name}`
                 : 'Complete catalog with real-time stock levels and genuine manufacturer warranties'}
@@ -77,13 +77,13 @@ export const CatalogSection: React.FC = () => {
 
           {/* Sort Selector */}
           <div className="flex items-center gap-3 self-start md:self-auto">
-            <span className="text-xs text-[#3A3A3A] flex items-center gap-1 font-medium">
-              <ArrowUpDown className="w-3.5 h-3.5 text-[#8C6F52]" /> Sort:
+            <span className="text-xs text-[#6B7068] flex items-center gap-1 font-medium">
+              <ArrowUpDown className="w-3.5 h-3.5 text-[#173F30]" /> Sort:
             </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="text-xs bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg p-2 text-[#1F1F1F] font-medium cursor-pointer focus:outline-none focus:border-[#8C6F52]"
+              className="text-xs bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2 text-[#2E342D] font-medium cursor-pointer focus:outline-none focus:border-[#173F30]"
             >
               <option value="featured">Featured / Best Sellers</option>
               <option value="price-asc">Price: Low to High</option>
@@ -96,13 +96,13 @@ export const CatalogSection: React.FC = () => {
         {/* Subcategories Filter Chips (if category selected) */}
         {currentCategoryObj && currentCategoryObj.subcategories.length > 0 && (
           <div className="pt-3 flex items-center gap-2 overflow-x-auto no-scrollbar">
-            <span className="text-xs font-semibold text-[#8C6F52] shrink-0">Subcategories:</span>
+            <span className="text-xs font-semibold text-[#173F30] shrink-0">Subcategories:</span>
             <button
               onClick={() => setSelectedSub(null)}
               className={`text-xs px-2.5 py-1 rounded-full font-medium transition-colors cursor-pointer shrink-0 ${
                 selectedSub === null
-                  ? 'bg-[#1F1F1F] text-white shadow-xs'
-                  : 'bg-[#F5F1EC] text-[#3A3A3A] hover:bg-[#E8E2DC]'
+                  ? 'bg-[#2E342D] text-white shadow-xs'
+                  : 'bg-[#E9EBDD] text-[#6B7068] hover:bg-[#D7E0D6]'
               }`}
             >
               All {currentCategoryObj.name}
@@ -113,8 +113,8 @@ export const CatalogSection: React.FC = () => {
                 onClick={() => setSelectedSub(sub.id === selectedSub ? null : sub.id)}
                 className={`text-xs px-2.5 py-1 rounded-full font-medium transition-colors cursor-pointer shrink-0 ${
                   selectedSub === sub.id
-                    ? 'bg-[#8C6F52] text-white shadow-xs'
-                    : 'bg-[#F5F1EC] text-[#3A3A3A] hover:bg-[#E8E2DC]'
+                    ? 'bg-[#173F30] text-white shadow-xs'
+                    : 'bg-[#E9EBDD] text-[#6B7068] hover:bg-[#D7E0D6]'
                 }`}
               >
                 {sub.name}
@@ -125,21 +125,21 @@ export const CatalogSection: React.FC = () => {
 
         {/* Reset Filter Button if active */}
         {hasActiveFilter && (
-          <div className="pt-3 mt-3 border-t border-[#E8E2DC] flex items-center gap-2">
-            <span className="text-xs text-[#3A3A3A]">Active filters:</span>
+          <div className="pt-3 mt-3 border-t border-[#D7E0D6] flex items-center gap-2">
+            <span className="text-xs text-[#6B7068]">Active filters:</span>
             {selectedCategory && (
-              <span className="inline-flex items-center gap-1 text-xs bg-[#F5F1EC] text-[#8C6F52] border border-[#C6B8AB] px-2 py-0.5 rounded">
+              <span className="inline-flex items-center gap-1 text-xs bg-[#E9EBDD] text-[#173F30] border border-[#B9A48B] px-2 py-0.5 rounded">
                 Category: {currentCategoryObj?.name}
                 <button
                   onClick={() => setSelectedCategory(null)}
-                  className="hover:text-[#1F1F1F] cursor-pointer"
+                  className="hover:text-[#2E342D] cursor-pointer"
                 >
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
             {searchQuery && (
-              <span className="inline-flex items-center gap-1 text-xs bg-[#F5F1EC] text-[#1F1F1F] border border-[#C6B8AB] px-2 py-0.5 rounded">
+              <span className="inline-flex items-center gap-1 text-xs bg-[#E9EBDD] text-[#2E342D] border border-[#B9A48B] px-2 py-0.5 rounded">
                 Query: "{searchQuery}"
                 <button
                   onClick={() => setSearchQuery('')}
@@ -165,11 +165,11 @@ export const CatalogSection: React.FC = () => {
 
       {/* Products Grid */}
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-[#E8E2DC] p-12 text-center space-y-3">
-          <p className="text-base font-bold text-[#1F1F1F]">
+        <div className="bg-white rounded-2xl border border-[#D7E0D6] p-12 text-center space-y-3">
+          <p className="text-base font-bold text-[#2E342D]">
             No products match your current search or filter.
           </p>
-          <p className="text-xs text-[#3A3A3A] max-w-sm mx-auto">
+          <p className="text-xs text-[#6B7068] max-w-sm mx-auto">
             Try checking for spelling errors, clearing your category selection, or browsing our Flash Deals!
           </p>
           <button
@@ -178,7 +178,7 @@ export const CatalogSection: React.FC = () => {
               setSearchQuery('');
               setSelectedSub(null);
             }}
-            className="bg-[#1F1F1F] hover:bg-[#3A3A3A] text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors"
+            className="bg-[#2E342D] hover:bg-[#6B7068] text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors"
           >
             Show All Products
           </button>

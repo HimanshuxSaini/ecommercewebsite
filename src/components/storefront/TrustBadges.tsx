@@ -32,7 +32,7 @@ export const TrustBadges: React.FC = () => {
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-      <div className="bg-white rounded-2xl border border-[#E8E2DC] p-5 shadow-xs grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="bg-white rounded-2xl border border-[#D7E0D6] p-5 shadow-xs grid grid-cols-2 md:grid-cols-5 gap-4">
         {badges.map((badge, idx) => {
           const Icon = badge.icon;
           return (
@@ -42,14 +42,14 @@ export const TrustBadges: React.FC = () => {
                 idx === badges.length - 1 ? 'col-span-2 md:col-span-1 justify-center md:justify-start' : ''
               }`}
             >
-              <div className="w-10 h-10 rounded-xl bg-[#F5F1EC] text-[#8C6F52] flex items-center justify-center shrink-0 border border-[#C6B8AB]">
+              <div className="w-10 h-10 rounded-xl bg-[#E9EBDD] text-[#173F30] flex items-center justify-center shrink-0 border border-[#B9A48B]">
                 <Icon className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-xs sm:text-sm font-bold text-[#1F1F1F] leading-tight">
+                <h4 className="text-xs sm:text-sm font-bold text-[#2E342D] leading-tight">
                   {badge.title}
                 </h4>
-                <p className="text-[11px] text-[#3A3A3A] mt-0.5 font-normal">
+                <p className="text-[11px] text-[#6B7068] mt-0.5 font-normal">
                   {badge.description}
                 </p>
               </div>

@@ -133,15 +133,15 @@ export const AdminBrands: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[#E8E2DC] shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-[#D7E0D6] shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <Award className="w-5 h-5 text-[#8C6F52]" />
-            <h2 className="text-base sm:text-lg font-extrabold text-[#1F1F1F]">
+            <Award className="w-5 h-5 text-[#173F30]" />
+            <h2 className="text-base sm:text-lg font-extrabold text-[#2E342D]">
               Top Brands & Logos Manager
             </h2>
           </div>
-          <p className="text-xs text-[#3A3A3A] mt-1">
+          <p className="text-xs text-[#6B7068] mt-1">
             Add official brand logos, edit brand names, reorder cards, and toggle brand visibility on the storefront.
           </p>
         </div>
@@ -149,7 +149,7 @@ export const AdminBrands: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={openCreateModal}
-            className="bg-[#1F1F1F] hover:bg-[#8C6F52] text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2 transition-colors cursor-pointer shrink-0 shadow-xs"
+            className="bg-[#2E342D] hover:bg-[#173F30] text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2 transition-colors cursor-pointer shrink-0 shadow-xs"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Brand</span>
@@ -158,7 +158,7 @@ export const AdminBrands: React.FC = () => {
       </div>
 
       {/* Master Section Visibility Controller */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#E8E2DC] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#D7E0D6] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
@@ -175,7 +175,7 @@ export const AdminBrands: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-[#1F1F1F]">
+              <h3 className="text-sm font-bold text-[#2E342D]">
                 Storefront "Top Brands" Section Display
               </h3>
               <span
@@ -188,7 +188,7 @@ export const AdminBrands: React.FC = () => {
                 {isBrandsSectionVisible ? 'LIVE ON STOREFRONT' : 'HIDDEN FROM STOREFRONT'}
               </span>
             </div>
-            <p className="text-xs text-[#3A3A3A] mt-0.5">
+            <p className="text-xs text-[#6B7068] mt-0.5">
               {isBrandsSectionVisible
                 ? 'The Top Brands section and partner logos are currently visible to all visiting customers on the homepage.'
                 : 'The Top Brands section is currently turned OFF. It is completely hidden from the public customer storefront.'}
@@ -219,12 +219,12 @@ export const AdminBrands: React.FC = () => {
       </div>
 
       {/* Live Storefront Preview Strip */}
-      <div className="bg-[#FAF9F6] border border-[#E8E2DC] rounded-2xl p-4 space-y-3">
+      <div className="bg-[#F8F5EF] border border-[#D7E0D6] rounded-2xl p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold text-[#A8927D] uppercase tracking-wider">
+          <span className="text-[11px] font-bold text-[#D8C8B3] uppercase tracking-wider">
             Live Storefront Brand Strip Preview ({sortedBrands.filter((b) => b.isActive).length} Active)
           </span>
-          <span className="text-[11px] text-[#8C6F52] font-semibold">
+          <span className="text-[11px] text-[#173F30] font-semibold">
             Clicking a brand filters catalog products
           </span>
         </div>
@@ -235,10 +235,10 @@ export const AdminBrands: React.FC = () => {
             .map((b) => (
               <div
                 key={b.id}
-                className="bg-white rounded-xl border border-[#E8E2DC] p-2.5 flex flex-col items-center justify-center min-h-[85px] shadow-2xs hover:border-[#8C6F52] transition-colors"
+                className="bg-white rounded-xl border border-[#D7E0D6] p-2.5 flex flex-col items-center justify-center min-h-[85px] shadow-2xs hover:border-[#173F30] transition-colors"
               >
                 {b.logoUrl && (
-                  <div className="w-8 h-8 rounded-lg overflow-hidden bg-[#F5F1EC] p-0.5 border border-[#E8E2DC] flex items-center justify-center mb-1">
+                  <div className="w-8 h-8 rounded-lg overflow-hidden bg-[#E9EBDD] p-0.5 border border-[#D7E0D6] flex items-center justify-center mb-1">
                     <img
                       src={b.logoUrl}
                       alt={b.name}
@@ -246,7 +246,7 @@ export const AdminBrands: React.FC = () => {
                     />
                   </div>
                 )}
-                <span className="text-[11px] font-black text-[#1F1F1F] uppercase truncate max-w-full text-center">
+                <span className="text-[11px] font-black text-[#2E342D] uppercase truncate max-w-full text-center">
                   {b.logoText || b.name}
                 </span>
               </div>
@@ -255,27 +255,27 @@ export const AdminBrands: React.FC = () => {
       </div>
 
       {/* Brands Table */}
-      <div className="bg-white rounded-2xl border border-[#E8E2DC] shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-[#E8E2DC] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h3 className="text-sm font-bold text-[#1F1F1F]">
+      <div className="bg-white rounded-2xl border border-[#D7E0D6] shadow-xs overflow-hidden">
+        <div className="p-4 border-b border-[#D7E0D6] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h3 className="text-sm font-bold text-[#2E342D]">
             Configured Brands ({sortedBrands.length})
           </h3>
 
           <div className="relative max-w-xs w-full">
-            <Search className="w-3.5 h-3.5 text-[#A8927D] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-[#D8C8B3] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
               placeholder="Filter brand name or category..."
-              className="w-full bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[#1F1F1F] focus:outline-none focus:ring-1 focus:ring-[#8C6F52]"
+              className="w-full bg-[#E9EBDD] border border-[#B9A48B] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[#2E342D] focus:outline-none focus:ring-1 focus:ring-[#173F30]"
             />
           </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#FAF9F6] text-[#A8927D] font-semibold border-b border-[#E8E2DC]">
+            <thead className="bg-[#F8F5EF] text-[#D8C8B3] font-semibold border-b border-[#D7E0D6]">
               <tr>
                 <th className="p-3.5 pl-5 w-16">Order</th>
                 <th className="p-3.5">Logo Image</th>
@@ -286,13 +286,13 @@ export const AdminBrands: React.FC = () => {
                 <th className="p-3.5 pr-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E8E2DC]">
+            <tbody className="divide-y divide-[#D7E0D6]">
               {filteredBrands.map((b, index) => (
-                <tr key={b.id} className="hover:bg-[#FAF9F6] transition-colors">
+                <tr key={b.id} className="hover:bg-[#F8F5EF] transition-colors">
                   {/* Order & Reordering */}
                   <td className="p-3.5 pl-5">
                     <div className="flex items-center gap-1">
-                      <span className="font-bold text-[#1F1F1F] w-4 text-center">
+                      <span className="font-bold text-[#2E342D] w-4 text-center">
                         {b.order}
                       </span>
                       <div className="flex flex-col gap-0.5">
@@ -300,7 +300,7 @@ export const AdminBrands: React.FC = () => {
                           type="button"
                           disabled={index === 0}
                           onClick={() => handleMove(index, 'up')}
-                          className="p-1 rounded hover:bg-[#E8E2DC] text-[#1F1F1F] disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer"
+                          className="p-1 rounded hover:bg-[#D7E0D6] text-[#2E342D] disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer"
                           title="Move left/up"
                         >
                           <MoveUp className="w-3 h-3" />
@@ -309,7 +309,7 @@ export const AdminBrands: React.FC = () => {
                           type="button"
                           disabled={index === sortedBrands.length - 1}
                           onClick={() => handleMove(index, 'down')}
-                          className="p-1 rounded hover:bg-[#E8E2DC] text-[#1F1F1F] disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer"
+                          className="p-1 rounded hover:bg-[#D7E0D6] text-[#2E342D] disabled:opacity-20 disabled:hover:bg-transparent cursor-pointer"
                           title="Move right/down"
                         >
                           <MoveDown className="w-3 h-3" />
@@ -321,7 +321,7 @@ export const AdminBrands: React.FC = () => {
                   {/* Logo Image Thumbnail */}
                   <td className="p-3.5">
                     {b.logoUrl ? (
-                      <div className="w-10 h-10 rounded-lg bg-[#F5F1EC] border border-[#E8E2DC] p-1 flex items-center justify-center overflow-hidden">
+                      <div className="w-10 h-10 rounded-lg bg-[#E9EBDD] border border-[#D7E0D6] p-1 flex items-center justify-center overflow-hidden">
                         <img
                           src={b.logoUrl}
                           alt={b.name}
@@ -329,7 +329,7 @@ export const AdminBrands: React.FC = () => {
                         />
                       </div>
                     ) : (
-                      <div className="w-10 h-10 rounded-lg bg-[#F5F1EC] border border-[#E8E2DC] flex items-center justify-center text-[10px] text-[#A8927D]">
+                      <div className="w-10 h-10 rounded-lg bg-[#E9EBDD] border border-[#D7E0D6] flex items-center justify-center text-[10px] text-[#D8C8B3]">
                         No Img
                       </div>
                     )}
@@ -337,21 +337,21 @@ export const AdminBrands: React.FC = () => {
 
                   {/* Brand Name */}
                   <td className="p-3.5">
-                    <span className="font-bold text-sm text-[#1F1F1F]">
+                    <span className="font-bold text-sm text-[#2E342D]">
                       {b.name}
                     </span>
                   </td>
 
                   {/* Display Text Logo */}
                   <td className="p-3.5">
-                    <span className="font-black text-xs uppercase px-2 py-0.5 rounded bg-[#F5F1EC] border border-[#C6B8AB] text-[#1F1F1F]">
+                    <span className="font-black text-xs uppercase px-2 py-0.5 rounded bg-[#E9EBDD] border border-[#B9A48B] text-[#2E342D]">
                       {b.logoText}
                     </span>
                   </td>
 
                   {/* Category Tag */}
-                  <td className="p-3.5 text-[#3A3A3A]">
-                    <span className="text-[11px] text-[#8C6F52] bg-[#FAF9F6] border border-[#E8E2DC] px-2 py-0.5 rounded">
+                  <td className="p-3.5 text-[#6B7068]">
+                    <span className="text-[11px] text-[#173F30] bg-[#F8F5EF] border border-[#D7E0D6] px-2 py-0.5 rounded">
                       {b.category}
                     </span>
                   </td>
@@ -366,7 +366,7 @@ export const AdminBrands: React.FC = () => {
                       className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold cursor-pointer transition-colors ${
                         b.isActive
                           ? 'bg-emerald-50 text-[#2E7D32] border border-emerald-200'
-                          : 'bg-slate-100 text-[#A8927D] border border-slate-200'
+                          : 'bg-slate-100 text-[#D8C8B3] border border-slate-200'
                       }`}
                     >
                       {b.isActive ? (
@@ -387,7 +387,7 @@ export const AdminBrands: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => openEditModal(b)}
-                        className="p-1.5 rounded-lg text-[#3A3A3A] hover:bg-[#F5F1EC] hover:text-[#8C6F52] transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg text-[#6B7068] hover:bg-[#E9EBDD] hover:text-[#173F30] transition-colors cursor-pointer"
                         title="Edit brand"
                       >
                         <Edit2 className="w-4 h-4" />
@@ -403,7 +403,7 @@ export const AdminBrands: React.FC = () => {
                             deleteBrand(b.id);
                           }
                         }}
-                        className="p-1.5 rounded-lg text-[#A8927D] hover:bg-rose-50 hover:text-[#E63946] transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg text-[#D8C8B3] hover:bg-rose-50 hover:text-[#E63946] transition-colors cursor-pointer"
                         title="Delete brand"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -429,10 +429,10 @@ export const AdminBrands: React.FC = () => {
             </button>
 
             <div className="mb-5">
-              <h3 className="text-base font-bold text-[#1F1F1F]">
+              <h3 className="text-base font-bold text-[#2E342D]">
                 {editingBrand ? 'Edit Brand Details' : 'Add Brand & Logo'}
               </h3>
-              <p className="text-xs text-[#A8927D] mt-0.5">
+              <p className="text-xs text-[#D8C8B3] mt-0.5">
                 Configure brand name, logo image URL, and showcase typography.
               </p>
             </div>
@@ -447,7 +447,7 @@ export const AdminBrands: React.FC = () => {
             <form onSubmit={handleSave} className="space-y-4 text-xs">
               {/* Brand Name */}
               <div>
-                <label className="font-semibold text-[#1F1F1F] block mb-1">
+                <label className="font-semibold text-[#2E342D] block mb-1">
                   Brand Name *
                 </label>
                 <input
@@ -459,13 +459,13 @@ export const AdminBrands: React.FC = () => {
                     if (!logoText) setLogoText(e.target.value.toUpperCase());
                   }}
                   placeholder="e.g. Sony, Zara, Adidas, OnePlus"
-                  className="w-full bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg p-2.5 text-xs text-[#1F1F1F] focus:outline-none focus:ring-1 focus:ring-[#8C6F52] focus:bg-white"
+                  className="w-full bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2.5 text-xs text-[#2E342D] focus:outline-none focus:ring-1 focus:ring-[#173F30] focus:bg-white"
                 />
               </div>
 
               {/* Text Logo Tag */}
               <div>
-                <label className="font-semibold text-[#1F1F1F] block mb-1">
+                <label className="font-semibold text-[#2E342D] block mb-1">
                   Logo Text Display (Stylized)
                 </label>
                 <input
@@ -473,29 +473,29 @@ export const AdminBrands: React.FC = () => {
                   value={logoText}
                   onChange={(e) => setLogoText(e.target.value)}
                   placeholder="e.g. SONY,  Apple, NIKE"
-                  className="w-full bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg p-2.5 text-xs text-[#1F1F1F] focus:outline-none focus:ring-1 focus:ring-[#8C6F52] focus:bg-white uppercase font-bold"
+                  className="w-full bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2.5 text-xs text-[#2E342D] focus:outline-none focus:ring-1 focus:ring-[#173F30] focus:bg-white uppercase font-bold"
                 />
               </div>
 
               {/* Logo Image URL */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="font-semibold text-[#1F1F1F]">
+                  <label className="font-semibold text-[#2E342D]">
                     Logo Image URL
                   </label>
-                  <span className="text-[10px] text-[#8C6F52]">Paste direct image URL</span>
+                  <span className="text-[10px] text-[#173F30]">Paste direct image URL</span>
                 </div>
                 <input
                   type="url"
                   value={logoUrl}
                   onChange={(e) => setLogoUrl(e.target.value)}
                   placeholder="https://images.unsplash.com/... or https://logo.clearbit.com/..."
-                  className="w-full bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg p-2.5 text-xs text-[#1F1F1F] focus:outline-none focus:ring-1 focus:ring-[#8C6F52] focus:bg-white"
+                  className="w-full bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2.5 text-xs text-[#2E342D] focus:outline-none focus:ring-1 focus:ring-[#173F30] focus:bg-white"
                 />
 
                 {/* Preset image suggestions */}
                 <div className="mt-2">
-                  <span className="text-[10px] font-semibold text-[#A8927D] block mb-1">
+                  <span className="text-[10px] font-semibold text-[#D8C8B3] block mb-1">
                     Quick Logo Image Presets:
                   </span>
                   <div className="flex flex-wrap gap-1">
@@ -508,7 +508,7 @@ export const AdminBrands: React.FC = () => {
                           if (!name) setName(s.label);
                           if (!logoText) setLogoText(s.label.toUpperCase());
                         }}
-                        className="text-[10px] bg-[#F5F1EC] hover:bg-[#8C6F52] hover:text-white text-[#3A3A3A] px-2 py-0.5 rounded border border-[#C6B8AB] transition-colors cursor-pointer"
+                        className="text-[10px] bg-[#E9EBDD] hover:bg-[#173F30] hover:text-white text-[#6B7068] px-2 py-0.5 rounded border border-[#B9A48B] transition-colors cursor-pointer"
                       >
                         {s.label}
                       </button>
@@ -518,8 +518,8 @@ export const AdminBrands: React.FC = () => {
 
                 {/* Preview Thumbnail */}
                 {logoUrl && (
-                  <div className="mt-2 flex items-center gap-2 p-2 bg-[#F5F1EC] rounded-lg border border-[#E8E2DC]">
-                    <div className="w-10 h-10 bg-white rounded border border-[#C6B8AB] p-1 flex items-center justify-center">
+                  <div className="mt-2 flex items-center gap-2 p-2 bg-[#E9EBDD] rounded-lg border border-[#D7E0D6]">
+                    <div className="w-10 h-10 bg-white rounded border border-[#B9A48B] p-1 flex items-center justify-center">
                       <img
                         src={logoUrl}
                         alt="Preview"
@@ -530,8 +530,8 @@ export const AdminBrands: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <p className="font-bold text-[11px] text-[#1F1F1F]">Logo Preview</p>
-                      <p className="text-[10px] text-[#A8927D]">Image loaded successfully</p>
+                      <p className="font-bold text-[11px] text-[#2E342D]">Logo Preview</p>
+                      <p className="text-[10px] text-[#D8C8B3]">Image loaded successfully</p>
                     </div>
                   </div>
                 )}
@@ -539,7 +539,7 @@ export const AdminBrands: React.FC = () => {
 
               {/* Category Specialty */}
               <div>
-                <label className="font-semibold text-[#1F1F1F] block mb-1">
+                <label className="font-semibold text-[#2E342D] block mb-1">
                   Brand Category Specialty
                 </label>
                 <input
@@ -547,7 +547,7 @@ export const AdminBrands: React.FC = () => {
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   placeholder="e.g. Footwear & Apparel, Smart Devices, Home Audio"
-                  className="w-full bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg p-2.5 text-xs text-[#1F1F1F] focus:outline-none focus:ring-1 focus:ring-[#8C6F52] focus:bg-white"
+                  className="w-full bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2.5 text-xs text-[#2E342D] focus:outline-none focus:ring-1 focus:ring-[#173F30] focus:bg-white"
                 />
               </div>
 
@@ -558,26 +558,26 @@ export const AdminBrands: React.FC = () => {
                     type="checkbox"
                     checked={isActive}
                     onChange={(e) => setIsActive(e.target.checked)}
-                    className="rounded text-[#8C6F52] focus:ring-[#8C6F52]"
+                    className="rounded text-[#173F30] focus:ring-[#173F30]"
                   />
-                  <span className="text-xs font-semibold text-[#1F1F1F]">
+                  <span className="text-xs font-semibold text-[#2E342D]">
                     Display actively in storefront Top Brands section
                   </span>
                 </label>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-3 border-t border-[#E8E2DC] flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-[#D7E0D6] flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-lg border border-[#C6B8AB] text-[#3A3A3A] font-semibold text-xs hover:bg-[#F5F1EC] cursor-pointer"
+                  className="px-4 py-2 rounded-lg border border-[#B9A48B] text-[#6B7068] font-semibold text-xs hover:bg-[#E9EBDD] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg bg-[#1F1F1F] hover:bg-[#8C6F52] text-white font-bold text-xs transition-colors cursor-pointer shadow-sm"
+                  className="px-5 py-2 rounded-lg bg-[#2E342D] hover:bg-[#173F30] text-white font-bold text-xs transition-colors cursor-pointer shadow-sm"
                 >
                   {editingBrand ? 'Save Changes' : 'Add Brand'}
                 </button>

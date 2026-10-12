@@ -1,0 +1,9 @@
+# Velneer Robots.txt
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/private/
+
+# Sitemap location
+Sitemap: https://velneer.com/sitemap.xml

@@ -111,6 +111,29 @@ export const AuthModal: React.FC = () => {
     }
   };
 
+  // Close on ESC key press
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isAuthOpen) {
+        setIsAuthOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAuthOpen, setIsAuthOpen]);
+
+  // Lock body scroll while open
+  React.useEffect(() => {
+    if (isAuthOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isAuthOpen]);
+
   const handleQuickDemo = (demoEmail: string, demoRole: UserRole) => {
     login(demoEmail, demoRole);
     setIsAuthOpen(false);
@@ -120,54 +143,80 @@ export const AuthModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-7 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
-        {/* Close Button */}
-        <button
-          onClick={() => setIsAuthOpen(false)}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-800 transition-colors cursor-pointer"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <div className="fixed inset-0 z-50 overflow-hidden">
+      {/* Backdrop */}
+      <div
+        onClick={() => setIsAuthOpen(false)}
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+      />
 
-        {/* Brand Header */}
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center text-2xl font-extrabold tracking-tight mb-1">
-            <span className="text-[#1F1F1F]">Shop</span>
-            <span className="text-[#8C6F52]">Verse</span>
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
+        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-250 border-l border-[#D7E0D6]">
+          {/* Header */}
+          <div className="px-5 py-4 border-b border-[#D7E0D6] bg-[#E9EBDD] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-[#173F30]/10 text-[#173F30] flex items-center justify-center font-bold text-sm">
+                V
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-[#2E342D] leading-tight">
+                  {mode === 'login' ? 'Sign In to Velneer' : 'Create an Account'}
+                </h3>
+                <span className="text-[10px] text-[#6B7068]">
+                  {mode === 'login' ? 'Access your orders & saved items' : 'Fast checkout & member discounts'}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsAuthOpen(false)}
+              className="p-1.5 rounded-full hover:bg-[#D7E0D6] text-[#6B7068] hover:text-[#2E342D] transition-colors cursor-pointer"
+              title="Close Panel"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <p className="text-xs text-[#3A3A3A]">
-            {mode === 'login'
-              ? 'Sign in to access your orders, wishlist & profile'
-              : 'Join ShopVerse today for exclusive deals & quick checkout'}
-          </p>
-        </div>
+
+          {/* Scrollable Body */}
+          <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
+            {/* Brand Header */}
+            <div className="text-center pb-1">
+              <div className="flex items-center justify-center text-2xl font-extrabold tracking-tight mb-1">
+                <span className="text-[#2E342D]">Vel</span>
+                <span className="text-[#173F30]">neer</span>
+              </div>
+              <p className="text-xs text-[#6B7068]">
+                {mode === 'login'
+                  ? 'Sign in to access your orders, wishlist & profile'
+                  : 'Join Velneer today for exclusive deals & quick checkout'}
+              </p>
+            </div>
 
         {/* Quick Demo Switchers */}
-        <div className="mb-5 bg-[#F5F1EC] border border-[#C6B8AB] rounded-xl p-3 text-xs">
-          <div className="flex items-center justify-between font-semibold text-[#1F1F1F] mb-2">
+        <div className="mb-5 bg-[#E9EBDD] border border-[#B9A48B] rounded-xl p-3 text-xs">
+          <div className="flex items-center justify-between font-semibold text-[#2E342D] mb-2">
             <span>⚡ Instant Demo Sign-in:</span>
-            <span className="text-[10px] text-[#8C6F52] font-bold">1-click Switch</span>
+            <span className="text-[10px] text-[#173F30] font-bold">1-click Switch</span>
           </div>
           <div className="grid grid-cols-3 gap-1.5">
             <button
               type="button"
-              onClick={() => handleQuickDemo('admin@shopverse.in', 'admin')}
-              className="py-1.5 px-2 bg-white rounded-lg border border-[#C6B8AB] text-[#1F1F1F] font-semibold hover:bg-[#8C6F52] hover:text-white transition-colors cursor-pointer text-center text-[11px]"
+              onClick={() => handleQuickDemo('admin@velneer.in', 'admin')}
+              className="py-1.5 px-2 bg-white rounded-lg border border-[#B9A48B] text-[#2E342D] font-semibold hover:bg-[#173F30] hover:text-white transition-colors cursor-pointer text-center text-[11px]"
             >
               👑 Super Admin
             </button>
             <button
               type="button"
-              onClick={() => handleQuickDemo('manager@shopverse.in', 'manager')}
-              className="py-1.5 px-2 bg-white rounded-lg border border-[#C6B8AB] text-[#1F1F1F] font-semibold hover:bg-[#8C6F52] hover:text-white transition-colors cursor-pointer text-center text-[11px]"
+              onClick={() => handleQuickDemo('manager@velneer.in', 'manager')}
+              className="py-1.5 px-2 bg-white rounded-lg border border-[#B9A48B] text-[#2E342D] font-semibold hover:bg-[#173F30] hover:text-white transition-colors cursor-pointer text-center text-[11px]"
             >
               📦 Store Mgr
             </button>
             <button
               type="button"
               onClick={() => handleQuickDemo('rahul@example.com', 'customer')}
-              className="py-1.5 px-2 bg-white rounded-lg border border-[#C6B8AB] text-[#1F1F1F] font-semibold hover:bg-[#8C6F52] hover:text-white transition-colors cursor-pointer text-center text-[11px]"
+              className="py-1.5 px-2 bg-white rounded-lg border border-[#B9A48B] text-[#2E342D] font-semibold hover:bg-[#173F30] hover:text-white transition-colors cursor-pointer text-center text-[11px]"
             >
               🛍️ Customer
             </button>
@@ -175,7 +224,7 @@ export const AuthModal: React.FC = () => {
         </div>
 
         {/* Mode Toggle Tabs */}
-        <div className="flex border-b border-[#E8E2DC] mb-5">
+        <div className="flex border-b border-[#D7E0D6] mb-5">
           <button
             type="button"
             onClick={() => {
@@ -184,8 +233,8 @@ export const AuthModal: React.FC = () => {
             }}
             className={`flex-1 pb-2.5 text-xs font-bold transition-colors cursor-pointer text-center border-b-2 ${
               mode === 'login'
-                ? 'border-[#8C6F52] text-[#8C6F52]'
-                : 'border-transparent text-[#A8927D] hover:text-[#1F1F1F]'
+                ? 'border-[#173F30] text-[#173F30]'
+                : 'border-transparent text-[#D8C8B3] hover:text-[#2E342D]'
             }`}
           >
             Sign In
@@ -198,8 +247,8 @@ export const AuthModal: React.FC = () => {
             }}
             className={`flex-1 pb-2.5 text-xs font-bold transition-colors cursor-pointer text-center border-b-2 ${
               mode === 'signup'
-                ? 'border-[#8C6F52] text-[#8C6F52]'
-                : 'border-transparent text-[#A8927D] hover:text-[#1F1F1F]'
+                ? 'border-[#173F30] text-[#173F30]'
+                : 'border-transparent text-[#D8C8B3] hover:text-[#2E342D]'
             }`}
           >
             Create Account
@@ -218,58 +267,58 @@ export const AuthModal: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-3.5">
           {mode === 'signup' && (
             <div>
-              <label className="text-[11px] font-semibold text-[#1F1F1F] block mb-1">
+              <label className="text-[11px] font-semibold text-[#2E342D] block mb-1">
                 Full Name
               </label>
               <div className="relative">
-                <UserIcon className="w-4 h-4 text-[#A8927D] absolute left-3 top-1/2 -translate-y-1/2" />
+                <UserIcon className="w-4 h-4 text-[#D8C8B3] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Rahul Sharma"
-                  className="w-full text-xs bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg pl-9 pr-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#8C6F52] focus:bg-white"
+                  className="w-full text-xs bg-[#E9EBDD] border border-[#B9A48B] rounded-lg pl-9 pr-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#173F30] focus:bg-white"
                 />
               </div>
             </div>
           )}
 
           <div>
-            <label className="text-[11px] font-semibold text-[#1F1F1F] block mb-1">
+            <label className="text-[11px] font-semibold text-[#2E342D] block mb-1">
               Email Address
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-[#A8927D] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Mail className="w-4 h-4 text-[#D8C8B3] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
-                className="w-full text-xs bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg pl-9 pr-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#8C6F52] focus:bg-white"
+                className="w-full text-xs bg-[#E9EBDD] border border-[#B9A48B] rounded-lg pl-9 pr-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#173F30] focus:bg-white"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-[11px] font-semibold text-[#1F1F1F] block mb-1">
+            <label className="text-[11px] font-semibold text-[#2E342D] block mb-1">
               Password
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-[#A8927D] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-[#D8C8B3] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full text-xs bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg pl-9 pr-10 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#8C6F52] focus:bg-white"
+                className="w-full text-xs bg-[#E9EBDD] border border-[#B9A48B] rounded-lg pl-9 pr-10 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#173F30] focus:bg-white"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A8927D] hover:text-[#1F1F1F] cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#D8C8B3] hover:text-[#2E342D] cursor-pointer"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -277,13 +326,13 @@ export const AuthModal: React.FC = () => {
             {mode === 'signup' && password.length > 0 && (
               <div className="mt-1.5 space-y-1">
                 <div className="flex items-center justify-between text-[10px]">
-                  <span className="text-[#3A3A3A] font-medium">Security Strength:</span>
+                  <span className="text-[#6B7068] font-medium">Security Strength:</span>
                   <span
                     className={`font-bold ${
                       passwordStrength.level === 'Strong'
                         ? 'text-[#2E7D32]'
                         : passwordStrength.level === 'Good'
-                        ? 'text-[#8C6F52]'
+                        ? 'text-[#173F30]'
                         : passwordStrength.level === 'Fair'
                         ? 'text-amber-600'
                         : 'text-[#E63946]'
@@ -292,13 +341,13 @@ export const AuthModal: React.FC = () => {
                     {passwordStrength.level} ({password.length} chars)
                   </span>
                 </div>
-                <div className="w-full bg-[#E8E2DC] h-1.5 rounded-full overflow-hidden flex">
+                <div className="w-full bg-[#D7E0D6] h-1.5 rounded-full overflow-hidden flex">
                   <div
                     className={`h-full transition-all duration-300 ${
                       passwordStrength.score >= 4
                         ? 'w-full bg-[#2E7D32]'
                         : passwordStrength.score === 3
-                        ? 'w-3/4 bg-[#8C6F52]'
+                        ? 'w-3/4 bg-[#173F30]'
                         : passwordStrength.score === 2
                         ? 'w-1/2 bg-amber-500'
                         : 'w-1/4 bg-[#E63946]'
@@ -311,18 +360,18 @@ export const AuthModal: React.FC = () => {
 
           {mode === 'signup' && (
             <div>
-              <label className="text-[11px] font-semibold text-[#1F1F1F] block mb-1">
+              <label className="text-[11px] font-semibold text-[#2E342D] block mb-1">
                 Confirm Password
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-[#A8927D] absolute left-3 top-1/2 -translate-y-1/2" />
+                <Lock className="w-4 h-4 text-[#D8C8B3] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full text-xs bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg pl-9 pr-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#8C6F52] focus:bg-white"
+                  className="w-full text-xs bg-[#E9EBDD] border border-[#B9A48B] rounded-lg pl-9 pr-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#173F30] focus:bg-white"
                 />
               </div>
             </div>
@@ -330,13 +379,13 @@ export const AuthModal: React.FC = () => {
 
           {/* Role selector dropdown for RBAC simulation */}
           <div>
-            <label className="text-[11px] font-semibold text-[#1F1F1F] block mb-1">
+            <label className="text-[11px] font-semibold text-[#2E342D] block mb-1">
               Account Role (RBAC Simulation)
             </label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as UserRole)}
-              className="w-full text-xs bg-[#F5F1EC] border border-[#C6B8AB] rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-[#8C6F52]"
+              className="w-full text-xs bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2.5 focus:outline-none focus:ring-1 focus:ring-[#173F30]"
             >
               <option value="customer">Customer (Storefront & Profile)</option>
               <option value="manager">Store Manager (Inventory & Orders)</option>
@@ -346,7 +395,7 @@ export const AuthModal: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full bg-[#1F1F1F] hover:bg-[#3A3A3A] text-white font-bold text-xs sm:text-sm py-3 rounded-lg transition-colors cursor-pointer shadow-md mt-2"
+            className="w-full bg-[#2E342D] hover:bg-[#6B7068] text-white font-bold text-xs sm:text-sm py-3 rounded-lg transition-colors cursor-pointer shadow-md mt-2"
           >
             {mode === 'login' ? 'Sign In Securely' : 'Create My Account'}
           </button>
@@ -358,5 +407,7 @@ export const AuthModal: React.FC = () => {
         </div>
       </div>
     </div>
+  </div>
+</div>
   );
 };
