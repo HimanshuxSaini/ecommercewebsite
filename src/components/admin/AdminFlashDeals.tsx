@@ -8,7 +8,6 @@ import {
   Check,
   AlertTriangle,
   RotateCcw,
-  Sparkles,
   ShoppingBag,
   X,
   Search,
@@ -162,7 +161,7 @@ export const AdminFlashDeals: React.FC = () => {
             onClick={() => setIsCreateCustomOpen(true)}
             className="bg-[#2E342D] hover:bg-[#6B7068] text-white text-xs font-semibold px-4 py-2.5 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
           >
-            <Sparkles className="w-4 h-4 text-[#D8C8B3]" />
+            <Plus className="w-4 h-4 text-[#D8C8B3]" />
             <span>Create New Custom Deal</span>
           </button>
         </div>
@@ -515,7 +514,7 @@ export const AdminFlashDeals: React.FC = () => {
             </button>
 
             <h2 className="text-base font-bold text-slate-900 mb-1 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
+              <Zap className="w-4 h-4 text-[#173F30]" />
               <span>Create Custom Flash Deal Product</span>
             </h2>
             <p className="text-xs text-slate-500 mb-4">

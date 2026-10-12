@@ -6,7 +6,6 @@ import {
   ArrowUpDown,
   Search,
   X,
-  Sparkles,
   ShieldCheck,
   Truck,
   RotateCcw,
@@ -188,7 +187,6 @@ export const CategoryPage: React.FC = () => {
           {/* Left Hero Content */}
           <div className="z-10 max-w-xl text-left space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-[#E9EBDD]">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
               <span>Official Department Collection</span>
             </div>
 
@@ -514,7 +512,7 @@ export const CategoryPage: React.FC = () => {
 
           <div className="bg-white rounded-2xl border border-[#D7E0D6] p-4 flex items-center gap-3.5 shadow-xs">
             <div className="w-10 h-10 rounded-xl bg-[#E9EBDD] text-[#173F30] flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5" />
+              <Tag className="w-5 h-5" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-[#2E342D]">Best Price Guarantee</h4>

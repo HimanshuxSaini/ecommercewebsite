@@ -168,7 +168,7 @@ export const CheckoutModal: React.FC = () => {
                   Secure Checkout
                 </h3>
                 <span className="text-[10px] text-[#6B7068]">
-                  256-bit Encrypted Velneer Express Checkout
+                  Velneer Express Checkout
                 </span>
               </div>
             </div>

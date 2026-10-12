@@ -16,6 +16,7 @@ export const Footer: React.FC = () => {
     navigateToHome,
     navigateToShop,
     navigateToCategory,
+    navigateToPolicy,
     categories,
     setIsProfileOpen,
     setIsAuthOpen,
@@ -40,14 +41,17 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Col 1: Brand Info */}
           <div className="lg:col-span-1 space-y-3">
-            <div className="cursor-pointer" onClick={navigateToHome}>
-              <div className="flex items-center text-2xl font-extrabold tracking-tight">
-                <span className="text-[#2E342D]">Vel</span>
-                <span className="text-[#173F30]">neer</span>
-              </div>
-              <span className="text-[10px] text-[#D8C8B3] font-medium tracking-wide -mt-1 block">
-                Everything You Need, Everyday
-              </span>
+            <div className="cursor-pointer group flex items-center gap-2 sm:gap-2.5 select-none" onClick={navigateToHome}>
+              <img
+                src="/velneer_emblem_clean.png"
+                alt="Velneer Logo"
+                className="h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-105 drop-shadow-xs"
+              />
+              <img
+                src="/velneer_name_clean.png"
+                alt="Velneer"
+                className="h-6 w-auto object-contain"
+              />
             </div>
 
             <p className="text-[#6B7068] text-xs leading-relaxed">
@@ -162,24 +166,44 @@ export const Footer: React.FC = () => {
                 </button>
               </li>
               <li>
-                <span className="hover:text-[#173F30] transition-colors cursor-pointer">
+                <button
+                  onClick={() => navigateToPolicy('shipping')}
+                  className="hover:text-[#173F30] transition-colors cursor-pointer text-left"
+                >
                   Shipping Policy
-                </span>
+                </button>
               </li>
               <li>
-                <span className="hover:text-[#173F30] transition-colors cursor-pointer">
+                <button
+                  onClick={() => navigateToPolicy('returns')}
+                  className="hover:text-[#173F30] transition-colors cursor-pointer text-left"
+                >
                   Return & Refund
-                </span>
+                </button>
               </li>
               <li>
-                <span className="hover:text-[#173F30] transition-colors cursor-pointer">
+                <button
+                  onClick={() => navigateToPolicy('faqs')}
+                  className="hover:text-[#173F30] transition-colors cursor-pointer text-left"
+                >
                   FAQs
-                </span>
+                </button>
               </li>
               <li>
-                <span className="hover:text-[#173F30] transition-colors cursor-pointer">
+                <button
+                  onClick={() => navigateToPolicy('contact')}
+                  className="hover:text-[#173F30] transition-colors cursor-pointer text-left"
+                >
                   Help & Support
-                </span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigateToPolicy('resin-policy')}
+                  className="hover:text-[#173F30] transition-colors cursor-pointer text-left"
+                >
+                  Resin & Bulk Orders
+                </button>
               </li>
             </ul>
           </div>
@@ -191,29 +215,44 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2">
               <li>
-                <span className="hover:text-[#173F30] transition-colors cursor-pointer">
+                <button
+                  onClick={() => navigateToPolicy('about')}
+                  className="hover:text-[#173F30] transition-colors cursor-pointer text-left"
+                >
                   Our Story
-                </span>
+                </button>
               </li>
               <li>
-                <span className="hover:text-[#173F30] transition-colors cursor-pointer">
-                  Careers
-                </span>
+                <button
+                  onClick={() => navigateToPolicy('resin-policy')}
+                  className="hover:text-[#173F30] transition-colors cursor-pointer text-left"
+                >
+                  Artisan Studio
+                </button>
               </li>
               <li>
-                <span className="hover:text-[#173F30] transition-colors cursor-pointer">
-                  Blog
-                </span>
-              </li>
-              <li>
-                <span className="hover:text-[#173F30] transition-colors cursor-pointer">
+                <button
+                  onClick={() => navigateToPolicy('terms')}
+                  className="hover:text-[#173F30] transition-colors cursor-pointer text-left"
+                >
                   Terms & Conditions
-                </span>
+                </button>
               </li>
               <li>
-                <span className="hover:text-[#173F30] transition-colors cursor-pointer">
+                <button
+                  onClick={() => navigateToPolicy('privacy')}
+                  className="hover:text-[#173F30] transition-colors cursor-pointer text-left"
+                >
                   Privacy Policy
-                </span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigateToPolicy('contact')}
+                  className="hover:text-[#173F30] transition-colors cursor-pointer text-left"
+                >
+                  Grievance Desk
+                </button>
               </li>
             </ul>
           </div>
@@ -226,11 +265,21 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2.5">
               <li className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-[#173F30] shrink-0" />
-                <span className="font-semibold text-[#2E342D]">+91 98765 43210</span>
+                <a
+                  href="tel:+919306680944"
+                  className="font-semibold text-[#2E342D] hover:text-[#173F30] transition-colors"
+                >
+                  +91 93066 80944
+                </a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-[#173F30] shrink-0" />
-                <span className="text-[#6B7068] truncate">support@velneer.in</span>
+                <a
+                  href="mailto:sales.velneer@gmail.com"
+                  className="text-[#6B7068] hover:text-[#173F30] truncate transition-colors"
+                >
+                  sales.velneer@gmail.com
+                </a>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="w-3.5 h-3.5 text-[#173F30] shrink-0 mt-0.5" />

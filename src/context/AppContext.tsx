@@ -20,6 +20,7 @@ import {
   NavItem,
   Order,
   Product,
+  PolicySlug,
   StorePage,
   Toast,
   User,
@@ -115,9 +116,12 @@ interface AppContextType {
   setCurrentView: (view: 'store' | 'admin') => void;
   currentPage: StorePage;
   setCurrentPage: (page: StorePage) => void;
+  currentPolicyTab: PolicySlug;
+  setCurrentPolicyTab: (tab: PolicySlug) => void;
   navigateToHome: () => void;
   navigateToShop: () => void;
   navigateToCategory: (categoryId: string) => void;
+  navigateToPolicy: (tab?: PolicySlug) => void;
   adminTab: 'dashboard' | 'products' | 'inventory' | 'categories' | 'coupons' | 'banners' | 'orders' | 'flash-deals' | 'navigation' | 'brands';
   setAdminTab: (tab: 'dashboard' | 'products' | 'inventory' | 'categories' | 'coupons' | 'banners' | 'orders' | 'flash-deals' | 'navigation' | 'brands') => void;
   brands: Brand[];
@@ -165,25 +169,57 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('sv_currentUser');
-    if (saved) {
+    if (saved && saved !== 'null' && saved !== 'undefined') {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Clear out legacy auto-injected demo accounts so the user starts as a guest and sees Login
+        if (parsed && parsed.email && !parsed.name?.includes('(Super Admin)') && parsed.id !== 'usr-admin-1') {
+          return parsed;
+        }
       } catch {
-        return INITIAL_USERS[0];
+        return null;
       }
     }
-    // Default to Super Admin for easy instant exploration of both storefront and admin features
-    return INITIAL_USERS[0];
+    // Default to null (unauthenticated guest) so login screen and Login CTA are displayed
+    return null;
   });
 
   const [products, setProducts] = useState<Product[]>(() => {
     const saved = localStorage.getItem('sv_products');
-    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+    if (saved) {
+      try {
+        const parsed: Product[] = JSON.parse(saved);
+        const missing = INITIAL_PRODUCTS.filter((ip) => !parsed.some((p) => p.id === ip.id));
+        if (missing.length > 0) {
+          const merged = [...parsed, ...missing];
+          localStorage.setItem('sv_products', JSON.stringify(merged));
+          return merged;
+        }
+        return parsed;
+      } catch {
+        return INITIAL_PRODUCTS;
+      }
+    }
+    return INITIAL_PRODUCTS;
   });
 
   const [categories, setCategories] = useState<Category[]>(() => {
     const saved = localStorage.getItem('sv_categories');
-    return saved ? JSON.parse(saved) : INITIAL_CATEGORIES;
+    if (saved) {
+      try {
+        const parsed: Category[] = JSON.parse(saved);
+        const missing = INITIAL_CATEGORIES.filter((ic) => !parsed.some((c) => c.id === ic.id));
+        if (missing.length > 0) {
+          const merged = [...parsed, ...missing];
+          localStorage.setItem('sv_categories', JSON.stringify(merged));
+          return merged;
+        }
+        return parsed;
+      } catch {
+        return INITIAL_CATEGORIES;
+      }
+    }
+    return INITIAL_CATEGORIES;
   });
 
   const [banners, setBanners] = useState<Banner[]>(() => {
@@ -219,7 +255,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       {
         id: 'addr-default',
         fullName: 'Himanshu Sharma',
-        phone: '+91 98765 43210',
+        phone: '+91 93066 80944',
         street: 'Flat 102, Shivalik Tower, Model Town',
         city: 'Sonipat',
         state: 'Haryana',
@@ -234,8 +270,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [currentView, setCurrentView] = useState<'store' | 'admin'>('store');
   const [currentPage, setCurrentPage] = useState<StorePage>(() => {
     const saved = localStorage.getItem('sv_currentPage');
-    return saved === 'shop' || saved === 'category' ? saved : 'home';
+    return saved === 'shop' || saved === 'category' || saved === 'policy' ? saved : 'home';
   });
+  const [currentPolicyTab, setCurrentPolicyTab] = useState<PolicySlug>('privacy');
   const [adminTab, setAdminTab] = useState<'dashboard' | 'products' | 'inventory' | 'categories' | 'coupons' | 'banners' | 'orders' | 'flash-deals' | 'navigation' | 'brands'>('dashboard');
   const [brands, setBrands] = useState<Brand[]>(() => {
     const saved = localStorage.getItem('sv_brands');
@@ -262,7 +299,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           };
           const updated = [...parsed];
           updated.splice(homeIndex >= 0 ? homeIndex + 1 : 1, 0, shopItem);
-          return updated.map((item, idx) => ({ ...item, order: idx + 1 }));
+          const withShop = updated.map((item, idx) => ({ ...item, order: idx + 1 }));
+          const missing = INITIAL_NAV_ITEMS.filter((ini) => !withShop.some((i) => i.id === ini.id));
+          const finalNav = missing.length > 0 ? [...withShop, ...missing].map((item, idx) => ({ ...item, order: idx + 1 })) : withShop;
+          localStorage.setItem('sv_navItems', JSON.stringify(finalNav));
+          return finalNav;
+        }
+        const missing = INITIAL_NAV_ITEMS.filter((ini) => !parsed.some((i) => i.id === ini.id));
+        if (missing.length > 0) {
+          const merged = [...parsed, ...missing].map((item, idx) => ({ ...item, order: idx + 1 }));
+          localStorage.setItem('sv_navItems', JSON.stringify(merged));
+          return merged;
         }
         return parsed;
       } catch {
@@ -305,7 +352,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [flashDealConfig]);
 
   useEffect(() => {
-    localStorage.setItem('sv_currentUser', JSON.stringify(currentUser));
+    if (currentUser) {
+      localStorage.setItem('sv_currentUser', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('sv_currentUser');
+    }
   }, [currentUser]);
 
   useEffect(() => {
@@ -378,6 +429,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const navigateToPolicy = (tab: PolicySlug = 'privacy') => {
+    setCurrentView('store');
+    setSelectedCategory(null);
+    setCurrentPolicyTab(tab);
+    setCurrentPage('policy');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleSetSelectedCategory = (categoryId: string | null) => {
     setSelectedCategory(categoryId);
     if (categoryId) {
@@ -431,9 +490,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const existing = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
     if (existing) {
       loginRateLimiter.resetAttempts(email);
-      const updatedUser = role ? { ...existing, role } : existing;
-      setCurrentUser(updatedUser);
-      showToast(`Welcome back, ${updatedUser.name}!`);
+      setCurrentUser(existing);
+      showToast(`Welcome back, ${existing.name}!`);
       return true;
     }
 
@@ -981,7 +1039,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         showToast('Removed from Wishlist', 'info');
         return prev.filter((id) => id !== productId);
       } else {
-        showToast('Saved to Wishlist ❤️');
+        showToast('Saved to Wishlist');
         return [...prev, productId];
       }
     });
@@ -1123,7 +1181,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setOrders((prev) => [newOrder, ...prev]);
     clearCart();
-    showToast('🎉 Order placed successfully! Thank you for shopping with Velneer.');
+    showToast('Order placed successfully! Thank you for shopping with Velneer.');
     return newOrder;
   };
 
@@ -1203,9 +1261,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setCurrentView,
         currentPage,
         setCurrentPage,
+        currentPolicyTab,
+        setCurrentPolicyTab,
         navigateToHome,
         navigateToShop,
         navigateToCategory,
+        navigateToPolicy,
         adminTab,
         setAdminTab,
         brands,

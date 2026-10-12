@@ -7,6 +7,7 @@ export const TriplePromoCards: React.FC = () => {
 
   const promoCards = [
     {
+      id: 'promo-electronics',
       tag: 'Deal of the Day',
       tagColor: 'bg-[#D8C8B3]/20 text-[#173F30] border-[#D8C8B3]/40',
       title: 'Top Deals on Electronics',
@@ -14,12 +15,12 @@ export const TriplePromoCards: React.FC = () => {
       description: 'On selected audio, laptops & wearables',
       buttonText: 'Shop Deals',
       buttonClass: 'bg-[#2E342D] hover:bg-[#6B7068] text-white',
-      cardClass: 'bg-[#E9EBDD] border-[#B9A48B] text-[#2E342D]',
+      cardClass: 'bg-[#E9EBDD] border-[#B9A48B] text-[#2E342D] hover:border-[#173F30]',
       imageUrl: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500&auto=format&fit=crop&q=80',
       categoryId: 'cat-electronics',
-      targetId: 'flash-deals',
     },
     {
+      id: 'promo-fashion',
       tag: 'New Arrivals',
       tagColor: 'bg-[#2E7D32]/10 text-[#2E7D32] border-[#2E7D32]/30',
       title: 'Fashion Festive Sale',
@@ -27,23 +28,22 @@ export const TriplePromoCards: React.FC = () => {
       description: 'Check out the latest apparel just for you',
       buttonText: 'Explore Now',
       buttonClass: 'bg-[#173F30] hover:bg-[#2E5E46] text-white',
-      cardClass: 'bg-[#E9EBDD] border-[#B9A48B] text-[#2E342D]',
+      cardClass: 'bg-[#E9EBDD] border-[#B9A48B] text-[#2E342D] hover:border-[#173F30]',
       imageUrl: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500&auto=format&fit=crop&q=80',
       categoryId: 'cat-fashion',
-      targetId: 'flash-deals',
     },
     {
-      tag: 'Member Exclusive',
+      id: 'promo-resin',
+      tag: 'MEMBER EXCLUSIVE',
       tagColor: 'bg-[#D8C8B3]/30 text-[#D8C8B3] border-[#D8C8B3]/50',
-      title: 'Home Essentials Sale',
-      subtitle: 'Extra 10% OFF',
-      description: 'On luxury furniture, cookware & decor',
-      buttonText: 'Shop Now',
-      buttonClass: 'bg-[#173F30] hover:bg-[#D8C8B3] text-white',
-      cardClass: 'bg-[#2E342D] border-[#6B7068] text-white',
-      imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500&auto=format&fit=crop&q=80',
-      categoryId: 'cat-home',
-      targetId: 'best-sellers',
+      title: 'Artisan Resin Work',
+      subtitle: 'Bespoke Epoxy Art',
+      description: 'Handcrafted clocks, ocean trays & custom tables',
+      buttonText: 'Explore Craft',
+      buttonClass: 'bg-[#173F30] hover:bg-[#2E5E46] text-white',
+      cardClass: 'bg-[#2E342D] border-[#6B7068] text-white hover:border-[#D8C8B3]',
+      imageUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=600&auto=format&fit=crop&q=80',
+      categoryId: 'cat-resin',
     },
   ];
 
@@ -54,16 +54,26 @@ export const TriplePromoCards: React.FC = () => {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {promoCards.map((card, idx) => (
+        {promoCards.map((card) => (
           <div
-            key={idx}
-            className={`rounded-2xl p-5 border ${card.cardClass} shadow-xs flex items-center justify-between gap-4 overflow-hidden relative group hover:shadow-md transition-shadow`}
+            key={card.id}
+            onClick={() => handleClick(card.categoryId)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleClick(card.categoryId);
+              }
+            }}
+            className={`rounded-2xl p-5 border ${card.cardClass} shadow-xs flex items-center justify-between gap-4 overflow-hidden relative group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer select-none`}
+            title={`View ${card.title}`}
           >
             <div className="z-10 flex flex-col items-start max-w-[58%]">
               <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border mb-2 ${card.tagColor}`}>
                 {card.tag}
               </span>
-              <h3 className="text-base sm:text-lg font-black leading-snug">
+              <h3 className="text-base sm:text-lg font-black leading-snug group-hover:text-emerald-700 transition-colors">
                 {card.title}
               </h3>
               <p className="text-xs font-extrabold mt-1 mb-1 opacity-90">
@@ -72,13 +82,12 @@ export const TriplePromoCards: React.FC = () => {
               <p className="text-[11px] opacity-75 mb-3 line-clamp-1">
                 {card.description}
               </p>
-              <button
-                onClick={() => handleClick(card.categoryId)}
-                className={`inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg transition-all shadow-xs cursor-pointer ${card.buttonClass}`}
+              <span
+                className={`inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg transition-all shadow-xs group-hover:scale-105 ${card.buttonClass}`}
               >
                 <span>{card.buttonText}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-200" />
+              </span>
             </div>
 
             {/* Visual Thumbnail */}
@@ -86,7 +95,7 @@ export const TriplePromoCards: React.FC = () => {
               <img
                 src={card.imageUrl}
                 alt={card.title}
-                className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover rounded-lg group-hover:scale-110 transition-transform duration-500"
                 loading="lazy"
               />
             </div>

@@ -36,7 +36,7 @@ export const AdminLayout: React.FC = () => {
     setCurrentView,
     logout,
     hasPermission,
-    login,
+    setIsAuthOpen,
   } = useApp();
 
   // RBAC Guard
@@ -59,10 +59,11 @@ export const AdminLayout: React.FC = () => {
 
           <div className="pt-2 space-y-2">
             <button
-              onClick={() => login('admin@velneer.in', 'admin')}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded-xl transition-colors cursor-pointer shadow-sm"
+              onClick={() => setIsAuthOpen(true)}
+              className="w-full bg-[#173F30] hover:bg-[#2E342D] text-white font-bold text-xs py-2.5 rounded-xl transition-colors cursor-pointer shadow-sm flex items-center justify-center gap-1.5"
             >
-              👑 Elevate to Super Admin (Demo Switch)
+              <Shield className="w-3.5 h-3.5" />
+              Sign In as Administrator
             </button>
             <button
               onClick={() => setCurrentView('store')}
@@ -97,10 +98,18 @@ export const AdminLayout: React.FC = () => {
       <header className="bg-white text-[#2E342D] border-b border-[#D7E0D6] sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex items-center text-lg font-black tracking-tight cursor-pointer" onClick={() => setCurrentView('store')}>
-              <span className="text-[#2E342D]">Vel</span>
-              <span className="text-[#173F30]">neer</span>
-              <span className="ml-2 text-[10px] font-bold uppercase tracking-wider bg-[#173F30] text-white px-2.5 py-0.5 rounded shadow-2xs">
+            <div className="flex items-center gap-2 cursor-pointer select-none" onClick={() => setCurrentView('store')}>
+              <img
+                src="/velneer_emblem_clean.png"
+                alt="Velneer Logo"
+                className="h-8 w-auto object-contain drop-shadow-xs"
+              />
+              <img
+                src="/velneer_name_clean.png"
+                alt="Velneer"
+                className="h-5.5 w-auto object-contain"
+              />
+              <span className="ml-1 text-[10px] font-bold uppercase tracking-wider bg-[#173F30] text-white px-2 py-0.5 rounded shadow-2xs">
                 Control Hub
               </span>
             </div>

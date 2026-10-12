@@ -8,7 +8,6 @@ import {
   LogOut,
   ChevronDown,
   LayoutDashboard,
-  CheckCircle2,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -51,86 +50,92 @@ export const Header: React.FC = () => {
 
   return (
     <header className="bg-[#F8F5EF] border-b border-[#D7E0D6] sticky top-0 z-30 shadow-xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap md:flex-nowrap items-center justify-between gap-3 sm:gap-4">
-        {/* Logo */}
-        <div
-          onClick={() => {
-            navigateToHome();
-            setSearchQuery('');
-            setLocalSearch('');
-          }}
-          className="cursor-pointer shrink-0 group flex flex-col"
-        >
-          <div className="flex items-center text-2xl sm:text-3xl font-extrabold tracking-tight">
-            <span className="text-[#2E342D] group-hover:text-[#173F30] transition-colors">Vel</span>
-            <span className="text-[#173F30]">neer</span>
-          </div>
-          <span className="text-[10px] text-[#173F30]/80 font-medium tracking-wide -mt-1 hidden sm:block">
-            Everything You Need, Everyday
-          </span>
-        </div>
-
-        {/* Search Bar */}
-        <form
-          onSubmit={handleSearchSubmit}
-          className="order-last md:order-none w-full md:w-auto md:flex-1 max-w-2xl mx-0 md:mx-6 mt-1 md:mt-0 flex items-center"
-        >
-          <div className="relative w-full flex items-center rounded-lg border border-[#B9A48B] focus-within:border-[#173F30] focus-within:ring-2 focus-within:ring-[#D7E0D6] transition-all bg-white hover:border-[#173F30]">
-            {/* Category Filter Select */}
-            <select
-              value={currentPage === 'category' ? selectedCategory || '' : ''}
-              onChange={(e) => {
-                if (e.target.value) {
-                  navigateToCategory(e.target.value);
-                } else {
-                  navigateToShop();
-                }
-              }}
-              className="text-xs text-[#6B7068] bg-transparent pl-3 pr-2 py-2.5 border-r border-[#D7E0D6] focus:outline-none cursor-pointer hidden md:block max-w-[130px] truncate"
-            >
-              <option value="">All Categories</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="text"
-              value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
-              placeholder="Search products, brands and more..."
-              className="w-full text-sm text-[#2E342D] placeholder-[#6B7068] px-3.5 py-2.5 bg-transparent focus:outline-none"
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5">
+        {/* Main Bar: Top Row on Mobile, Full Flex Row on Desktop */}
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
+          {/* Logo and Name Lockup (Compact on mobile so everything fits in one row) */}
+          <div
+            onClick={() => {
+              navigateToHome();
+              setSearchQuery('');
+              setLocalSearch('');
+            }}
+            className="cursor-pointer shrink min-w-0 group flex items-center gap-1.5 sm:gap-2.5 select-none"
+          >
+            {/* Transparent 3D Emerald & Gold Emblem */}
+            <img
+              src="/velneer_emblem_clean.png"
+              alt="Velneer Logo"
+              className="h-7 sm:h-10 md:h-11 w-auto object-contain transition-transform duration-200 group-hover:scale-105 drop-shadow-xs shrink-0"
             />
-
-            {localSearch && (
-              <button
-                type="button"
-                onClick={() => {
-                  setLocalSearch('');
-                  setSearchQuery('');
-                }}
-                className="text-xs text-[#6B7068] hover:text-[#2E342D] px-2 cursor-pointer"
-              >
-                Clear
-              </button>
-            )}
-
-            <button
-              type="submit"
-              className="bg-[#173F30] hover:bg-[#2E5E46] text-white p-2.5 sm:px-5 rounded-r-md transition-colors flex items-center justify-center shrink-0 cursor-pointer shadow-sm"
-              title="Search"
-            >
-              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
+            {/* Transparent Company Name */}
+            <img
+              src="/velneer_name_clean.png"
+              alt="Velneer"
+              className="h-4.5 sm:h-6 md:h-7.5 w-auto object-contain shrink min-w-0"
+            />
           </div>
-        </form>
 
-        {/* Action Controls: Switch Admin, Account, Wishlist, Cart */}
-        <div className="flex items-center gap-3 sm:gap-5 shrink-0">
-          {/* Quick Admin Panel Toggle Button */}
-          {currentUser && (currentUser.role === 'admin' || currentUser.role === 'manager') ? (
+          {/* Desktop Search Bar (Hidden on Mobile, Displayed on Desktop in middle) */}
+          <form
+            onSubmit={handleSearchSubmit}
+            className="hidden md:flex flex-1 max-w-2xl mx-4 lg:mx-6 items-center"
+          >
+            <div className="relative w-full flex items-center rounded-lg border border-[#B9A48B] focus-within:border-[#173F30] focus-within:ring-2 focus-within:ring-[#D7E0D6] transition-all bg-white hover:border-[#173F30]">
+              <select
+                value={currentPage === 'category' ? selectedCategory || '' : ''}
+                onChange={(e) => {
+                  if (e.target.value) {
+                    navigateToCategory(e.target.value);
+                  } else {
+                    navigateToShop();
+                  }
+                }}
+                className="text-xs text-[#6B7068] bg-transparent pl-3 pr-2 py-2.5 border-r border-[#D7E0D6] focus:outline-none cursor-pointer max-w-[130px] truncate"
+              >
+                <option value="">All Categories</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+
+              <input
+                type="text"
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
+                placeholder="Search products, brands and more..."
+                className="w-full text-sm text-[#2E342D] placeholder-[#6B7068] px-3.5 py-2.5 bg-transparent focus:outline-none"
+              />
+
+              {localSearch && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocalSearch('');
+                    setSearchQuery('');
+                  }}
+                  className="text-xs text-[#6B7068] hover:text-[#2E342D] px-2 cursor-pointer"
+                >
+                  Clear
+                </button>
+              )}
+
+              <button
+                type="submit"
+                className="bg-[#173F30] hover:bg-[#2E5E46] text-white p-2.5 px-4 rounded-r-md transition-colors flex items-center justify-center shrink-0 cursor-pointer shadow-sm"
+                title="Search"
+              >
+                <Search className="w-4 h-4" />
+              </button>
+            </div>
+          </form>
+
+          {/* Action Controls: Switch Admin, Account, Wishlist, Cart */}
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+          {/* Admin Panel Button (Authorized Staff Only) */}
+          {currentUser && (currentUser.role === 'admin' || currentUser.role === 'manager') && (
             <button
               onClick={() => setCurrentView(currentView === 'admin' ? 'store' : 'admin')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
@@ -144,18 +149,6 @@ export const Header: React.FC = () => {
                 {currentView === 'admin' ? 'Back to Store' : 'Admin Panel'}
               </span>
               <span className="md:hidden">{currentView === 'admin' ? 'Store' : 'Admin'}</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                login('admin@velneer.in', 'admin');
-                setCurrentView('admin');
-              }}
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium bg-[#E9EBDD] text-[#173F30] border border-[#B9A48B] hover:bg-[#D7E0D6] transition-colors cursor-pointer"
-              title="Click to test Admin features directly"
-            >
-              <Shield className="w-3 h-3 text-[#173F30]" />
-              <span>Demo Admin</span>
             </button>
           )}
 
@@ -216,43 +209,6 @@ export const Header: React.FC = () => {
                       </button>
                     )}
 
-                    {/* Role quick switchers */}
-                    <div className="border-t border-[#D7E0D6] my-1 pt-1 px-3">
-                      <p className="text-[10px] font-semibold text-[#6B7068] uppercase tracking-wider mb-1">
-                        Switch Demo Role
-                      </p>
-                      <button
-                        onClick={() => {
-                          login('admin@velneer.in', 'admin');
-                          setIsUserMenuOpen(false);
-                        }}
-                        className="w-full text-left py-1 text-[11px] text-[#6B7068] hover:text-[#173F30] flex items-center justify-between cursor-pointer"
-                      >
-                        <span>Super Admin</span>
-                        {currentUser.role === 'admin' && <CheckCircle2 className="w-3 h-3 text-[#173F30]" />}
-                      </button>
-                      <button
-                        onClick={() => {
-                          login('manager@velneer.in', 'manager');
-                          setIsUserMenuOpen(false);
-                        }}
-                        className="w-full text-left py-1 text-[11px] text-[#6B7068] hover:text-[#173F30] flex items-center justify-between cursor-pointer"
-                      >
-                        <span>Store Manager</span>
-                        {currentUser.role === 'manager' && <CheckCircle2 className="w-3 h-3 text-[#173F30]" />}
-                      </button>
-                      <button
-                        onClick={() => {
-                          login('rahul@example.com', 'customer');
-                          setIsUserMenuOpen(false);
-                        }}
-                        className="w-full text-left py-1 text-[11px] text-[#6B7068] hover:text-[#173F30] flex items-center justify-between cursor-pointer"
-                      >
-                        <span>Customer</span>
-                        {currentUser.role === 'customer' && <CheckCircle2 className="w-3 h-3 text-[#173F30]" />}
-                      </button>
-                    </div>
-
                     <div className="border-t border-[#D7E0D6] mt-1 pt-1">
                       <button
                         onClick={() => {
@@ -271,15 +227,11 @@ export const Header: React.FC = () => {
             ) : (
               <button
                 onClick={() => setIsAuthOpen(true)}
-                className="flex flex-col items-center justify-center text-[#2E342D] hover:text-[#173F30] transition-colors py-0.5 px-1 cursor-pointer group"
-                title="Login / Sign Up"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#173F30] hover:bg-[#2E342D] text-white text-xs font-semibold transition-all cursor-pointer shadow-xs"
+                title="Sign In / Register"
               >
-                <div className="w-8 h-8 rounded-full bg-[#E9EBDD] text-[#173F30] flex items-center justify-center border-2 border-[#B9A48B] group-hover:border-[#173F30] transition-colors shadow-2xs">
-                  <UserIcon className="w-4 h-4 text-[#173F30]" />
-                </div>
-                <span className="text-[11px] font-semibold text-[#2E342D] group-hover:text-[#173F30] transition-colors mt-0.5 leading-tight">
-                  Login
-                </span>
+                <UserIcon className="w-3.5 h-3.5 text-[#E9EBDD]" />
+                <span>Sign In</span>
               </button>
             )}
           </div>
@@ -304,7 +256,7 @@ export const Header: React.FC = () => {
           {/* Cart */}
           <button
             onClick={() => setIsCartOpen(true)}
-            className="flex items-center gap-2 text-[#2E342D] hover:text-[#173F30] transition-colors relative cursor-pointer"
+            className="flex items-center gap-1.5 sm:gap-2 text-[#2E342D] hover:text-[#173F30] transition-colors relative cursor-pointer"
             title="Cart"
           >
             <div className="relative">
@@ -318,6 +270,41 @@ export const Header: React.FC = () => {
             <span className="text-xs sm:text-sm font-medium hidden md:inline">Cart</span>
           </button>
         </div>
+      </div>
+    </div>
+
+      {/* Mobile Search Bar: Appears on mobile in its own row beneath the single-line logo & actions */}
+      <div className="md:hidden px-3 pb-2.5 pt-1">
+        <form onSubmit={handleSearchSubmit} className="w-full flex items-center">
+          <div className="relative w-full flex items-center rounded-lg border border-[#B9A48B] focus-within:border-[#173F30] focus-within:ring-2 focus-within:ring-[#D7E0D6] transition-all bg-white">
+            <input
+              type="text"
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              placeholder="Search products, brands and more..."
+              className="w-full text-xs text-[#2E342D] placeholder-[#6B7068] px-3 py-2 bg-transparent focus:outline-none"
+            />
+            {localSearch && (
+              <button
+                type="button"
+                onClick={() => {
+                  setLocalSearch('');
+                  setSearchQuery('');
+                }}
+                className="text-[11px] text-[#6B7068] hover:text-[#2E342D] px-2 cursor-pointer"
+              >
+                Clear
+              </button>
+            )}
+            <button
+              type="submit"
+              className="bg-[#173F30] hover:bg-[#2E5E46] text-white p-2 px-3 rounded-r-md transition-colors flex items-center justify-center shrink-0 cursor-pointer"
+              title="Search"
+            >
+              <Search className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </form>
       </div>
     </header>
   );

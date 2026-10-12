@@ -10,7 +10,6 @@ import {
   X,
   ExternalLink,
   Layers,
-  Sparkles,
   Eye,
   EyeOff,
   AlertCircle,
@@ -401,11 +400,11 @@ export const AdminNavigation: React.FC = () => {
                     onChange={(e) => setTargetValue(e.target.value)}
                     className="w-full bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2.5 text-xs text-[#2E342D] focus:outline-none focus:ring-1 focus:ring-[#173F30]"
                   >
-                    <option value="flash-deals">⚡ Today's Flash Deals (#flash-deals)</option>
-                    <option value="new-arrivals">✨ New Arrivals (#new-arrivals)</option>
-                    <option value="best-sellers">🔥 Best Sellers (#best-sellers)</option>
-                    <option value="catalog-section">📦 Product Catalog / Filter Bar (#catalog-section)</option>
-                    <option value="reviews-section">📝 Blog & Buying Guides (#reviews-section)</option>
+                    <option value="flash-deals">Today's Flash Deals (#flash-deals)</option>
+                    <option value="new-arrivals">New Arrivals (#new-arrivals)</option>
+                    <option value="best-sellers">Best Sellers (#best-sellers)</option>
+                    <option value="catalog-section">Product Catalog / Filter Bar (#catalog-section)</option>
+                    <option value="reviews-section">Blog & Buying Guides (#reviews-section)</option>
                   </select>
                 </div>
               )}

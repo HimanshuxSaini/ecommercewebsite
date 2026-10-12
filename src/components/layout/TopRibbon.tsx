@@ -2,29 +2,47 @@ import React from 'react';
 import { Truck, RotateCcw, ShieldCheck, Banknote, HelpCircle, Package } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
-const RibbonContent = ({ handleTrackOrder }: { handleTrackOrder: () => void }) => (
+const RibbonContent = ({
+  handleTrackOrder,
+  navigateToPolicy,
+}: {
+  handleTrackOrder: () => void;
+  navigateToPolicy: (tab: any) => void;
+}) => (
   <>
     {/* Left Side: Guarantees */}
     <div className="flex items-center gap-x-5 text-[#6B7068] font-medium shrink-0">
-      <div className="flex items-center gap-1.5">
+      <button
+        onClick={() => navigateToPolicy('shipping')}
+        className="flex items-center gap-1.5 hover:text-[#173F30] transition-colors cursor-pointer"
+      >
         <Truck className="w-3.5 h-3.5 text-[#173F30] shrink-0" />
         <span>Free Shipping on Orders Above <strong className="text-[#2E342D]">₹499</strong></span>
-      </div>
+      </button>
       <span className="text-[#B9A48B] hidden sm:inline">|</span>
-      <div className="flex items-center gap-1.5">
+      <button
+        onClick={() => navigateToPolicy('returns')}
+        className="flex items-center gap-1.5 hover:text-[#173F30] transition-colors cursor-pointer"
+      >
         <RotateCcw className="w-3.5 h-3.5 text-[#173F30] shrink-0" />
-        <span>Easy Returns</span>
-      </div>
+        <span>Easy 7-Day Returns</span>
+      </button>
       <span className="text-[#B9A48B] hidden sm:inline">|</span>
-      <div className="flex items-center gap-1.5">
+      <button
+        onClick={() => navigateToPolicy('faqs')}
+        className="flex items-center gap-1.5 hover:text-[#173F30] transition-colors cursor-pointer"
+      >
         <Banknote className="w-3.5 h-3.5 text-[#173F30] shrink-0" />
         <span>Cash on Delivery</span>
-      </div>
+      </button>
       <span className="text-[#B9A48B] hidden sm:inline">|</span>
-      <div className="flex items-center gap-1.5">
+      <button
+        onClick={() => navigateToPolicy('privacy')}
+        className="flex items-center gap-1.5 hover:text-[#173F30] transition-colors cursor-pointer"
+      >
         <ShieldCheck className="w-3.5 h-3.5 text-[#2E7D32] shrink-0" />
         <span>100% Secure Payments</span>
-      </div>
+      </button>
     </div>
 
     {/* Right Side: Links */}
@@ -38,9 +56,7 @@ const RibbonContent = ({ handleTrackOrder }: { handleTrackOrder: () => void }) =
       </button>
       <span className="text-[#B9A48B]">|</span>
       <button
-        onClick={() => {
-          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }}
+        onClick={() => navigateToPolicy('faqs')}
         className="flex items-center gap-1 hover:text-[#173F30] transition-colors cursor-pointer"
       >
         <HelpCircle className="w-3.5 h-3.5 text-[#173F30]" />
@@ -51,7 +67,7 @@ const RibbonContent = ({ handleTrackOrder }: { handleTrackOrder: () => void }) =
 );
 
 export const TopRibbon: React.FC = () => {
-  const { setIsProfileOpen, setIsAuthOpen, currentUser } = useApp();
+  const { setIsProfileOpen, setIsAuthOpen, currentUser, navigateToPolicy } = useApp();
 
   const handleTrackOrder = () => {
     if (currentUser) {
@@ -68,11 +84,11 @@ export const TopRibbon: React.FC = () => {
         <div className="flex items-center w-max md:w-full whitespace-nowrap mobile-marquee hover:animate-paused md:animate-none md:whitespace-normal">
           
           <div className="flex items-center gap-6 pr-6 md:justify-between md:w-full md:pr-0 md:flex-wrap">
-            <RibbonContent handleTrackOrder={handleTrackOrder} />
+            <RibbonContent handleTrackOrder={handleTrackOrder} navigateToPolicy={navigateToPolicy} />
           </div>
 
           <div className="flex items-center gap-6 pr-6 md:hidden">
-            <RibbonContent handleTrackOrder={handleTrackOrder} />
+            <RibbonContent handleTrackOrder={handleTrackOrder} navigateToPolicy={navigateToPolicy} />
           </div>
 
         </div>

@@ -98,7 +98,7 @@ export const HeroCarousel: React.FC = () => {
               {/* Decorative Subtle Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-[#2E342D]/40 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-3 left-4 text-white text-xs font-semibold drop-shadow">
-                ✨ Curated Modern Essentials
+                Curated Modern Essentials
               </div>
             </div>
           </div>

@@ -12,7 +12,7 @@ export const NewsletterSection: React.FC = () => {
       showToast('Please enter a valid email address', 'error');
       return;
     }
-    showToast('🎉 Thank you for subscribing! A ₹150 welcome coupon code has been sent to your inbox.');
+    showToast('Thank you for subscribing! A ₹150 welcome coupon code has been sent to your inbox.');
     setEmail('');
   };
 

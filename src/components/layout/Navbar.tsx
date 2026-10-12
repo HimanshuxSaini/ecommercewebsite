@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, ChevronDown, Sparkles, Flame, Tag, Layers } from 'lucide-react';
+import { Menu, ChevronDown, Flame, Tag, Layers } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const Navbar: React.FC = () => {

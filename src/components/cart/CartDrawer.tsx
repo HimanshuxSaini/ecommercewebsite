@@ -305,9 +305,9 @@ export const CartDrawer: React.FC = () => {
                 </button>
               </div>
 
-              <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#D8C8B3]">
+              <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#6B7068]">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#2E7D32]" />
-                <span>256-bit SSL Bank-Grade Encryption</span>
+                <span>Secure Checkout Experience</span>
               </div>
             </div>
           )}

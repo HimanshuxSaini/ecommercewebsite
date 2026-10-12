@@ -12,6 +12,7 @@ import {
   Truck,
   Plus,
   ExternalLink,
+  Check,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Order } from '../../types';
@@ -464,13 +465,13 @@ export const UserProfileModal: React.FC = () => {
               ].map((step, idx) => (
                 <div key={idx} className="flex items-start gap-2.5">
                   <div
-                    className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] shrink-0 font-bold ${
+                    className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${
                       step.done
                         ? 'bg-[#2E7D32] text-white'
                         : 'bg-[#D7E0D6] text-[#6B7068]'
                     }`}
                   >
-                    ✓
+                    <Check className="w-2.5 h-2.5" />
                   </div>
                   <div className="text-[11px]">
                     <p className={`font-bold ${step.done ? 'text-[#2E342D]' : 'text-[#6B7068]'}`}>

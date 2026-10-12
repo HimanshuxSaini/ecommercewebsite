@@ -7,7 +7,6 @@ import {
   Search,
   X,
   Layers,
-  Sparkles,
   ShoppingBag,
   Grid3X3,
   Check,
@@ -323,9 +322,9 @@ export const ShopPage: React.FC = () => {
                 className="bg-[#E9EBDD] border border-[#B9A48B] rounded-lg px-2.5 py-1.5 text-xs text-[#2E342D] font-medium cursor-pointer focus:outline-none focus:border-[#173F30]"
               >
                 <option value="all">All Deals & Offers</option>
-                <option value="flash">⚡ Flash Deals</option>
-                <option value="bestseller">🔥 Best Sellers</option>
-                <option value="new">✨ New Arrivals</option>
+                <option value="flash">Flash Deals</option>
+                <option value="bestseller">Best Sellers</option>
+                <option value="new">New Arrivals</option>
               </select>
 
               {/* Price Filter */}

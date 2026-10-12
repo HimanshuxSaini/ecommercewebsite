@@ -142,7 +142,17 @@ export interface FlashDealConfig {
   targetEndTime?: string;
 }
 
-export type StorePage = 'home' | 'shop' | 'category';
+export type PolicySlug = 
+  | 'privacy' 
+  | 'terms' 
+  | 'shipping' 
+  | 'returns' 
+  | 'resin-policy' 
+  | 'faqs' 
+  | 'about' 
+  | 'contact';
+
+export type StorePage = 'home' | 'shop' | 'category' | 'policy';
 
 export interface NavItem {
   id: string;

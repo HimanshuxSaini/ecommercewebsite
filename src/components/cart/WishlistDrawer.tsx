@@ -6,7 +6,6 @@ import {
   Trash2,
   ArrowRight,
   ShoppingBag,
-  Sparkles,
   ShieldCheck,
   Check,
 } from 'lucide-react';
@@ -60,7 +59,7 @@ export const WishlistDrawer: React.FC = () => {
     if (!product) return;
     addToCart(product, 1);
     toggleWishlist(productId);
-    showToast(`Moved "${product.title}" to Cart 🛒`);
+    showToast(`Moved "${product.title}" to Cart`);
   };
 
   const handleMoveAllToCart = () => {
@@ -69,7 +68,7 @@ export const WishlistDrawer: React.FC = () => {
       addToCart(p, 1);
       toggleWishlist(p.id);
     });
-    showToast(`Moved ${wishlistedProducts.length} items to Cart! 🛒`);
+    showToast(`Moved ${wishlistedProducts.length} items to Cart`);
     setIsWishlistOpen(false);
     setIsCartOpen(true);
   };
@@ -137,7 +136,7 @@ export const WishlistDrawer: React.FC = () => {
                 onClick={handleMoveAllToCart}
                 className="text-[#173F30] hover:text-[#2E5E46] font-bold text-xs flex items-center gap-1 hover:underline cursor-pointer"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <ShoppingCart className="w-3.5 h-3.5 text-[#173F30]" />
                 <span>Move All to Cart</span>
               </button>
             </div>
