@@ -184,7 +184,11 @@ export const Header: React.FC = () => {
                     <button
                       onClick={() => {
                         setIsUserMenuOpen(false);
-                        setIsProfileOpen(true);
+                        if (!currentUser) {
+                          setIsAuthOpen(true);
+                        } else {
+                          setIsProfileOpen(true);
+                        }
                       }}
                       className="w-full px-4 py-2 text-left text-xs font-medium text-[#2E342D] hover:bg-[#E9EBDD] flex items-center gap-2 cursor-pointer"
                     >
