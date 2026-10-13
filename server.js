@@ -11,7 +11,7 @@ import adminRoutes from './server/routes/admin.js';
 import paymentRoutes from './server/routes/payments.js';
 import productRoutes from './server/routes/products.js';
 import uploadRoutes from './server/routes/upload.js';
-import { connectMongoDB } from './server/config/mongodb.js';
+import { connectMongoDB, isMongoConnected } from './server/config/mongodb.js';
 
 // Initialize MongoDB connection on server startup
 connectMongoDB().catch((err) => console.warn('[MONGODB] Init notice:', err.message));
@@ -109,15 +109,42 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health Check Endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
+// ==============================================================================
+// HEALTH CHECK & UPTIME MONITORING ENDPOINTS (UptimeRobot, Render, Ping)
+// ==============================================================================
+const handleHealthCheck = (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
+  const uptimeSec = Math.floor(process.uptime());
+  const hours = Math.floor(uptimeSec / 3600);
+  const minutes = Math.floor((uptimeSec % 3600) / 60);
+  const seconds = uptimeSec % 60;
+  const uptimeStr = `${hours}h ${minutes}m ${seconds}s`;
+
+  const memory = process.memoryUsage();
+  const memoryMB = Math.round(memory.rss / (1024 * 1024));
+
+  return res.status(200).json({
     status: 'ok',
-    service: 'velneer-enterprise-api',
+    message: 'Velneer Production API is warm and awake',
+    service: 'velneer-ecommerce',
+    uptime: uptimeStr,
+    uptimeSeconds: uptimeSec,
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    db: 'connected',
+    database: isMongoConnected() ? 'connected (Atlas)' : 'fallback (Local JSON)',
+    memoryUsage: `${memoryMB} MB`,
+    environment: process.env.NODE_ENV || 'production',
   });
+};
+
+// Support GET and HEAD across all common monitoring endpoints
+app.all(['/health', '/ping', '/api/health', '/api/ping'], (req, res) => {
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    return handleHealthCheck(req, res);
+  }
+  return res.status(405).json({ error: 'Method not allowed' });
 });
 
 // Authoritative Backend API Routes
@@ -165,4 +192,22 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[VELNEER] Secure production server & API running on http://0.0.0.0:${PORT}`);
+
+  // Auto-Keep-Alive for Render Free Tier (Pings itself every 14 minutes to prevent sleep)
+  const keepAliveUrl = process.env.RENDER_EXTERNAL_URL || process.env.APP_URL;
+  if (keepAliveUrl) {
+    const INTERVAL_MS = 14 * 60 * 1000; // 14 minutes
+    setInterval(async () => {
+      try {
+        const pingEndpoint = `${keepAliveUrl.replace(/\/$/, '')}/health`;
+        const pingRes = await fetch(pingEndpoint, { headers: { 'User-Agent': 'Velneer-AutoWakeup/1.0' } });
+        if (pingRes.ok) {
+          console.log(`[KEEP-ALIVE] Pinged ${pingEndpoint} successfully (Status: ${pingRes.status}).`);
+        }
+      } catch (err) {
+        console.warn(`[KEEP-ALIVE] Self-ping notice:`, err.message);
+      }
+    }, INTERVAL_MS);
+    console.log(`[KEEP-ALIVE] Background self-pinger initialized for ${keepAliveUrl} (every 14 min).`);
+  }
 });
