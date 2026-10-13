@@ -39,6 +39,36 @@ export const apiClient = {
     }
   },
 
+  async sendOtp(email: string, type: 'login' | 'signup' = 'login') {
+    try {
+      const res = await fetch(`${API_BASE}/auth/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, type }),
+      });
+      return await res.json();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to send OTP';
+      return { success: false, message };
+    }
+  },
+
+  async verifyOtp(payload: { email: string; otp: string; type: 'login' | 'signup'; name?: string; phone?: string; password?: string }) {
+    try {
+      const res = await fetch(`${API_BASE}/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+      return await res.json();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'OTP verification failed';
+      return { success: false, message };
+    }
+  },
+
   async getMe() {
     try {
       const res = await fetch(`${API_BASE}/auth/me`, {

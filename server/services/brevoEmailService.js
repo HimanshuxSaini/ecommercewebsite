@@ -139,3 +139,64 @@ export async function sendWelcomeEmail(user) {
     htmlContent,
   });
 }
+
+/**
+ * Send 6-Digit Email Verification OTP via Brevo
+ */
+export async function sendOtpEmail({ to, toName = 'Customer', otp, type = 'login' }) {
+  const isSignup = type === 'signup';
+  const heading = isSignup ? 'Verify Your Velneer Account' : 'Velneer Login Verification Code';
+  const actionText = isSignup
+    ? 'Thank you for registering with Velneer. Use the 6-digit verification code below to verify your email address and activate your account:'
+    : 'We received a sign-in request for your Velneer account. Use the 6-digit verification code below to securely log in:';
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F8F5EF; padding: 24px; margin: 0;">
+        <div style="max-width: 540px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #D7E0D6; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+          <!-- Header -->
+          <div style="background-color: #173F30; padding: 28px 24px; text-align: center; color: #ffffff;">
+            <h1 style="margin: 0; font-size: 26px; letter-spacing: 2px; font-weight: 800;">VELNEER</h1>
+            <p style="margin: 6px 0 0 0; font-size: 13px; opacity: 0.9; letter-spacing: 0.5px;">${heading}</p>
+          </div>
+
+          <!-- Body -->
+          <div style="padding: 32px 28px; text-align: center;">
+            <p style="font-size: 15px; color: #2E342D; margin-top: 0; text-align: left;">
+              Hello <strong>${toName}</strong>,
+            </p>
+            <p style="font-size: 14px; color: #6B7068; line-height: 1.6; text-align: left;">
+              ${actionText}
+            </p>
+
+            <!-- OTP Highlight Box -->
+            <div style="background-color: #E9EBDD; border: 2px dashed #B9A48B; border-radius: 12px; padding: 20px; margin: 28px 0; text-align: center;">
+              <span style="font-size: 12px; font-weight: 700; color: #173F30; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 6px;">Your One-Time Code</span>
+              <span style="font-size: 36px; font-weight: 800; color: #173F30; letter-spacing: 8px; font-family: monospace; display: block;">${otp}</span>
+              <span style="font-size: 11px; color: #6B7068; display: block; margin-top: 6px;">⏱️ Valid for 10 minutes</span>
+            </div>
+
+            <p style="font-size: 12px; color: #888888; line-height: 1.5; text-align: left; margin-bottom: 0;">
+              🔒 <strong>Security Warning:</strong> Never share this code with anyone. Velneer employees will never ask for your verification code.
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background-color: #F8F5EF; padding: 18px 24px; text-align: center; font-size: 11px; color: #6B7068; border-top: 1px solid #D7E0D6;">
+            Velneer Technologies Pvt. Ltd. • Sonipat, Haryana, India<br/>
+            Support: sales.velneer@gmail.com | WhatsApp: +91 74949 80621
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to,
+    toName,
+    subject: `${otp} is your Velneer Verification Code`,
+    htmlContent,
+  });
+}
+

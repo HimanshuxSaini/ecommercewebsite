@@ -42,6 +42,8 @@ interface AppContextType {
   users: User[];
   login: (email: string, role?: UserRole, password?: string) => Promise<boolean> | boolean;
   signup: (name: string, email: string, role?: UserRole, password?: string, phone?: string) => Promise<boolean> | boolean;
+  sendOtp: (email: string, type?: 'login' | 'signup') => Promise<{ success: boolean; message: string }>;
+  verifyOtp: (payload: { email: string; otp: string; type: 'login' | 'signup'; name?: string; phone?: string; password?: string }) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   updateUserRole: (userId: string, newRole: UserRole) => void;
   updateUserProfile: (updates: Partial<User>) => void;
@@ -629,6 +631,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCurrentUser(newUser);
     showToast(`Account created successfully! Welcome, ${name}.`);
     return true;
+  };
+
+  const sendOtp = async (rawEmail: string, type: 'login' | 'signup' = 'login') => {
+    const email = normalizeEmail(rawEmail);
+    if (!isValidEmail(email)) {
+      return { success: false, message: 'Please provide a valid email address.' };
+    }
+    const res = await apiClient.sendOtp(email, type);
+    if (res?.success) {
+      showToast(res.message || `Verification code sent to ${email}`, 'info');
+      return { success: true, message: res.message };
+    }
+    return { success: false, message: res?.message || 'Failed to dispatch verification code.' };
+  };
+
+  const verifyOtp = async (payload: { email: string; otp: string; type: 'login' | 'signup'; name?: string; phone?: string; password?: string }) => {
+    const email = normalizeEmail(payload.email);
+    const res = await apiClient.verifyOtp({ ...payload, email });
+    if (res?.success && res.user) {
+      const isSpecialAdmin = email.toLowerCase() === 'himanshu0481@gmail.com' || email.toLowerCase() === 'sales.velneer@gmail.com';
+      if (isSpecialAdmin) {
+        res.user.role = 'admin';
+      }
+      setCurrentUser(res.user);
+      setUsers((prev) => {
+        const idx = prev.findIndex((u) => u.email.toLowerCase() === email.toLowerCase());
+        if (idx >= 0) {
+          const updated = [...prev];
+          updated[idx] = res.user;
+          return updated;
+        }
+        return [...prev, res.user];
+      });
+      showToast(`Welcome to Velneer, ${res.user.name}!`);
+      return { success: true };
+    }
+    return { success: false, message: res?.message || 'Invalid or expired verification code.' };
   };
 
   const logout = () => {
@@ -1379,6 +1418,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsCheckoutOpen,
         isAuthOpen,
         setIsAuthOpen,
+        sendOtp,
+        verifyOtp,
         isProfileOpen,
         setIsProfileOpen,
         toasts,
