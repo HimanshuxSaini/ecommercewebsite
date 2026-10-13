@@ -1,7 +1,13 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import dns from 'dns';
 
 dotenv.config();
+
+// Ensure reliable SRV resolution on Windows environments with restricted router DNS
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch {}
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/velneer_store';
 
@@ -115,6 +121,82 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Category Schema
+const categorySchema = new mongoose.Schema(
+  {
+    id: { type: String, required: true, unique: true, index: true },
+    name: { type: String, required: true },
+    slug: { type: String, index: true },
+    description: { type: String },
+    icon: { type: String },
+    imageUrl: { type: String },
+    itemCount: { type: Number, default: 0 },
+    subcategories: [
+      {
+        id: String,
+        name: String,
+        slug: String,
+        itemCount: Number,
+      },
+    ],
+  },
+  { timestamps: true }
+);
+
+// Coupon Schema
+const couponSchema = new mongoose.Schema(
+  {
+    id: { type: String, required: true, unique: true, index: true },
+    code: { type: String, required: true, unique: true, uppercase: true, index: true },
+    description: { type: String },
+    discountType: { type: String, enum: ['percentage', 'fixed'], default: 'percentage' },
+    discountValue: { type: Number, required: true },
+    minOrderAmount: { type: Number, default: 0 },
+    maxDiscount: { type: Number },
+    expiresAt: { type: String },
+    isActive: { type: Boolean, default: true },
+    usedCount: { type: Number, default: 0 },
+    usageLimit: { type: Number, default: 1000 },
+  },
+  { timestamps: true }
+);
+
+// Banner Schema
+const bannerSchema = new mongoose.Schema(
+  {
+    id: { type: String, required: true, unique: true, index: true },
+    title: { type: String, required: true },
+    subtitle: { type: String },
+    tagline: { type: String },
+    buttonText: { type: String, default: 'Shop Now' },
+    buttonLink: { type: String, default: '/shop' },
+    imageUrl: { type: String, required: true },
+    badge: { type: String },
+    backgroundColor: { type: String },
+    isActive: { type: Boolean, default: true },
+    priority: { type: Number, default: 1 },
+  },
+  { timestamps: true }
+);
+
+// Brand Schema
+const brandSchema = new mongoose.Schema(
+  {
+    id: { type: String, required: true, unique: true, index: true },
+    name: { type: String, required: true, index: true },
+    slug: { type: String },
+    logoUrl: { type: String, required: true },
+    tagline: { type: String },
+    isActive: { type: Boolean, default: true },
+    priority: { type: Number, default: 1 },
+  },
+  { timestamps: true }
+);
+
 export const UserModel = mongoose.models.User || mongoose.model('User', userSchema);
 export const ProductModel = mongoose.models.Product || mongoose.model('Product', productSchema);
 export const OrderModel = mongoose.models.Order || mongoose.model('Order', orderSchema);
+export const CategoryModel = mongoose.models.Category || mongoose.model('Category', categorySchema);
+export const CouponModel = mongoose.models.Coupon || mongoose.model('Coupon', couponSchema);
+export const BannerModel = mongoose.models.Banner || mongoose.model('Banner', bannerSchema);
+export const BrandModel = mongoose.models.Brand || mongoose.model('Brand', brandSchema);

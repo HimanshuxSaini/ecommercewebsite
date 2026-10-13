@@ -34,13 +34,14 @@ import {
   sanitizeInput,
   loginRateLimiter,
 } from '../utils/security';
+import { apiClient } from '../utils/apiClient';
 
 interface AppContextType {
   // User & RBAC
   currentUser: User | null;
   users: User[];
-  login: (email: string, role?: UserRole) => boolean;
-  signup: (name: string, email: string, role?: UserRole) => boolean;
+  login: (email: string, role?: UserRole, password?: string) => Promise<boolean> | boolean;
+  signup: (name: string, email: string, role?: UserRole, password?: string, phone?: string) => Promise<boolean> | boolean;
   logout: () => void;
   updateUserRole: (userId: string, newRole: UserRole) => void;
   updateUserProfile: (updates: Partial<User>) => void;
@@ -341,6 +342,45 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         };
   });
 
+  // Synchronize live collections from Authoritative Backend
+  useEffect(() => {
+    apiClient.getMe().then((res) => {
+      if (res?.success && res.user) {
+        setCurrentUser(res.user);
+      }
+    }).catch(() => {});
+
+    apiClient.getProducts().then((res) => {
+      if (res?.success && Array.isArray(res.products) && res.products.length > 0) {
+        setProducts(res.products);
+      }
+    }).catch(() => {});
+
+    apiClient.getCategories().then((res) => {
+      if (res?.success && Array.isArray(res.categories) && res.categories.length > 0) {
+        setCategories(res.categories);
+      }
+    }).catch(() => {});
+
+    apiClient.getBanners().then((res) => {
+      if (res?.success && Array.isArray(res.banners) && res.banners.length > 0) {
+        setBanners(res.banners);
+      }
+    }).catch(() => {});
+
+    apiClient.getBrands().then((res) => {
+      if (res?.success && Array.isArray(res.brands) && res.brands.length > 0) {
+        setBrands(res.brands);
+      }
+    }).catch(() => {});
+
+    apiClient.getCoupons().then((res) => {
+      if (res?.success && Array.isArray(res.coupons) && res.coupons.length > 0) {
+        setCoupons(res.coupons);
+      }
+    }).catch(() => {});
+  }, []);
+
   // Synchronize to localStorage
   useEffect(() => {
     localStorage.setItem('sv_users', JSON.stringify(users));
@@ -466,7 +506,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Auth Operations
-  const login = (rawEmail: string, role?: UserRole): boolean => {
+  const login = async (rawEmail: string, role?: UserRole, password?: string): Promise<boolean> => {
     // 1. SQL Injection & XSS Guard
     if (detectSqlInjection(rawEmail) || detectXssInjection(rawEmail)) {
       showToast('Security Alert: Malicious characters or SQL patterns detected.', 'error');
@@ -484,6 +524,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (rateCheck.isLocked) {
       showToast(`Too many login attempts. Locked out for ${rateCheck.remainingSeconds}s.`, 'error');
       return false;
+    }
+
+    try {
+      const apiRes = await apiClient.login(email, password, role);
+      if (apiRes?.success && apiRes.user) {
+        loginRateLimiter.resetAttempts(email);
+        setCurrentUser(apiRes.user);
+        showToast(`Welcome back, ${apiRes.user.name}!`);
+        return true;
+      }
+    } catch {
+      // Fall through to local fallback
     }
 
     const existing = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
@@ -510,7 +562,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return true;
   };
 
-  const signup = (rawName: string, rawEmail: string, role: UserRole = 'customer'): boolean => {
+  const signup = async (rawName: string, rawEmail: string, role: UserRole = 'customer', password?: string, phone?: string): Promise<boolean> => {
     // 1. SQLi & XSS Guards
     if (
       detectSqlInjection(rawName) ||
@@ -535,6 +587,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return false;
     }
 
+    try {
+      const apiRes = await apiClient.signup(name, email, password, phone);
+      if (apiRes?.success && apiRes.user) {
+        setCurrentUser(apiRes.user);
+        setUsers((prev) => [...prev, apiRes.user]);
+        showToast(`Account created successfully! Welcome, ${apiRes.user.name}.`);
+        return true;
+      }
+    } catch {
+      // Fall through to local fallback
+    }
+
     const existing = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
     if (existing) {
       showToast('Account with this email already exists!', 'error');
@@ -546,6 +610,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       name,
       email,
       role,
+      phone,
       createdAt: new Date().toISOString().split('T')[0],
     };
     setUsers((prev) => [...prev, newUser]);
@@ -555,9 +620,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const logout = () => {
+    apiClient.logout().catch(() => {});
     setCurrentUser(null);
     setCurrentView('store');
-    showToast('Logged out successfully', 'info');
+    showToast('Logged out securely.', 'info');
   };
 
   const updateUserRole = (userId: string, newRole: UserRole) => {
@@ -603,6 +669,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       createdAt: new Date().toISOString().split('T')[0],
     };
     setProducts((prev) => [newProduct, ...prev]);
+    apiClient.addProduct(newProduct as unknown as Record<string, unknown>).catch(() => {});
     showToast(`Product "${newProduct.title}" added to catalog`);
   };
 
@@ -610,11 +677,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setProducts((prev) =>
       prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
     );
+    apiClient.updateProduct(id, updates as Record<string, unknown>).catch(() => {});
     showToast('Product updated successfully');
   };
 
   const deleteProduct = (id: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
+    apiClient.deleteProduct(id).catch(() => {});
     showToast('Product removed from catalog', 'info');
   };
 
@@ -1179,6 +1248,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     setOrders((prev) => [newOrder, ...prev]);
+    // Synchronize order to authoritative backend & trigger notifications
+    apiClient.createOrder(newOrder as unknown as Record<string, unknown>).catch(() => {});
     clearCart();
     showToast('Order placed successfully! Thank you for shopping with Velneer.');
     return newOrder;
@@ -1192,6 +1263,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           : o
       )
     );
+    apiClient.updateOrderStatus(orderId, status).catch(() => {});
     showToast(`Order #${orderId} marked as ${status}`);
   };
 

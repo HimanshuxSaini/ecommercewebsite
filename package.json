@@ -7,6 +7,10 @@
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",
+    "start": "node server.js",
+    "server": "node server.js",
+    "migrate": "node server/scripts/migrateAllToCloud.js",
+    "test:email": "node server/scripts/testBrevo.js",
     "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\"",
     "lint": "tsc --noEmit"
   },

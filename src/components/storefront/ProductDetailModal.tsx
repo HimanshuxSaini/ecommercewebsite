@@ -295,6 +295,22 @@ export const ProductDetailModal: React.FC = () => {
                   <span>Buy Now</span>
                 </button>
               </div>
+
+              {/* Direct WhatsApp Product Inquiry */}
+              <button
+                type="button"
+                onClick={() => {
+                  const message = `Hello Velneer, I am interested in *${quickViewProduct.title}* (Price: ₹${quickViewProduct.price.toLocaleString('en-IN')}, SKU: ${quickViewProduct.id}).\nCould you please share details, custom options, or bulk availability?`;
+                  const waNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '917494980621';
+                  window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+                }}
+                className="w-full bg-[#25D366]/10 hover:bg-[#25D366] text-[#128C7E] hover:text-white border border-[#25D366]/30 font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
+                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.599 2.664-.698c.974.53 1.83.811 2.802.812 3.181 0 5.768-2.586 5.768-5.766 0-3.18-2.587-5.766-5.774-5.766zm8.469 5.766c0 4.693-3.813 8.508-8.5 8.508-1.464 0-2.85-.373-4.062-1.031l-4.509 1.182 1.205-4.404c-.754-1.277-1.196-2.77-1.196-4.364 0-4.693 3.813-8.508 8.562-8.508 4.688 0 8.5 3.815 8.5 8.617z" />
+                </svg>
+                <span>Ask Question on WhatsApp</span>
+              </button>
             </div>
           </div>
         </div>

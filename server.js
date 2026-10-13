@@ -23,17 +23,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const distDir = path.join(__dirname, 'dist');
 
-// Seed products from mockData into server/data/products.json if not yet initialized
+// Verify local database initialization
 const productsFile = path.join(__dirname, 'server', 'data', 'products.json');
-if (!fs.existsSync(productsFile) || fs.readFileSync(productsFile, 'utf-8').trim() === '[]') {
-  try {
-    const mockDataFile = path.join(__dirname, 'src', 'data', 'mockData.ts');
-    if (fs.existsSync(mockDataFile)) {
-      console.log('[DB] Seeding server database products from mockData...');
-    }
-  } catch (err) {
-    console.error('[DB] Seeding error:', err);
-  }
+if (fs.existsSync(productsFile)) {
+  console.log('[DB] Authoritative local database active with pre-seeded catalog.');
 }
 
 // Security Configuration
@@ -107,10 +100,10 @@ app.use((req, res, next) => {
   // Restrict sensitive browser APIs
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(self)');
   
-  // Content Security Policy
+  // Content Security Policy (permitting Razorpay checkout iframe and scripts)
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' http: https:;"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://checkout.razorpay.com; frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' http: https: https://api.razorpay.com https://lumberjack.razorpay.com;"
   );
 
   next();

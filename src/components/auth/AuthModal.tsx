@@ -33,7 +33,7 @@ export const AuthModal: React.FC = () => {
 
   const passwordStrength = evaluatePasswordStrength(password);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
@@ -73,7 +73,7 @@ export const AuthModal: React.FC = () => {
         setErrorMsg('Please fill in both email and password.');
         return;
       }
-      const success = login(email);
+      const success = await login(email, 'customer', password);
       if (success) {
         setIsAuthOpen(false);
       } else {
@@ -96,7 +96,7 @@ export const AuthModal: React.FC = () => {
         setErrorMsg('Passwords do not match. Please re-enter confirm password.');
         return;
       }
-      const success = signup(name, email, 'customer');
+      const success = await signup(name, email, 'customer', password);
       if (success) {
         setIsAuthOpen(false);
       }

@@ -1,0 +1,53 @@
+[
+  {
+    "id": "coup-welcome",
+    "code": "WELCOME50",
+    "description": "Flat 50% discount up to ₹300 on your first shopping order",
+    "discountType": "percentage",
+    "discountValue": 50,
+    "minOrderAmount": 499,
+    "maxDiscount": 300,
+    "expiryDate": "2026-12-31",
+    "usageLimit": 1000,
+    "usedCount": 142,
+    "isActive": true
+  },
+  {
+    "id": "coup-save20",
+    "code": "SAVE20",
+    "description": "Flat 20% instant off on cart value above ₹1,499",
+    "discountType": "percentage",
+    "discountValue": 20,
+    "minOrderAmount": 1499,
+    "maxDiscount": 1000,
+    "expiryDate": "2026-11-30",
+    "usageLimit": 500,
+    "usedCount": 89,
+    "isActive": true
+  },
+  {
+    "id": "coup-festive",
+    "code": "FESTIVE40",
+    "description": "Festival mega savings: 40% OFF up to ₹1,500",
+    "discountType": "percentage",
+    "discountValue": 40,
+    "minOrderAmount": 2999,
+    "maxDiscount": 1500,
+    "expiryDate": "2026-10-31",
+    "usageLimit": 300,
+    "usedCount": 204,
+    "isActive": true
+  },
+  {
+    "id": "coup-flat500",
+    "code": "SUPER500",
+    "description": "Flat ₹500 discount on orders above ₹4,000",
+    "discountType": "fixed",
+    "discountValue": 500,
+    "minOrderAmount": 4000,
+    "expiryDate": "2026-12-15",
+    "usageLimit": 200,
+    "usedCount": 67,
+    "isActive": true
+  }
+]

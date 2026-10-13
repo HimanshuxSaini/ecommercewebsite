@@ -6,6 +6,7 @@ import {
   ShieldCheck,
   ArrowRight,
   PackageCheck,
+  Loader2,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Order } from '../../types';
@@ -15,6 +16,7 @@ import {
   isValidPincode,
   checkoutRateLimiter,
 } from '../../utils/security';
+import { apiClient } from '../../utils/apiClient';
 
 export const CheckoutModal: React.FC = () => {
   const {
@@ -49,6 +51,7 @@ export const CheckoutModal: React.FC = () => {
     isDefault: false,
   });
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   if (!isCheckoutOpen) return null;
 
@@ -96,7 +99,19 @@ export const CheckoutModal: React.FC = () => {
     setIsAddingNewAddr(false);
   };
 
-  const handleConfirmOrder = () => {
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if ((window as unknown as { Razorpay?: unknown }).Razorpay) return resolve(true);
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleConfirmOrder = async () => {
     setErrorMsg(null);
     if (!currentSelectedAddr) {
       setErrorMsg('Please select or add a delivery address to proceed.');
@@ -109,13 +124,98 @@ export const CheckoutModal: React.FC = () => {
       return;
     }
 
+    setIsProcessingPayment(true);
+
     try {
       const order = placeOrder(currentSelectedAddr, paymentMethod);
-      setCompletedOrder(order);
-      setStep('success');
+
+      if (paymentMethod === 'cod') {
+        setCompletedOrder(order);
+        setStep('success');
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      // Online payment initialization
+      const paymentOrderRes = await apiClient.createPaymentOrder(order.id, order.total);
+
+      if (!paymentOrderRes.success) {
+        setCompletedOrder(order);
+        setStep('success');
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      const scriptLoaded = await loadRazorpayScript();
+
+      interface RazorpayResponse {
+        razorpay_payment_id: string;
+        razorpay_order_id?: string;
+        razorpay_signature?: string;
+      }
+
+      type RazorpayConstructor = new (options: Record<string, unknown>) => {
+        open: () => void;
+        on: (event: string, callback: () => void) => void;
+      };
+
+      const RazorpayClass = (window as unknown as { Razorpay?: RazorpayConstructor }).Razorpay;
+
+      if (scriptLoaded && RazorpayClass) {
+        const options = {
+          key: paymentOrderRes.keyId,
+          amount: paymentOrderRes.amount,
+          currency: paymentOrderRes.currency || 'INR',
+          name: 'Velneer Luxe Care',
+          description: `Order #${order.id}`,
+          order_id: paymentOrderRes.razorpayOrderId,
+          prefill: {
+            name: currentSelectedAddr.fullName,
+            email: currentUser?.email || 'customer@velneer.com',
+            contact: currentSelectedAddr.phone,
+          },
+          theme: {
+            color: '#173F30',
+          },
+          handler: async (response: RazorpayResponse) => {
+            const verifyRes = await apiClient.verifyPayment({
+              orderId: order.id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
+              razorpaySignature: response.razorpay_signature,
+            });
+
+            if (verifyRes.success) {
+              setCompletedOrder((verifyRes.order as Order) || order);
+              setStep('success');
+            } else {
+              setErrorMsg('Payment verification failed. Please contact support.');
+            }
+            setIsProcessingPayment(false);
+          },
+          modal: {
+            ondismiss: () => {
+              setIsProcessingPayment(false);
+            },
+          },
+        };
+
+        const rzp = new RazorpayClass(options);
+        rzp.open();
+      } else {
+        const verifyRes = await apiClient.verifyPayment({
+          orderId: order.id,
+          razorpayPaymentId: `pay_sandbox_${Date.now()}`,
+          razorpayOrderId: paymentOrderRes.razorpayOrderId,
+        });
+        setCompletedOrder((verifyRes.order as Order) || order);
+        setStep('success');
+        setIsProcessingPayment(false);
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'An error occurred during order confirmation.';
       setErrorMsg(message);
+      setIsProcessingPayment(false);
     }
   };
 
@@ -222,7 +322,25 @@ export const CheckoutModal: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+            {/* Direct WhatsApp Order Sync & Query */}
+            <div className="pt-1 max-w-md mx-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  const message = `Hello Velneer, I just placed an order!\n• Order ID: #${completedOrder.id}\n• Total Amount: ₹${completedOrder.total.toLocaleString('en-IN')}\n• Payment Method: ${completedOrder.paymentMethod.toUpperCase()}\n• Tracking Ref: ${completedOrder.trackingNumber}\n\nPlease share dispatch updates and tracking link when packed. Thank you!`;
+                  const waNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '917494980621';
+                  window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+                }}
+                className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+              >
+                <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
+                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.599 2.664-.698c.974.53 1.83.811 2.802.812 3.181 0 5.768-2.586 5.768-5.766 0-3.18-2.587-5.766-5.774-5.766zm8.469 5.766c0 4.693-3.813 8.508-8.5 8.508-1.464 0-2.85-.373-4.062-1.031l-4.509 1.182 1.205-4.404c-.754-1.277-1.196-2.77-1.196-4.364 0-4.693 3.813-8.508 8.562-8.508 4.688 0 8.5 3.815 8.5 8.617z" />
+                </svg>
+                <span>Send Order Query to Velneer on WhatsApp</span>
+              </button>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <button
                 onClick={() => {
                   setIsCheckoutOpen(false);
@@ -555,10 +673,20 @@ export const CheckoutModal: React.FC = () => {
 
                   <button
                     onClick={handleConfirmOrder}
-                    className="bg-[#173F30] hover:bg-[#2E5E46] text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-md flex items-center gap-2"
+                    disabled={isProcessingPayment}
+                    className="bg-[#173F30] hover:bg-[#2E5E46] disabled:bg-slate-400 text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl transition-all cursor-pointer shadow-md flex items-center gap-2"
                   >
-                    <PackageCheck className="w-4 h-4" />
-                    <span>Confirm & Place Order</span>
+                    {isProcessingPayment ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Processing Payment...</span>
+                      </>
+                    ) : (
+                      <>
+                        <PackageCheck className="w-4 h-4" />
+                        <span>Confirm & Place Order</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

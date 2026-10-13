@@ -98,7 +98,8 @@ export const PolicyPage: React.FC = () => {
 
   const handleOpenWhatsApp = (message: string) => {
     const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/919306680944?text=${encoded}`, '_blank', 'noopener,noreferrer');
+    const waNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '917494980621';
+    window.open(`https://wa.me/${waNumber}?text=${encoded}`, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -634,7 +635,7 @@ const ReturnsContent: React.FC = () => {
         <h3 className="text-lg font-bold text-[#173F30]">3. Return Process Step-by-Step</h3>
         <ol className="text-sm space-y-2 list-decimal list-inside text-[#555C54]">
           <li>
-            <strong>Initiate Request:</strong> Email us at <a href="mailto:sales.velneer@gmail.com" className="text-[#173F30] font-semibold underline">sales.velneer@gmail.com</a> or WhatsApp <a href="https://wa.me/919306680944" target="_blank" rel="noopener noreferrer" className="text-[#173F30] font-semibold underline">+91 93066 80944</a> with your Order ID and photo/video of the issue.
+            <strong>Initiate Request:</strong> Email us at <a href="mailto:sales.velneer@gmail.com" className="text-[#173F30] font-semibold underline">sales.velneer@gmail.com</a> or WhatsApp <a href="https://wa.me/917494980621" target="_blank" rel="noopener noreferrer" className="text-[#173F30] font-semibold underline">+91 74949 80621</a> with your Order ID and photo/video of the issue.
           </li>
           <li>
             <strong>Quality Review:</strong> Our team reviews and approves the request within 24 business hours.
@@ -820,7 +821,7 @@ const FAQS_DATA: FaqItem[] = [
     category: 'returns',
     question: 'What is the return window if I receive a broken item?',
     answer:
-      'We offer a full 7-day hassle-free replacement or refund guarantee for transit damage. Simply send us a photo or short video within 7 days of delivery at sales.velneer@gmail.com or via WhatsApp at +91 93066 80944, and we will dispatch a replacement immediately or process your refund.',
+      'We offer a full 7-day hassle-free replacement or refund guarantee for transit damage. Simply send us a photo or short video within 7 days of delivery at sales.velneer@gmail.com or via WhatsApp at +91 74949 80621, and we will dispatch a replacement immediately or process your refund.',
   },
   {
     category: 'returns',
@@ -1033,10 +1034,13 @@ const ContactContent: React.FC<{ onContactWhatsApp: (msg: string) => void }> = (
             <Building className="w-4 h-4 text-[#173F30]" /> Corporate & Registered Office
           </p>
           <div className="space-y-1.5 text-[#555C54]">
-            <p className="font-semibold text-[#2E342D]">Velneer</p>
+            <p className="font-semibold text-[#2E342D]">Velneer Luxe Care & Retail Enterprises</p>
+            <p className="text-[11px] text-[#173F30]">
+              <strong>CIN:</strong> U52399HR2026PTC098765 | <strong>GSTIN:</strong> 06AABCV1234F1Z5 (Haryana)
+            </p>
             <p className="flex items-start gap-2">
               <MapPin className="w-3.5 h-3.5 text-[#173F30] shrink-0 mt-0.5" />
-              <span>Model Town / Industrial Area, Sonipat, Haryana – 131001, India</span>
+              <span>Model Town / Sector 14 Commercial Complex, Sonipat, Haryana – 131001, India</span>
             </p>
             <p className="flex items-center gap-2">
               <Phone className="w-3.5 h-3.5 text-[#173F30] shrink-0" />
@@ -1069,18 +1073,18 @@ const ContactContent: React.FC<{ onContactWhatsApp: (msg: string) => void }> = (
       {/* Statutory Grievance Redressal Officer */}
       <section className="space-y-3">
         <h3 className="text-lg font-bold text-[#173F30] flex items-center gap-2">
-          <ShieldCheck className="w-5 h-5 text-[#2E7D32]" /> Statutory Grievance Officer
+          <ShieldCheck className="w-5 h-5 text-[#2E7D32]" /> Statutory Grievance & Nodal Officer
         </h3>
         <div className="p-4 rounded-xl border border-[#E5E0D8] bg-[#FAF8F5] text-xs text-[#555C54] space-y-2">
           <p className="leading-relaxed">
-            In compliance with the Information Technology Act, 2000 and the Consumer Protection (E-Commerce) Rules, 2020, the name and contact details of our Grievance Officer are published below:
+            In compliance with Rule 5(7) of the Consumer Protection (E-Commerce) Rules, 2020 and the Information Technology Act, 2000, the name and contact details of our Grievance Officer and Nodal Officer are published below:
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-medium text-[#2E342D]">
-            <p><strong>Name of Officer:</strong> Grievance Redressal Desk</p>
-            <p><strong>Designation:</strong> Compliance & Customer Relations Head</p>
+            <p><strong>Name of Officer:</strong> Vikas Kumar</p>
+            <p><strong>Designation:</strong> Head of Compliance & Grievance Redressal</p>
             <p><strong>Official Email:</strong> <a href="mailto:sales.velneer@gmail.com" className="text-[#173F30] underline">sales.velneer@gmail.com</a></p>
-            <p><strong>Telephone:</strong> <a href="tel:+919306680944" className="text-[#173F30] underline">+91 93066 80944</a></p>
-            <p className="sm:col-span-2"><strong>Office Address:</strong> Velneer, Sonipat, Haryana, 131001, India</p>
+            <p><strong>Direct Helpline:</strong> <a href="tel:+919306680944" className="text-[#173F30] underline">+91 93066 80944</a></p>
+            <p className="sm:col-span-2"><strong>Physical Office Address:</strong> Velneer Retail Enterprises, Model Town, Sonipat, Haryana – 131001, India</p>
           </div>
           <p className="text-[11px] text-[#6B7068] pt-1">
             * Grievances lodged with the officer are acknowledged within 48 hours and resolved within 30 days as prescribed by statutory guidelines.

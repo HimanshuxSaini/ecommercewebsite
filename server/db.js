@@ -116,6 +116,33 @@ export const db = {
   setProducts(productsList) {
     return writeJsonFile('products.json', productsList);
   },
+  addProduct(productData) {
+    const products = this.getProducts();
+    const newProduct = {
+      id: productData.id || `prod-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      ...productData,
+    };
+    products.unshift(newProduct);
+    writeJsonFile('products.json', products);
+    return newProduct;
+  },
+  updateProduct(id, updates) {
+    const products = this.getProducts();
+    const index = products.findIndex((p) => p.id === id);
+    if (index !== -1) {
+      products[index] = { ...products[index], ...updates };
+      writeJsonFile('products.json', products);
+      return products[index];
+    }
+    return null;
+  },
+  deleteProduct(id) {
+    const products = this.getProducts();
+    const filtered = products.filter((p) => p.id !== id);
+    writeJsonFile('products.json', filtered);
+    return true;
+  },
   updateProductStock(productId, decrementQty) {
     const products = this.getProducts();
     const product = products.find((p) => p.id === productId);
@@ -126,6 +153,111 @@ export const db = {
     product.stock -= decrementQty;
     writeJsonFile('products.json', products);
     return { success: true, remainingStock: product.stock };
+  },
+
+  // Categories
+  getCategories() {
+    return readJsonFile('categories.json', []);
+  },
+  setCategories(list) {
+    return writeJsonFile('categories.json', list);
+  },
+  addCategory(categoryData) {
+    const categories = this.getCategories();
+    const newCat = {
+      id: categoryData.id || `cat-${Date.now()}`,
+      subcategories: [],
+      ...categoryData,
+    };
+    categories.push(newCat);
+    writeJsonFile('categories.json', categories);
+    return newCat;
+  },
+  updateCategory(id, updates) {
+    const categories = this.getCategories();
+    const index = categories.findIndex((c) => c.id === id);
+    if (index !== -1) {
+      categories[index] = { ...categories[index], ...updates };
+      writeJsonFile('categories.json', categories);
+      return categories[index];
+    }
+    return null;
+  },
+  deleteCategory(id) {
+    const categories = this.getCategories();
+    const filtered = categories.filter((c) => c.id !== id);
+    writeJsonFile('categories.json', filtered);
+    return true;
+  },
+
+  // Banners
+  getBanners() {
+    return readJsonFile('banners.json', []);
+  },
+  setBanners(list) {
+    return writeJsonFile('banners.json', list);
+  },
+  addBanner(bannerData) {
+    const banners = this.getBanners();
+    const newBanner = {
+      id: bannerData.id || `ban-${Date.now()}`,
+      isActive: true,
+      ...bannerData,
+    };
+    banners.push(newBanner);
+    writeJsonFile('banners.json', banners);
+    return newBanner;
+  },
+  updateBanner(id, updates) {
+    const banners = this.getBanners();
+    const index = banners.findIndex((b) => b.id === id);
+    if (index !== -1) {
+      banners[index] = { ...banners[index], ...updates };
+      writeJsonFile('banners.json', banners);
+      return banners[index];
+    }
+    return null;
+  },
+  deleteBanner(id) {
+    const banners = this.getBanners();
+    const filtered = banners.filter((b) => b.id !== id);
+    writeJsonFile('banners.json', filtered);
+    return true;
+  },
+
+  // Brands
+  getBrands() {
+    return readJsonFile('brands.json', []);
+  },
+  setBrands(list) {
+    return writeJsonFile('brands.json', list);
+  },
+  addBrand(brandData) {
+    const brands = this.getBrands();
+    const newBrand = {
+      id: brandData.id || `brand-${Date.now()}`,
+      isActive: true,
+      ...brandData,
+    };
+    brands.push(newBrand);
+    writeJsonFile('brands.json', brands);
+    return newBrand;
+  },
+  updateBrand(id, updates) {
+    const brands = this.getBrands();
+    const index = brands.findIndex((b) => b.id === id);
+    if (index !== -1) {
+      brands[index] = { ...brands[index], ...updates };
+      writeJsonFile('brands.json', brands);
+      return brands[index];
+    }
+    return null;
+  },
+  deleteBrand(id) {
+    const brands = this.getBrands();
+    const filtered = brands.filter((b) => b.id !== id);
+    writeJsonFile('brands.json', filtered);
+    return true;
   },
 
   // Orders
@@ -189,9 +321,40 @@ export const db = {
       },
     ]);
   },
+  setCoupons(list) {
+    return writeJsonFile('coupons.json', list);
+  },
   getCouponByCode(code) {
     const coupons = this.getCoupons();
     return coupons.find((c) => c.code.toUpperCase() === code.toUpperCase() && c.isActive);
+  },
+  addCoupon(couponData) {
+    const coupons = this.getCoupons();
+    const newCoupon = {
+      id: couponData.id || `coup-${Date.now()}`,
+      usedCount: 0,
+      isActive: true,
+      ...couponData,
+    };
+    coupons.push(newCoupon);
+    writeJsonFile('coupons.json', coupons);
+    return newCoupon;
+  },
+  updateCoupon(id, updates) {
+    const coupons = this.getCoupons();
+    const index = coupons.findIndex((c) => c.id === id);
+    if (index !== -1) {
+      coupons[index] = { ...coupons[index], ...updates };
+      writeJsonFile('coupons.json', coupons);
+      return coupons[index];
+    }
+    return null;
+  },
+  deleteCoupon(id) {
+    const coupons = this.getCoupons();
+    const filtered = coupons.filter((c) => c.id !== id);
+    writeJsonFile('coupons.json', filtered);
+    return true;
   },
 
   // Webhook Idempotency Store

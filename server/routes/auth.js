@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { db } from '../db.js';
 import { signToken, authenticate } from '../middleware/auth.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
+import { isMongoConnected, UserModel } from '../config/mongodb.js';
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ const COOKIE_OPTIONS = {
 };
 
 // POST /api/auth/login
-router.post('/login', authLimiter, (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   const { email, password, role } = req.body;
 
   if (!email || typeof email !== 'string') {
@@ -23,7 +24,19 @@ router.post('/login', authLimiter, (req, res) => {
   }
 
   const cleanEmail = email.trim().toLowerCase();
-  const user = db.getUserByEmail(cleanEmail);
+  let user = null;
+
+  if (isMongoConnected()) {
+    try {
+      user = await UserModel.findOne({ email: cleanEmail }).lean();
+    } catch {
+      user = null;
+    }
+  }
+
+  if (!user) {
+    user = db.getUserByEmail(cleanEmail);
+  }
 
   if (!user) {
     return res.status(401).json({ success: false, message: 'Invalid email or password.' });
@@ -40,7 +53,6 @@ router.post('/login', authLimiter, (req, res) => {
   // Role validation for demo/dev simulation if specified
   let effectiveRole = user.role;
   if (role && (role === 'admin' || role === 'manager' || role === 'customer')) {
-    // Only allow changing to admin/manager if already admin or password verified
     if (user.role === 'admin' || role === user.role) {
       effectiveRole = role;
     }
@@ -64,7 +76,7 @@ router.post('/login', authLimiter, (req, res) => {
 });
 
 // POST /api/auth/signup
-router.post('/signup', authLimiter, (req, res) => {
+router.post('/signup', authLimiter, async (req, res) => {
   const { name, email, password, phone } = req.body;
 
   if (!name || name.trim().length < 2) {
@@ -78,7 +90,20 @@ router.post('/signup', authLimiter, (req, res) => {
   }
 
   const cleanEmail = email.trim().toLowerCase();
-  const existing = db.getUserByEmail(cleanEmail);
+  let existing = null;
+
+  if (isMongoConnected()) {
+    try {
+      existing = await UserModel.findOne({ email: cleanEmail }).lean();
+    } catch {
+      existing = null;
+    }
+  }
+
+  if (!existing) {
+    existing = db.getUserByEmail(cleanEmail);
+  }
+
   if (existing) {
     return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
   }
@@ -89,18 +114,26 @@ router.post('/signup', authLimiter, (req, res) => {
     id: `usr-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
     name: name.trim(),
     email: cleanEmail,
-    role: 'customer', // Always customer on registration
+    role: 'customer',
     passwordHash,
     phone: phone ? phone.trim() : '',
     createdAt: new Date().toISOString().split('T')[0],
     isActive: true,
   };
 
+  if (isMongoConnected()) {
+    try {
+      await UserModel.create(newUser);
+    } catch (err) {
+      console.warn('[MONGODB] User create fallback:', err.message);
+    }
+  }
   db.createUser(newUser);
+
   const token = signToken(newUser);
   res.cookie('velneer_token', token, COOKIE_OPTIONS);
 
-  // Dispatch Brevo Welcome Email asynchronously (non-blocking)
+  // Dispatch Brevo Welcome Email
   import('../services/brevoEmailService.js')
     .then(({ sendWelcomeEmail }) => sendWelcomeEmail(newUser))
     .catch((err) => console.warn('[BREVO] Welcome email trigger notice:', err.message));

@@ -95,7 +95,7 @@ export async function sendOrderConfirmationEmail(order) {
           </div>
           <div style="background-color: #F8F5EF; padding: 15px; text-align: center; font-size: 11px; color: #6B7068; border-top: 1px solid #D7E0D6;">
             Velneer Technologies Pvt. Ltd. • Sonipat, Haryana, India<br/>
-            Need help? Contact sales.velneer@gmail.com | Phone: +91 93066 80944
+            Need help? Contact sales.velneer@gmail.com | Phone: +91 93066 80944 | WhatsApp: +91 74949 80621
           </div>
         </div>
       </body>

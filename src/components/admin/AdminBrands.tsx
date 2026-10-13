@@ -11,9 +11,12 @@ import {
   EyeOff,
   AlertCircle,
   Search,
+  UploadCloud,
+  Loader2,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Brand } from '../../types';
+import { apiClient } from '../../utils/apiClient';
 
 export const AdminBrands: React.FC = () => {
   const {
@@ -38,6 +41,27 @@ export const AdminBrands: React.FC = () => {
   const [isActive, setIsActive] = useState(true);
   const [formError, setFormError] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    setUploadError('');
+    try {
+      const res = await apiClient.uploadImage(file, 'velneer/brands');
+      if (res.success && res.url) {
+        setLogoUrl(res.url);
+      } else {
+        setUploadError(res.message || 'Logo upload failed.');
+      }
+    } catch {
+      setUploadError('Failed to upload brand logo. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const sampleBrandLogos = [
     { label: 'Samsung', url: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=200&auto=format&fit=crop&q=80' },
@@ -480,15 +504,39 @@ export const AdminBrands: React.FC = () => {
                   <label className="font-semibold text-[#2E342D]">
                     Logo Image URL
                   </label>
-                  <span className="text-[10px] text-[#173F30]">Paste direct image URL</span>
+                  {isUploading ? (
+                    <span className="text-[10px] text-blue-600 flex items-center gap-1 font-medium">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Uploading to CDN...
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-[#173F30]">Paste direct URL or upload below</span>
+                  )}
                 </div>
-                <input
-                  type="url"
-                  value={logoUrl}
-                  onChange={(e) => setLogoUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/... or https://logo.clearbit.com/..."
-                  className="w-full bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2.5 text-xs text-[#2E342D] focus:outline-none focus:ring-1 focus:ring-[#173F30] focus:bg-white"
-                />
+
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="url"
+                    value={logoUrl}
+                    onChange={(e) => setLogoUrl(e.target.value)}
+                    placeholder="https://... or upload image"
+                    className="flex-1 bg-[#E9EBDD] border border-[#B9A48B] rounded-lg p-2.5 text-xs text-[#2E342D] focus:outline-none focus:ring-1 focus:ring-[#173F30] focus:bg-white"
+                  />
+                  <label className="flex items-center gap-1 px-3 py-2.5 bg-[#D7E0D6] border border-[#B9A48B] text-[#173F30] hover:bg-[#173F30] hover:text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors shrink-0">
+                    <UploadCloud className="w-4 h-4" />
+                    <span>{isUploading ? '...' : 'Upload'}</span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml"
+                      onChange={handleFileUpload}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {uploadError && (
+                  <p className="text-[10px] text-rose-600 mt-1">{uploadError}</p>
+                )}
 
                 {/* Preset image suggestions */}
                 <div className="mt-2">

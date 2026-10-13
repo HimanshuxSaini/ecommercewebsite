@@ -1,0 +1,74 @@
+[
+  {
+    "id": "brand-1",
+    "name": "Samsung",
+    "logoText": "SAMSUNG",
+    "logoUrl": "https://res.cloudinary.com/qavx4onx/image/upload/f_auto,q_auto/v1791887379/velneer/brands/brand_brand-1_1791887380310_99js4.jpg",
+    "category": "Smartphones & Appliances",
+    "order": 1,
+    "isActive": true
+  },
+  {
+    "id": "brand-2",
+    "name": "Apple",
+    "logoText": " Apple",
+    "logoUrl": "https://res.cloudinary.com/qavx4onx/image/upload/f_auto,q_auto/v1791887381/velneer/brands/brand_brand-2_1791887380973_tzgi3.jpg",
+    "category": "Laptops & Wearables",
+    "order": 2,
+    "isActive": true
+  },
+  {
+    "id": "brand-3",
+    "name": "HP",
+    "logoText": "hp",
+    "logoUrl": "https://res.cloudinary.com/qavx4onx/image/upload/f_auto,q_auto/v1791887381/velneer/brands/brand_brand-3_1791887382207_qgnllo.jpg",
+    "category": "Computing & Printers",
+    "order": 3,
+    "isActive": true
+  },
+  {
+    "id": "brand-4",
+    "name": "boAt",
+    "logoText": "boAt",
+    "logoUrl": "https://res.cloudinary.com/qavx4onx/image/upload/f_auto,q_auto/v1791887382/velneer/brands/brand_brand-4_1791887383085_4bjqeh.jpg",
+    "category": "Audio & Wearables",
+    "order": 4,
+    "isActive": true
+  },
+  {
+    "id": "brand-5",
+    "name": "Puma",
+    "logoText": "PUMA",
+    "logoUrl": "https://res.cloudinary.com/qavx4onx/image/upload/f_auto,q_auto/v1791887383/velneer/brands/brand_brand-5_1791887383782_oacysp.jpg",
+    "category": "Footwear & Sportswear",
+    "order": 5,
+    "isActive": true
+  },
+  {
+    "id": "brand-6",
+    "name": "Nike",
+    "logoText": "NIKE",
+    "logoUrl": "https://res.cloudinary.com/qavx4onx/image/upload/f_auto,q_auto/v1791887384/velneer/brands/brand_brand-6_1791887384458_ejc87d.jpg",
+    "category": "Athletic Wear & Shoes",
+    "order": 6,
+    "isActive": true
+  },
+  {
+    "id": "brand-7",
+    "name": "LG",
+    "logoText": "LG",
+    "logoUrl": "https://res.cloudinary.com/qavx4onx/image/upload/f_auto,q_auto/v1791887384/velneer/brands/brand_brand-7_1791887385321_j7dza5.jpg",
+    "category": "Home Appliances",
+    "order": 7,
+    "isActive": true
+  },
+  {
+    "id": "brand-8",
+    "name": "Philips",
+    "logoText": "PHILIPS",
+    "logoUrl": "https://res.cloudinary.com/qavx4onx/image/upload/f_auto,q_auto/v1791887386/velneer/brands/brand_brand-8_1791887386539_wcj5tk.jpg",
+    "category": "Personal Grooming & Lights",
+    "order": 8,
+    "isActive": true
+  }
+]

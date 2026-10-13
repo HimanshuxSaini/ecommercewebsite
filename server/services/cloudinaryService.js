@@ -4,12 +4,16 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Configure Cloudinary from environment variables
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'velneer-store',
-  api_key: process.env.CLOUDINARY_API_KEY || '123456789012345',
-  api_secret: process.env.CLOUDINARY_API_SECRET || 'velneer_mock_cloudinary_secret',
-  secure: true,
-});
+if (process.env.CLOUDINARY_URL) {
+  cloudinary.config({ cloudinary_url: process.env.CLOUDINARY_URL });
+} else {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'velneer-store',
+    api_key: process.env.CLOUDINARY_API_KEY || '123456789012345',
+    api_secret: process.env.CLOUDINARY_API_SECRET || 'velneer_mock_cloudinary_secret',
+    secure: true,
+  });
+}
 
 /**
  * Upload an image buffer or base64 stream directly to Cloudinary
@@ -23,11 +27,14 @@ export async function uploadToCloudinary(fileBuffer, folder = 'velneer/products'
     process.env.CLOUDINARY_CLOUD_NAME;
 
   if (!hasRealCredentials) {
-    console.log('[CLOUDINARY] Simulation: File received and validated. When CLOUDINARY_CLOUD_NAME is added to .env, uploads will sync to Cloudinary CDN.');
+    console.log('[CLOUDINARY] Simulation: File received and processed. Configure CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY in .env for production CDN sync.');
     const mockPublicId = `velneer_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const previewUrl = fileBuffer
+      ? `data:image/webp;base64,${fileBuffer.toString('base64')}`
+      : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop&q=80';
     return {
       success: true,
-      url: `https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop&q=80`,
+      url: previewUrl,
       public_id: mockPublicId,
       format: 'webp',
       bytes: fileBuffer ? fileBuffer.length : 1024,

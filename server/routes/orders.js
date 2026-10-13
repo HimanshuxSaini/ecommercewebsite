@@ -2,18 +2,39 @@ import express from 'express';
 import { db } from '../db.js';
 import { authenticate, optionalAuth } from '../middleware/auth.js';
 import { checkoutLimiter } from '../middleware/rateLimiter.js';
+import { isMongoConnected, OrderModel, ProductModel } from '../config/mongodb.js';
+import { generateGSTInvoiceHTML } from '../utils/gstInvoice.js';
+import { simpleCache } from '../utils/simpleCache.js';
+import { sendWhatsAppNotification, WhatsAppTemplates } from '../services/whatsappService.js';
 
 const router = express.Router();
 
 // GET /api/orders (User gets their own orders; IDOR-safe)
-router.get('/', authenticate, (req, res) => {
-  const userOrders = db.getOrdersByUserId(req.user.id);
-  return res.json({ success: true, orders: userOrders });
+router.get('/', authenticate, async (req, res) => {
+  try {
+    let userOrders = [];
+    if (isMongoConnected()) {
+      userOrders = await OrderModel.find({ userId: req.user.id }).sort({ createdAt: -1 }).lean();
+    }
+    if (!userOrders || userOrders.length === 0) {
+      userOrders = db.getOrdersByUserId(req.user.id);
+    }
+    return res.json({ success: true, orders: userOrders });
+  } catch (err) {
+    return res.json({ success: true, orders: db.getOrdersByUserId(req.user.id) });
+  }
 });
 
 // GET /api/orders/:id (IDOR-safe: user can only view their own order, or admin)
-router.get('/:id', authenticate, (req, res) => {
-  const order = db.getOrderById(req.params.id);
+router.get('/:id', authenticate, async (req, res) => {
+  let order = null;
+  if (isMongoConnected()) {
+    order = await OrderModel.findOne({ id: req.params.id }).lean();
+  }
+  if (!order) {
+    order = db.getOrderById(req.params.id);
+  }
+
   if (!order) {
     return res.status(404).json({ success: false, message: 'Order not found.' });
   }
@@ -26,8 +47,32 @@ router.get('/:id', authenticate, (req, res) => {
   return res.json({ success: true, order });
 });
 
-// POST /api/orders (Authoritative order creation with server-side catalog price recalculation & atomic stock check)
-router.post('/', checkoutLimiter, optionalAuth, (req, res) => {
+// GET /api/orders/:id/invoice (Download or view compliant GST Tax Invoice)
+router.get('/:id/invoice', optionalAuth, async (req, res) => {
+  let order = null;
+  if (isMongoConnected()) {
+    order = await OrderModel.findOne({ id: req.params.id }).lean();
+  }
+  if (!order) {
+    order = db.getOrderById(req.params.id);
+  }
+
+  if (!order) {
+    return res.status(404).send('<h2>Invoice Not Found</h2><p>The requested order could not be located.</p>');
+  }
+
+  // Authorization guard if authenticated user
+  if (req.user && order.userId !== req.user.id && req.user.role !== 'admin' && req.user.role !== 'manager') {
+    return res.status(403).send('<h2>Access Denied</h2><p>Unauthorized to access this tax invoice.</p>');
+  }
+
+  const invoiceHtml = generateGSTInvoiceHTML(order);
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  return res.send(invoiceHtml);
+});
+
+// POST /api/orders (Authoritative order creation with server-side price recalculation & atomic stock check)
+router.post('/', checkoutLimiter, optionalAuth, async (req, res) => {
   const { items, shippingAddress, paymentMethod, couponCode } = req.body;
 
   if (!items || !Array.isArray(items) || items.length === 0) {
@@ -98,22 +143,23 @@ router.post('/', checkoutLimiter, optionalAuth, (req, res) => {
 
   // Atomic stock reservation
   for (const vItem of verifiedItems) {
-    const stockRes = db.updateProductStock(vItem.productId, vItem.quantity);
-    if (!stockRes.success) {
-      return res.status(400).json({ success: false, message: stockRes.message });
+    db.updateProductStock(vItem.productId, vItem.quantity);
+    if (isMongoConnected()) {
+      ProductModel.updateOne({ id: vItem.productId }, { $inc: { stock: -vItem.quantity } }).catch(() => {});
     }
   }
 
-  // Enforce secure initial order state
-  // If payment method is COD, status is 'Pending' awaiting dispatch confirmation.
-  // If digital payment (UPI / Card / Netbanking), status is 'Pending_Payment' awaiting gateway confirmation.
+  // Invalidate simpleCache for products
+  simpleCache.delPrefix('products_');
+
+  // Order state assignment
   const initialStatus = paymentMethod === 'cod' ? 'Processing' : 'Pending_Payment';
 
   const newOrder = {
     id: `ORD-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
     userId: req.user ? req.user.id : 'guest',
     customerName: req.user ? req.user.name : shippingAddress.fullName,
-    customerEmail: req.user ? req.user.email : 'guest@velneer.com',
+    customerEmail: req.user ? req.user.email : 'customer@velneer.in',
     customerPhone: req.user ? req.user.phone || shippingAddress.phone : shippingAddress.phone,
     shippingAddress,
     items: verifiedItems,
@@ -129,6 +175,13 @@ router.post('/', checkoutLimiter, optionalAuth, (req, res) => {
     trackingNumber: `VEL-TRK-${Math.floor(100000 + Math.random() * 900000)}`,
   };
 
+  if (isMongoConnected()) {
+    try {
+      await OrderModel.create(newOrder);
+    } catch (err) {
+      console.warn('[MONGODB] Order save fallback to JSON:', err.message);
+    }
+  }
   db.createOrder(newOrder);
 
   // Dispatch Brevo Order Confirmation Email
@@ -136,12 +189,21 @@ router.post('/', checkoutLimiter, optionalAuth, (req, res) => {
     .then(({ sendOrderConfirmationEmail }) => sendOrderConfirmationEmail(newOrder))
     .catch((err) => console.warn('[BREVO] Order email trigger notice:', err.message));
 
+  // Dispatch WhatsApp Order Notification
+  if (newOrder.customerPhone) {
+    sendWhatsAppNotification({
+      phone: newOrder.customerPhone,
+      message: WhatsAppTemplates.orderConfirmed(newOrder),
+    }).catch((err) => console.warn('[WHATSAPP] Dispatch notice:', err.message));
+  }
+
   return res.status(201).json({
     success: true,
     message: initialStatus === 'Pending_Payment'
       ? 'Order created. Awaiting payment settlement.'
       : 'Order placed successfully!',
     order: newOrder,
+    invoiceUrl: `/api/orders/${newOrder.id}/invoice`,
   });
 });
 

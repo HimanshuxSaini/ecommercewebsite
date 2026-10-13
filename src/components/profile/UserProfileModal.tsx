@@ -9,6 +9,7 @@ import {
   Trash2,
   Truck,
   Check,
+  FileText,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Order } from '../../types';
@@ -282,13 +283,38 @@ export const UserProfileModal: React.FC = () => {
                       <span className="text-[11px] text-[#D8C8B3]">
                         Tracking: <strong className="font-mono text-[#2E342D]">{order.trackingNumber || 'SV-EXP-1102'}</strong>
                       </span>
-                      <button
-                        onClick={() => setTrackingOrder(order)}
-                        className="text-[#173F30] hover:text-[#2E5E46] font-semibold flex items-center gap-1 cursor-pointer"
-                      >
-                        <Truck className="w-3.5 h-3.5" />
-                        <span>Track Delivery</span>
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <a
+                          href={`/api/orders/${order.id}/invoice`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#173F30] hover:text-[#2E5E46] hover:underline font-semibold flex items-center gap-1 text-[11px]"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>Tax Invoice</span>
+                        </a>
+                        <button
+                          onClick={() => setTrackingOrder(order)}
+                          className="text-[#173F30] hover:text-[#2E5E46] font-semibold flex items-center gap-1 cursor-pointer"
+                        >
+                          <Truck className="w-3.5 h-3.5" />
+                          <span>Track Delivery</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const msg = `Hello Velneer Support,\n\nI have a question about my Order #${order.id}.\n• Amount: ₹${order.total.toLocaleString('en-IN')}\n• Status: ${order.status}\n• Tracking Ref: ${order.trackingNumber || 'Pending'}\n\nPlease help me with updates.`;
+                            const waNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '917494980621';
+                            window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+                          }}
+                          className="text-[#128C7E] hover:text-[#075E54] hover:underline font-semibold flex items-center gap-1 text-[11px] cursor-pointer"
+                        >
+                          <svg className="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 24 24">
+                            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.599 2.664-.698c.974.53 1.83.811 2.802.812 3.181 0 5.768-2.586 5.768-5.766 0-3.18-2.587-5.766-5.774-5.766zm8.469 5.766c0 4.693-3.813 8.508-8.5 8.508-1.464 0-2.85-.373-4.062-1.031l-4.509 1.182 1.205-4.404c-.754-1.277-1.196-2.77-1.196-4.364 0-4.693 3.813-8.508 8.562-8.508 4.688 0 8.5 3.815 8.5 8.617z" />
+                          </svg>
+                          <span>WhatsApp Help</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))

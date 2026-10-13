@@ -1,0 +1,29 @@
+[
+  {
+    "id": "usr-admin-1",
+    "name": "Himanshu Sharma",
+    "email": "admin@velneer.in",
+    "role": "admin",
+    "phone": "+91 93066 80944",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    "createdAt": "2025-01-10"
+  },
+  {
+    "id": "usr-mgr-1",
+    "name": "Ananya Verma",
+    "email": "manager@velneer.in",
+    "role": "manager",
+    "phone": "+91 98112 34567",
+    "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
+    "createdAt": "2025-02-14"
+  },
+  {
+    "id": "usr-cust-1",
+    "name": "Rahul Mehta",
+    "email": "rahul@example.com",
+    "role": "customer",
+    "phone": "+91 99887 76655",
+    "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+    "createdAt": "2026-01-05"
+  }
+]

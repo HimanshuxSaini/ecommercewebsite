@@ -4,6 +4,7 @@ import {
   Search,
   Eye,
   X,
+  FileText,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Order } from '../../types';
@@ -263,10 +264,19 @@ export const AdminOrders: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-2 flex justify-end">
+            <div className="pt-2 flex justify-between items-center">
+              <a
+                href={`/api/orders/${selectedOrder.id}/invoice`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 font-semibold px-3 py-2 rounded-lg text-xs flex items-center gap-1.5 transition-colors"
+              >
+                <FileText className="w-4 h-4" />
+                <span>Download GST Tax Invoice</span>
+              </a>
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2 rounded-lg cursor-pointer"
+                className="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2 rounded-lg cursor-pointer text-xs"
               >
                 Close Inspector
               </button>

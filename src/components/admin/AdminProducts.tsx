@@ -7,9 +7,12 @@ import {
   Search,
   X,
   Star,
+  UploadCloud,
+  Loader2,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Product } from '../../types';
+import { apiClient } from '../../utils/apiClient';
 
 export const AdminProducts: React.FC = () => {
   const { products, addProduct, updateProduct, deleteProduct, categories } = useApp();
@@ -33,6 +36,27 @@ export const AdminProducts: React.FC = () => {
   const [isFlashDeal, setIsFlashDeal] = useState(false);
   const [isBestSeller, setIsBestSeller] = useState(false);
   const [isNewArrival, setIsNewArrival] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    setUploadError('');
+    try {
+      const res = await apiClient.uploadImage(file, 'velneer/products');
+      if (res.success && res.url) {
+        setImageUrl(res.url);
+      } else {
+        setUploadError(res.message || 'Image upload failed.');
+      }
+    } catch {
+      setUploadError('Failed to upload image. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const openAddModal = () => {
     setEditingProduct(null);
@@ -427,17 +451,55 @@ export const AdminProducts: React.FC = () => {
               </div>
 
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">
-                  Product Image URL
-                </label>
-                <input
-                  type="url"
-                  required
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900"
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-semibold text-slate-700">
+                    Product Image (Cloudinary CDN or Direct URL)
+                  </label>
+                  {isUploading && (
+                    <span className="text-[11px] text-blue-600 flex items-center gap-1 font-medium">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Uploading to CDN...
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="url"
+                    required
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="https://... or upload local image"
+                    className="flex-1 bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs text-slate-900"
+                  />
+                  <label className="flex items-center gap-1 px-3 py-2.5 bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-semibold cursor-pointer transition-colors shrink-0">
+                    <UploadCloud className="w-4 h-4" />
+                    <span>{isUploading ? 'Uploading...' : 'Upload'}</span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/avif"
+                      onChange={handleFileUpload}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                {uploadError && (
+                  <p className="text-[10px] text-rose-600 mt-1">{uploadError}</p>
+                )}
+
+                {imageUrl && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <img
+                      src={imageUrl}
+                      alt="Product preview"
+                      className="w-12 h-12 object-cover rounded-lg border border-slate-200"
+                    />
+                    <span className="text-[10px] text-slate-500 truncate max-w-xs">
+                      Live Preview & Cloud CDN linked
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div>
