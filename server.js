@@ -5,7 +5,6 @@ import fs from 'fs';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
-import { db } from './server/db.js';
 import authRoutes from './server/routes/auth.js';
 import orderRoutes from './server/routes/orders.js';
 import adminRoutes from './server/routes/admin.js';

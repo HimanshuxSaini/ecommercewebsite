@@ -4,16 +4,10 @@ import {
   Clock,
   Plus,
   Trash2,
-  Edit2,
-  Check,
-  AlertTriangle,
-  RotateCcw,
-  ShoppingBag,
   X,
   Search,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { Product } from '../../types';
 
 export const AdminFlashDeals: React.FC = () => {
   const {
@@ -21,11 +15,9 @@ export const AdminFlashDeals: React.FC = () => {
     categories,
     flashDealConfig,
     updateFlashDealTime,
-    toggleFlashDealActive,
     addCustomFlashDeal,
     removeCustomFlashDeal,
     createAndAddFlashDeal,
-    updateProduct,
     showToast,
   } = useApp();
 

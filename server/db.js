@@ -42,9 +42,6 @@ function writeJsonFile(filename, data) {
 }
 
 // Initial default seed users with secure bcrypt hashes (password: Velneer@2026 for admin, Password@123 for others)
-const DEFAULT_PASSWORD_ADMIN = '$2a$12$e6x4iGcqG2iU4z5j/jLqreB9a5qNlX7Dq8u8V0I5lJ0wQkZ9wYJiq'; // Velneer@2026
-const DEFAULT_PASSWORD_USER = '$2a$12$K8y5jK7pL2mN9oP4qR6sTeU1vW3xY5zA7bC9dE1fG3hI5jK7lM9nO'; // Password@123
-
 const INITIAL_USERS = [
   {
     id: 'usr-admin-1',

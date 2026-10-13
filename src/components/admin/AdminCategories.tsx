@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import {
-  Layers,
   Plus,
   Trash2,
   Edit2,
   FolderTree,
-  ChevronRight,
   X,
-  ExternalLink,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Category } from '../../types';

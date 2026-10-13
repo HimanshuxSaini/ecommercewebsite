@@ -1,14 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  MessageCircle,
   X,
   Send,
-  Package,
-  Sparkles as ArtIcon, // Alias for custom art
   HelpCircle,
   PhoneCall,
   CheckCircle2,
-  ChevronRight,
   Palette,
   Boxes,
 } from 'lucide-react';

@@ -9,8 +9,6 @@ import {
   X,
   Eye,
   EyeOff,
-  Image as ImageIcon,
-  ExternalLink,
   AlertCircle,
   Search,
 } from 'lucide-react';
@@ -24,7 +22,6 @@ export const AdminBrands: React.FC = () => {
     updateBrand,
     deleteBrand,
     reorderBrands,
-    categories,
     isBrandsSectionVisible,
     toggleBrandsSectionVisible,
   } = useApp();

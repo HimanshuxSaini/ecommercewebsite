@@ -6,15 +6,10 @@ import {
   Trash2,
   MoveUp,
   MoveDown,
-  Check,
   X,
-  ExternalLink,
-  Layers,
   Eye,
   EyeOff,
   AlertCircle,
-  Home,
-  Tag,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { NavItem } from '../../types';
@@ -27,7 +22,6 @@ export const AdminNavigation: React.FC = () => {
     deleteNavItem,
     reorderNavItems,
     categories,
-    showToast,
   } = useApp();
 
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import {
   ChevronRight,
   Home,
-  SlidersHorizontal,
   ArrowUpDown,
   Search,
   X,
@@ -21,7 +20,6 @@ export const CategoryPage: React.FC = () => {
   const {
     categories,
     selectedCategory,
-    setSelectedCategory,
     navigateToHome,
     navigateToShop,
     navigateToCategory,

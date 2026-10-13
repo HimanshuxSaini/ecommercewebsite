@@ -7,7 +7,6 @@ import {
   Search,
   X,
   Star,
-  CheckCircle2,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Product } from '../../types';

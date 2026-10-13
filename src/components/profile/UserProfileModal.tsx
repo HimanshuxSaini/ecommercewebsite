@@ -7,11 +7,7 @@ import {
   Heart,
   Shield,
   Trash2,
-  CheckCircle2,
-  Clock,
   Truck,
-  Plus,
-  ExternalLink,
   Check,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';

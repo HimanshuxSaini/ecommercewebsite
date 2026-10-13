@@ -4,13 +4,9 @@ import {
   ChevronRight,
   Filter,
   ArrowUpDown,
-  Search,
   X,
   Layers,
   ShoppingBag,
-  Grid3X3,
-  Check,
-  Tag,
   ArrowRight,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';

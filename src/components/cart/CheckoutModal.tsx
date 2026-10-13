@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import {
   X,
-  MapPin,
-  CreditCard,
   CheckCircle2,
   Plus,
   ShieldCheck,
-  Truck,
   ArrowRight,
   PackageCheck,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
-import { Address, Order } from '../../types';
+import { Order } from '../../types';
 import {
   sanitizeInput,
   isValidPhone,

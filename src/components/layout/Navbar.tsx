@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, ChevronDown, Flame, Tag, Layers } from 'lucide-react';
+import { Menu, ChevronDown, Layers } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const Navbar: React.FC = () => {
   const {
     categories,
     selectedCategory,
-    setSelectedCategory,
     setCurrentView,
     navItems,
     currentPage,

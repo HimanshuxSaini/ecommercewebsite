@@ -22,7 +22,6 @@ export const CartDrawer: React.FC = () => {
     setIsWishlistOpen,
     removeFromCart,
     updateCartQuantity,
-    clearCart,
     cartSubtotal,
     cartDiscount,
     cartTotal,
@@ -30,7 +29,6 @@ export const CartDrawer: React.FC = () => {
     applyCoupon,
     removeCoupon,
     setIsCheckoutOpen,
-    navigateToShop,
   } = useApp();
 
   const [couponCodeInput, setCouponCodeInput] = useState('');

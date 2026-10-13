@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, BookOpen, X } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
 import { BLOG_POSTS } from '../../data/mockData';
 
 export const BlogSection: React.FC = () => {

@@ -7,7 +7,6 @@ import {
   ArrowRight,
   ShoppingBag,
   ShieldCheck,
-  Check,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 

@@ -4,8 +4,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  Plus,
-  RefreshCw,
   Search,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -14,7 +12,6 @@ export const AdminInventory: React.FC = () => {
   const { products, restockProduct, categories } = useApp();
   const [filter, setFilter] = useState<'all' | 'low' | 'out'>('all');
   const [search, setSearch] = useState('');
-  const [restockAmount, setRestockAmount] = useState<Record<string, number>>({});
 
   const lowStockThreshold = 15;
 

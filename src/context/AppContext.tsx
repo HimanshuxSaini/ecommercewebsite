@@ -32,7 +32,6 @@ import {
   isValidEmail,
   normalizeEmail,
   sanitizeInput,
-  sanitizeData,
   loginRateLimiter,
 } from '../utils/security';
 

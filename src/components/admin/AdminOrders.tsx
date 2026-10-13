@@ -2,13 +2,7 @@ import React, { useState } from 'react';
 import {
   ShoppingBag,
   Search,
-  Filter,
   Eye,
-  CheckCircle2,
-  Clock,
-  Truck,
-  XCircle,
-  PackageCheck,
   X,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';

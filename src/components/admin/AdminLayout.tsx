@@ -10,7 +10,6 @@ import {
   Store,
   Shield,
   LogOut,
-  ChevronRight,
   AlertOctagon,
   Zap,
   Compass,
@@ -35,7 +34,6 @@ export const AdminLayout: React.FC = () => {
     currentUser,
     setCurrentView,
     logout,
-    hasPermission,
     setIsAuthOpen,
   } = useApp();
 

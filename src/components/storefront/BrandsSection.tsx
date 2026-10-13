@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Tag } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const BrandsSection: React.FC = () => {

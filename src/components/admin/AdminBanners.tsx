@@ -4,10 +4,7 @@ import {
   Plus,
   Trash2,
   Edit2,
-  Eye,
-  Check,
   X,
-  ExternalLink,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Banner } from '../../types';

@@ -3,7 +3,6 @@ import {
   TrendingUp,
   ShoppingBag,
   DollarSign,
-  Users,
   AlertTriangle,
   ArrowUpRight,
   Package,
@@ -14,7 +13,7 @@ import {
 import { useApp } from '../../context/AppContext';
 
 export const AdminDashboard: React.FC = () => {
-  const { orders, products, users, setAdminTab, flashDealConfig } = useApp();
+  const { orders, products, setAdminTab, flashDealConfig } = useApp();
 
   const totalRevenue = orders.reduce((acc, o) => acc + o.total, 0);
   const totalOrders = orders.length;

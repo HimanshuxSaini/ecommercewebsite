@@ -6,7 +6,6 @@ import {
   ShoppingCart,
   Shield,
   LogOut,
-  ChevronDown,
   LayoutDashboard,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -18,7 +17,6 @@ export const Header: React.FC = () => {
     setIsAuthOpen,
     setIsProfileOpen,
     setIsCartOpen,
-    isWishlistOpen,
     setIsWishlistOpen,
     cartCount,
     wishlist,
@@ -27,10 +25,8 @@ export const Header: React.FC = () => {
     searchQuery,
     setSearchQuery,
     selectedCategory,
-    setSelectedCategory,
     categories,
     hasPermission,
-    login,
     navigateToHome,
     navigateToShop,
     navigateToCategory,

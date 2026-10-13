@@ -4,11 +4,7 @@ import {
   Plus,
   Trash2,
   Edit2,
-  Check,
   X,
-  Percent,
-  Calendar,
-  AlertCircle,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Coupon } from '../../types';

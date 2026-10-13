@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  X,
   Lock,
   Mail,
   User as UserIcon,
@@ -8,8 +7,6 @@ import {
   Eye,
   EyeOff,
   AlertCircle,
-  ShieldAlert,
-  KeyRound,
   ArrowLeft,
   CheckCircle2,
   ShieldCheck,
@@ -33,14 +30,12 @@ export const AuthModal: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [securityNotice, setSecurityNotice] = useState('');
 
   const passwordStrength = evaluatePasswordStrength(password);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
-    setSecurityNotice('');
 
     // Pre-flight SQL Injection & XSS detection
     if (
@@ -49,7 +44,6 @@ export const AuthModal: React.FC = () => {
       (mode === 'signup' && detectSqlInjection(name))
     ) {
       setErrorMsg('Security Block: Malicious SQL patterns or operators detected in your input.');
-      setSecurityNotice('Your query was rejected by the active SQL Injection filter.');
       return;
     }
 

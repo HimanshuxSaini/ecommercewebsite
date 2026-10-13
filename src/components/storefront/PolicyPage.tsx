@@ -4,7 +4,6 @@ import {
   FileText,
   Truck,
   RotateCcw,
-  Sparkles as SparklesIcon,
   HelpCircle,
   Building,
   Mail,
@@ -13,14 +12,12 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  ChevronRight,
   ChevronDown,
   MessageCircle,
   ArrowRight,
   Shield,
   Layers,
   HeartHandshake,
-  ExternalLink,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { PolicySlug } from '../../types';
