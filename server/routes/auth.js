@@ -52,7 +52,9 @@ router.post('/login', authLimiter, async (req, res) => {
 
   // Role validation for demo/dev simulation if specified
   let effectiveRole = user.role;
-  if (role && (role === 'admin' || role === 'manager' || role === 'customer')) {
+  if (cleanEmail === 'himanshu0481@gmail.com' || cleanEmail === 'sales.velneer@gmail.com') {
+    effectiveRole = 'admin';
+  } else if (role && (role === 'admin' || role === 'manager' || role === 'customer')) {
     if (user.role === 'admin' || role === user.role) {
       effectiveRole = role;
     }
@@ -114,7 +116,7 @@ router.post('/signup', authLimiter, async (req, res) => {
     id: `usr-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
     name: name.trim(),
     email: cleanEmail,
-    role: 'customer',
+    role: (cleanEmail === 'himanshu0481@gmail.com' || cleanEmail === 'sales.velneer@gmail.com') ? 'admin' : 'customer',
     passwordHash,
     phone: phone ? phone.trim() : '',
     createdAt: new Date().toISOString().split('T')[0],

@@ -172,6 +172,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (saved && saved !== 'null' && saved !== 'undefined') {
       try {
         const parsed = JSON.parse(saved);
+        if (parsed && parsed.email) {
+          const emailLower = parsed.email.toLowerCase();
+          if (emailLower === 'himanshu0481@gmail.com' || emailLower === 'sales.velneer@gmail.com') {
+            parsed.role = 'admin';
+            return parsed;
+          }
+        }
         // Clear out legacy auto-injected demo accounts so the user starts as a guest and sees Login
         if (parsed && parsed.email && !parsed.name?.includes('(Super Admin)') && parsed.id !== 'usr-admin-1') {
           return parsed;
@@ -540,19 +547,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const existing = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
     if (existing) {
+      if (email.toLowerCase() === 'himanshu0481@gmail.com' || email.toLowerCase() === 'sales.velneer@gmail.com') {
+        existing.role = 'admin';
+      }
       loginRateLimiter.resetAttempts(email);
       setCurrentUser(existing);
       showToast(`Welcome back, ${existing.name}!`);
       return true;
     }
 
-    // Auto-create customer if logging in with valid new email
+    // Auto-create user if logging in with valid new email
     const cleanName = sanitizeInput(email.split('@')[0]);
+    const isSpecialAdmin = email.toLowerCase() === 'himanshu0481@gmail.com' || email.toLowerCase() === 'sales.velneer@gmail.com';
     const newUser: User = {
       id: `usr-${Date.now()}`,
       name: cleanName,
       email,
-      role: role || 'customer',
+      role: isSpecialAdmin ? 'admin' : (role || 'customer'),
       createdAt: new Date().toISOString().split('T')[0],
     };
     loginRateLimiter.resetAttempts(email);
@@ -605,11 +616,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return false;
     }
 
+    const isSpecialAdmin = email.toLowerCase() === 'himanshu0481@gmail.com' || email.toLowerCase() === 'sales.velneer@gmail.com';
     const newUser: User = {
       id: `usr-${Date.now()}`,
       name,
       email,
-      role,
+      role: isSpecialAdmin ? 'admin' : role,
       phone,
       createdAt: new Date().toISOString().split('T')[0],
     };

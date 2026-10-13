@@ -1098,6 +1098,24 @@ export const INITIAL_COUPONS: Coupon[] = [
 
 export const INITIAL_USERS: User[] = [
   {
+    id: 'usr-admin-0',
+    name: 'Himanshu Saini',
+    email: 'himanshu0481@gmail.com',
+    role: 'admin',
+    phone: '+91 93066 80944',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    createdAt: '2025-01-10',
+  },
+  {
+    id: 'usr-admin-sales',
+    name: 'Velneer Sales Admin',
+    email: 'sales.velneer@gmail.com',
+    role: 'admin',
+    phone: '+91 74949 80621',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    createdAt: '2025-01-10',
+  },
+  {
     id: 'usr-admin-1',
     name: 'Himanshu Sharma',
     email: 'admin@velneer.in',

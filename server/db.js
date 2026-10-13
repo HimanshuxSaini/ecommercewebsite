@@ -44,6 +44,26 @@ function writeJsonFile(filename, data) {
 // Initial default seed users with secure bcrypt hashes (password: Velneer@2026 for admin, Password@123 for others)
 const INITIAL_USERS = [
   {
+    id: 'usr-admin-0',
+    name: 'Himanshu Saini',
+    email: 'himanshu0481@gmail.com',
+    role: 'admin',
+    passwordHash: bcrypt.hashSync('Velneer@2026', 10),
+    phone: '+91 93066 80944',
+    createdAt: '2025-01-10',
+    isActive: true,
+  },
+  {
+    id: 'usr-admin-sales',
+    name: 'Velneer Sales Admin',
+    email: 'sales.velneer@gmail.com',
+    role: 'admin',
+    passwordHash: bcrypt.hashSync('Velneer@2026', 10),
+    phone: '+91 74949 80621',
+    createdAt: '2025-01-10',
+    isActive: true,
+  },
+  {
     id: 'usr-admin-1',
     name: 'Himanshu Sharma (Super Admin)',
     email: 'admin@velneer.in',
