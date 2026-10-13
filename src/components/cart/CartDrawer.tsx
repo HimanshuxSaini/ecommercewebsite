@@ -29,6 +29,7 @@ export const CartDrawer: React.FC = () => {
     applyCoupon,
     removeCoupon,
     setIsCheckoutOpen,
+    showToast,
   } = useApp();
 
   const [couponCodeInput, setCouponCodeInput] = useState('');
@@ -73,6 +74,10 @@ export const CartDrawer: React.FC = () => {
   };
 
   const handleProceedToCheckout = () => {
+    if (!cart || cart.length === 0) {
+      showToast('Your shopping bag is empty. Add products to proceed to checkout.', 'error');
+      return;
+    }
     setIsCartOpen(false);
     setIsCheckoutOpen(true);
   };

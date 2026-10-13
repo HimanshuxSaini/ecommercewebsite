@@ -1116,10 +1116,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const isInWishlist = (productId: string) => wishlist.includes(productId);
 
   // Addresses
-  const addAddress = (addrData: Omit<Address, 'id'>) => {
+  const addAddress = (addrData: Omit<Address, 'id'> & { id?: string }) => {
     // Sanitize address inputs to eliminate potential injections
     const sanitizedAddr: Address = {
-      id: `addr-${Date.now()}`,
+      id: addrData.id || `addr-${Date.now()}`,
       fullName: sanitizeInput(addrData.fullName),
       phone: sanitizeInput(addrData.phone),
       street: sanitizeInput(addrData.street),
