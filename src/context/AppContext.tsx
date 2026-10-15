@@ -105,7 +105,7 @@ interface AppContextType {
 
   // Addresses & Orders
   addresses: Address[];
-  addAddress: (address: Omit<Address, 'id'>) => void;
+  addAddress: (address: Omit<Address, 'id'> & { id?: string }) => void;
   updateAddress: (id: string, address: Partial<Address>) => void;
   deleteAddress: (id: string) => void;
   setDefaultAddress: (id: string) => void;

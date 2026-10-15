@@ -28,6 +28,7 @@ export const AuthModal: React.FC = () => {
 
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [loginMethod, setLoginMethod] = useState<'otp' | 'password'>('otp');
+  const [signupMethod, setSignupMethod] = useState<'password' | 'otp'>('password');
 
   // Form inputs
   const [name, setName] = useState('');
@@ -210,6 +211,56 @@ export const AuthModal: React.FC = () => {
     }
   };
 
+  // Handle Standard Password Sign Up (Instant 1-Click Registration)
+  const handlePasswordSignupSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+
+    if (!name.trim() || name.trim().length < 2) {
+      setErrorMsg('Please enter your full name (minimum 2 characters).');
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setErrorMsg('Please enter a valid email address.');
+      return;
+    }
+
+    if (
+      detectSqlInjection(email) ||
+      detectXssInjection(email) ||
+      detectSqlInjection(name) ||
+      detectXssInjection(name)
+    ) {
+      setErrorMsg('Security Block: Disallowed characters or SQL injection patterns detected.');
+      return;
+    }
+
+    if (!password || password.length < 8) {
+      setErrorMsg('Password must be at least 8 characters.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMsg('Passwords do not match.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const success = await signup(name.trim(), email.trim().toLowerCase(), 'customer', password, phone.trim());
+      if (success) {
+        setIsAuthOpen(false);
+      } else {
+        setErrorMsg('Registration failed. An account with this email may already exist.');
+      }
+    } catch {
+      setErrorMsg('Account registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-[#FAF8F5] h-screen max-h-screen overflow-hidden flex flex-col animate-in fade-in duration-200">
       {/* Top Navigation Bar */}
@@ -340,39 +391,76 @@ export const AuthModal: React.FC = () => {
               </div>
             )}
 
-            {/* In Login Mode: Method Switcher (OTP vs Password) */}
-            {!isOtpSent && mode === 'login' && (
+            {/* Method Switcher (OTP vs Password) */}
+            {!isOtpSent && (
               <div className="flex bg-[#E9EBDD] p-1 rounded-xl mb-3 text-xs">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLoginMethod('otp');
-                    setErrorMsg('');
-                  }}
-                  className={`flex-1 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                    loginMethod === 'otp'
-                      ? 'bg-white text-[#173F30] shadow-xs'
-                      : 'text-[#6B7068] hover:text-[#2E342D]'
-                  }`}
-                >
-                  <KeyRound className="w-3.5 h-3.5" />
-                  <span>Email OTP (Fast)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLoginMethod('password');
-                    setErrorMsg('');
-                  }}
-                  className={`flex-1 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                    loginMethod === 'password'
-                      ? 'bg-white text-[#173F30] shadow-xs'
-                      : 'text-[#6B7068] hover:text-[#2E342D]'
-                  }`}
-                >
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>Password</span>
-                </button>
+                {mode === 'login' ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLoginMethod('otp');
+                        setErrorMsg('');
+                      }}
+                      className={`flex-1 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                        loginMethod === 'otp'
+                          ? 'bg-white text-[#173F30] shadow-xs'
+                          : 'text-[#6B7068] hover:text-[#2E342D]'
+                      }`}
+                    >
+                      <KeyRound className="w-3.5 h-3.5" />
+                      <span>Email OTP (Fast)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLoginMethod('password');
+                        setErrorMsg('');
+                      }}
+                      className={`flex-1 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                        loginMethod === 'password'
+                          ? 'bg-white text-[#173F30] shadow-xs'
+                          : 'text-[#6B7068] hover:text-[#2E342D]'
+                      }`}
+                    >
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Password</span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSignupMethod('password');
+                        setErrorMsg('');
+                      }}
+                      className={`flex-1 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                        signupMethod === 'password'
+                          ? 'bg-white text-[#173F30] shadow-xs'
+                          : 'text-[#6B7068] hover:text-[#2E342D]'
+                      }`}
+                    >
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Instant Sign Up</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSignupMethod('otp');
+                        setErrorMsg('');
+                      }}
+                      className={`flex-1 py-1.5 rounded-lg font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                        signupMethod === 'otp'
+                          ? 'bg-white text-[#173F30] shadow-xs'
+                          : 'text-[#6B7068] hover:text-[#2E342D]'
+                      }`}
+                    >
+                      <KeyRound className="w-3.5 h-3.5" />
+                      <span>Email OTP</span>
+                    </button>
+                  </>
+                )}
               </div>
             )}
 
@@ -449,7 +537,7 @@ export const AuthModal: React.FC = () => {
                 </button>
 
                 {/* Resend OTP Button */}
-                <div className="text-center pt-1">
+                <div className="text-center pt-1 space-y-2">
                   {resendCooldown > 0 ? (
                     <span className="text-[11px] text-[#6B7068]">
                       Resend new code in <strong className="text-[#173F30]">{resendCooldown}s</strong>
@@ -465,6 +553,24 @@ export const AuthModal: React.FC = () => {
                       <span>Resend Verification Code</span>
                     </button>
                   )}
+
+                  {/* Fallback to instant password registration */}
+                  <div className="pt-2 border-t border-[#D7E0D6] text-center">
+                    <p className="text-[11px] text-[#6B7068] mb-1">Didn't receive the email in your inbox or spam?</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsOtpSent(false);
+                        setMode('signup');
+                        setSignupMethod('password');
+                        setErrorMsg('');
+                      }}
+                      className="text-xs font-bold text-[#173F30] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      <Lock className="w-3.5 h-3.5" />
+                      <span>Sign Up Instantly with Password Instead</span>
+                    </button>
+                  </div>
                 </div>
               </form>
             ) : mode === 'login' && loginMethod === 'otp' ? (
@@ -567,9 +673,12 @@ export const AuthModal: React.FC = () => {
               </form>
             ) : (
               /* ========================================================================= */
-              /* STAGE D: CREATE ACCOUNT (WITH EMAIL OTP VERIFICATION) */
+              /* STAGE D: CREATE ACCOUNT (INSTANT PASSWORD OR EMAIL OTP) */
               /* ========================================================================= */
-              <form onSubmit={handleRequestOtp} className="space-y-2.5 sm:space-y-3">
+              <form
+                onSubmit={signupMethod === 'password' ? handlePasswordSignupSubmit : handleRequestOtp}
+                className="space-y-2.5 sm:space-y-3"
+              >
                 <div>
                   <label className="text-[11px] font-semibold text-[#2E342D] block mb-1">
                     Full Name *
@@ -702,7 +811,12 @@ export const AuthModal: React.FC = () => {
                   className="w-full bg-[#173F30] hover:bg-[#2E5E46] disabled:bg-[#B9A48B] text-white font-bold text-xs py-3 rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2 mt-2"
                 >
                   {isLoading ? (
-                    <span>Sending Verification Code...</span>
+                    <span>{signupMethod === 'password' ? 'Creating Account...' : 'Sending Verification Code...'}</span>
+                  ) : signupMethod === 'password' ? (
+                    <>
+                      <ShieldCheck className="w-4 h-4" />
+                      <span>Create Account Instantly</span>
+                    </>
                   ) : (
                     <>
                       <KeyRound className="w-4 h-4" />

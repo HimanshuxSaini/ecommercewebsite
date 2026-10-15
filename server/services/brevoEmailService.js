@@ -37,8 +37,9 @@ export async function sendEmail({ to, toName = 'Customer', subject, htmlContent 
     console.log(`[BREVO] Email successfully dispatched to ${to}. MessageId:`, response?.messageId);
     return { success: true, messageId: response?.messageId };
   } catch (error) {
-    console.error('[BREVO] Error delivering email:', error?.message || error);
-    return { success: false, error: error?.message };
+    const errorMsg = error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+    console.error('[BREVO] Error delivering email:', errorMsg);
+    return { success: false, error: errorMsg };
   }
 }
 

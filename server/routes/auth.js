@@ -52,9 +52,10 @@ router.post('/send-otp', authLimiter, async (req, res) => {
   console.log(`[AUTH OTP] Dispatched OTP for ${cleanEmail} (${type}): [${otp}]`);
 
   // Dispatch live email via Brevo
+  let emailDelivery = { success: true };
   try {
     const { sendOtpEmail } = await import('../services/brevoEmailService.js');
-    await sendOtpEmail({
+    emailDelivery = await sendOtpEmail({
       to: cleanEmail,
       toName: user?.name || cleanEmail.split('@')[0],
       otp,
@@ -62,11 +63,25 @@ router.post('/send-otp', authLimiter, async (req, res) => {
     });
   } catch (err) {
     console.warn('[AUTH OTP] Brevo email dispatch notice:', err.message);
+    emailDelivery = { success: false, error: err.message };
+  }
+
+  if (!emailDelivery.success && !emailDelivery.simulated) {
+    const errText = typeof emailDelivery.error === 'string' ? emailDelivery.error : JSON.stringify(emailDelivery.error || '');
+    console.error(`[AUTH OTP] Failed to send email to ${cleanEmail}:`, errText);
+    const isIpBlock = errText.includes('unrecognised IP address');
+    return res.status(502).json({
+      success: false,
+      message: isIpBlock
+        ? 'Brevo email delivery blocked: Brevo has "Authorised IPs" enabled and blocked the server IP. Please visit https://app.brevo.com/security/authorised_ips and click "Deactivate blocking", or sign up directly with password.'
+        : `Email delivery failed: ${errText.slice(0, 150)}. You can also create an account directly with password.`,
+      emailError: errText,
+    });
   }
 
   return res.json({
     success: true,
-    message: `Verification code sent to ${cleanEmail}. Please check your inbox.`,
+    message: `Verification code sent to ${cleanEmail}. Please check your inbox and spam folder.`,
   });
 });
 

@@ -41,7 +41,20 @@ async function testBrevo() {
   } else if (result.simulated) {
     console.log('⚠️ Simulated mode (No valid API key detected).');
   } else {
-    console.error('❌ Failed to dispatch email:', result.error);
+    console.error('❌ Failed to dispatch email:\n', result.error);
+    const errStr = String(result.error || '');
+    if (errStr.includes('unrecognised IP address')) {
+      console.log('\n==============================================================');
+      console.log('🔧 HOW TO FIX THIS BREVO ERROR (Takes 30 seconds):');
+      console.log('Brevo has security IP restriction enabled on your account.');
+      console.log('1. Open: https://app.brevo.com/security/authorised_ips');
+      console.log('2. Click "Deactivate blocking" (or add your current IP address).');
+      console.log('   Note: Cloud hosts like Render / Vercel use dynamic IPs, so');
+      console.log('   deactivating IP blocking is necessary for transactional email.');
+      console.log('3. Also ensure "sales.velneer@gmail.com" is verified at:');
+      console.log('   https://app.brevo.com/senders');
+      console.log('==============================================================\n');
+    }
   }
 }
 
