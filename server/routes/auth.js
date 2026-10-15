@@ -1,8 +1,21 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { db } from '../db.js';
 import { signToken, authenticate } from '../middleware/auth.js';
-import { authLimiter } from '../middleware/rateLimiter.js';
+import {
+  loginRateLimiter,
+  signupRateLimiter,
+  otpSendLimiter,
+  otpVerifyLimiter,
+  accountLockoutManager,
+} from '../middleware/rateLimiter.js';
+import {
+  botHoneypotTrap,
+  authInputSanitizer,
+  validatePasswordSecurity,
+  csrfOriginGuard,
+} from '../middleware/securitySanitizer.js';
 import { isMongoConnected, UserModel } from '../config/mongodb.js';
 
 const router = express.Router();
@@ -19,12 +32,8 @@ const COOKIE_OPTIONS = {
 const otpStore = new Map();
 
 // POST /api/auth/send-otp
-router.post('/send-otp', authLimiter, async (req, res) => {
+router.post('/send-otp', csrfOriginGuard, botHoneypotTrap, otpSendLimiter, authInputSanitizer, async (req, res) => {
   const { email, type = 'login' } = req.body;
-
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return res.status(400).json({ success: false, message: 'Please provide a valid email address.' });
-  }
 
   const cleanEmail = email.trim().toLowerCase();
 
@@ -38,8 +47,8 @@ router.post('/send-otp', authLimiter, async (req, res) => {
     user = db.getUserByEmail(cleanEmail);
   }
 
-  // Generate secure 6-digit numeric OTP
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  // Cryptographically secure 6-digit numeric OTP generation (CSPRNG)
+  const otp = crypto.randomInt(100000, 1000000).toString();
   const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
 
   otpStore.set(cleanEmail, {
@@ -86,7 +95,7 @@ router.post('/send-otp', authLimiter, async (req, res) => {
 });
 
 // POST /api/auth/verify-otp
-router.post('/verify-otp', authLimiter, async (req, res) => {
+router.post('/verify-otp', csrfOriginGuard, botHoneypotTrap, otpVerifyLimiter, authInputSanitizer, async (req, res) => {
   const { email, otp, type = 'login', name, phone, password } = req.body;
 
   if (!email || !otp) {
@@ -108,16 +117,38 @@ router.post('/verify-otp', authLimiter, async (req, res) => {
 
   if (record.attempts >= 5) {
     otpStore.delete(cleanEmail);
-    return res.status(429).json({ success: false, message: 'Too many incorrect attempts. Please request a new verification code.' });
+    accountLockoutManager.lockManually(cleanEmail, 900);
+    return res.status(429).json({
+      success: false,
+      error: 'TOO_MANY_FAILED_OTP',
+      message: 'Too many incorrect attempts. Account temporarily locked for 15 minutes. Please request a new code later.',
+      retryAfter: 900,
+    });
   }
 
   if (record.otp !== cleanOtp) {
     record.attempts += 1;
-    return res.status(400).json({ success: false, message: 'Incorrect verification code. Please check your email and try again.' });
+    const remaining = 5 - record.attempts;
+    if (record.attempts >= 5) {
+      otpStore.delete(cleanEmail);
+      accountLockoutManager.lockManually(cleanEmail, 900);
+      return res.status(429).json({
+        success: false,
+        error: 'TOO_MANY_FAILED_OTP',
+        message: 'Too many incorrect attempts. Account locked for 15 minutes for your protection. Please request a new code later.',
+        retryAfter: 900,
+      });
+    }
+    return res.status(400).json({
+      success: false,
+      message: `Incorrect verification code. ${remaining} attempt(s) remaining before security lockout.`,
+      attemptsRemaining: remaining,
+    });
   }
 
-  // OTP is valid! Consume it immediately
+  // OTP is valid! Consume it immediately and reset any lockout
   otpStore.delete(cleanEmail);
+  accountLockoutManager.reset(cleanEmail);
 
   // Check if email belongs to super admins
   const isAdmin = cleanEmail === 'himanshu0481@gmail.com' || cleanEmail === 'sales.velneer@gmail.com';
@@ -155,7 +186,13 @@ router.post('/verify-otp', authLimiter, async (req, res) => {
 
   // New user registration via verified OTP
   const cleanName = name ? name.trim() : cleanEmail.split('@')[0];
-  const passwordHash = password ? bcrypt.hashSync(password, 10) : '';
+  if (password) {
+    const passCheck = validatePasswordSecurity(password, cleanEmail);
+    if (!passCheck.valid) {
+      return res.status(400).json({ success: false, message: passCheck.message });
+    }
+  }
+  const passwordHash = password ? bcrypt.hashSync(password, 12) : '';
   const newUser = {
     id: `usr-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
     name: cleanName,
@@ -200,7 +237,7 @@ router.post('/verify-otp', authLimiter, async (req, res) => {
 });
 
 // POST /api/auth/login
-router.post('/login', authLimiter, async (req, res) => {
+router.post('/login', csrfOriginGuard, botHoneypotTrap, loginRateLimiter, authInputSanitizer, async (req, res) => {
   const { email, password, role } = req.body;
 
   if (!email || typeof email !== 'string') {
@@ -222,17 +259,72 @@ router.post('/login', authLimiter, async (req, res) => {
     user = db.getUserByEmail(cleanEmail);
   }
 
+  // Artificial timing attack jitter (100ms - 180ms)
+  await new Promise((r) => setTimeout(r, 100 + Math.random() * 80));
+
   if (!user) {
-    return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+    const lock = accountLockoutManager.recordFailure(cleanEmail);
+    if (lock.isLocked) {
+      res.setHeader('Retry-After', lock.remainingSeconds);
+      return res.status(429).json({
+        success: false,
+        error: 'ACCOUNT_TEMPORARILY_LOCKED',
+        message: `Account protection active: 5 failed attempts reached. This account is locked for ${Math.ceil(lock.remainingSeconds / 60)} minute(s).`,
+        retryAfter: lock.remainingSeconds,
+      });
+    }
+    return res.status(401).json({
+      success: false,
+      message: `Invalid email or password. ${lock.attemptsRemaining} attempt(s) remaining before temporary lockout.`,
+      attemptsRemaining: lock.attemptsRemaining,
+    });
   }
 
-  // Verify password if passwordHash exists
-  if (user.passwordHash && password) {
-    const isMatch = bcrypt.compareSync(password, user.passwordHash);
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
-    }
+  // 1. Password is required to log in via password method
+  if (!password || typeof password !== 'string' || password.trim().length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Password is required to sign in with password.',
+    });
   }
+
+  // 2. Account must have a valid password set (e.g. not OTP-only account)
+  if (!user.passwordHash || typeof user.passwordHash !== 'string' || user.passwordHash.trim().length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'This account was created via Email OTP and does not have a password set. Please sign in using "Email OTP".',
+    });
+  }
+
+  // 3. Strict cryptographic bcrypt password comparison
+  let isMatch = false;
+  try {
+    isMatch = bcrypt.compareSync(password, user.passwordHash);
+  } catch (err) {
+    console.warn('[AUTH BCRYPT ERROR]', err.message);
+    isMatch = false;
+  }
+
+  if (!isMatch) {
+    const lock = accountLockoutManager.recordFailure(cleanEmail);
+    if (lock.isLocked) {
+      res.setHeader('Retry-After', lock.remainingSeconds);
+      return res.status(429).json({
+        success: false,
+        error: 'ACCOUNT_TEMPORARILY_LOCKED',
+        message: `Account protection active: 5 failed attempts reached. This account is locked for ${Math.ceil(lock.remainingSeconds / 60)} minute(s).`,
+        retryAfter: lock.remainingSeconds,
+      });
+    }
+    return res.status(401).json({
+      success: false,
+      message: `Invalid email or password. ${lock.attemptsRemaining} attempt(s) remaining before temporary lockout.`,
+      attemptsRemaining: lock.attemptsRemaining,
+    });
+  }
+
+  // Password valid! Clear any failed attempts
+  accountLockoutManager.reset(cleanEmail);
 
   // Role validation for demo/dev simulation if specified
   let effectiveRole = user.role;
@@ -262,20 +354,21 @@ router.post('/login', authLimiter, async (req, res) => {
 });
 
 // POST /api/auth/signup
-router.post('/signup', authLimiter, async (req, res) => {
+router.post('/signup', csrfOriginGuard, botHoneypotTrap, signupRateLimiter, authInputSanitizer, async (req, res) => {
   const { name, email, password, phone } = req.body;
 
   if (!name || name.trim().length < 2) {
     return res.status(400).json({ success: false, message: 'Name must be at least 2 characters.' });
   }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return res.status(400).json({ success: false, message: 'Invalid email address.' });
-  }
-  if (!password || password.length < 6) {
-    return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
-  }
 
   const cleanEmail = email.trim().toLowerCase();
+
+  // Strict Password Complexity & Compromised Denylist Verification
+  const passCheck = validatePasswordSecurity(password, cleanEmail);
+  if (!passCheck.valid) {
+    return res.status(400).json({ success: false, message: passCheck.message });
+  }
+
   let existing = null;
 
   if (isMongoConnected()) {
@@ -294,8 +387,8 @@ router.post('/signup', authLimiter, async (req, res) => {
     return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
   }
 
-  // Hash password with bcrypt cost factor 10
-  const passwordHash = bcrypt.hashSync(password, 10);
+  // Hash password with hardened bcrypt cost factor 12 (resistant to high-speed GPU cracking)
+  const passwordHash = bcrypt.hashSync(password, 12);
   const newUser = {
     id: `usr-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
     name: name.trim(),

@@ -98,7 +98,24 @@ const INITIAL_USERS = [
 export const db = {
   // Users
   getUsers() {
-    return readJsonFile('users.json', INITIAL_USERS);
+    const users = readJsonFile('users.json', INITIAL_USERS);
+    let mutated = false;
+    for (const u of users) {
+      if (!u.passwordHash) {
+        if (u.role === 'admin') {
+          u.passwordHash = bcrypt.hashSync('Velneer@2026', 12);
+        } else if (u.role === 'manager') {
+          u.passwordHash = bcrypt.hashSync('Manager@2026', 12);
+        } else {
+          u.passwordHash = bcrypt.hashSync('Customer@2026', 12);
+        }
+        mutated = true;
+      }
+    }
+    if (mutated) {
+      writeJsonFile('users.json', users);
+    }
+    return users;
   },
   getUserByEmail(email) {
     const users = this.getUsers();

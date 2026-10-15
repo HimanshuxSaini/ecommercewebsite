@@ -478,9 +478,9 @@ export const CategoryPage: React.FC = () => {
       {/* 6. Department Assurance & Benefits Strip */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white rounded-2xl border border-[#D7E0D6] p-4 flex items-center gap-3.5 shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-[#E9EBDD] text-[#173F30] flex items-center justify-center shrink-0">
-              <Truck className="w-5 h-5" />
+          <div className="bg-white rounded-2xl border border-[#D7E0D6] p-4 flex items-center gap-3.5 shadow-xs hover:border-[#173F30]/30 transition-all">
+            <div className="w-10 h-10 flex items-center justify-center shrink-0 text-[#173F30]">
+              <Truck className="w-6 h-6 stroke-[1.8]" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-[#2E342D]">Fast Delivery</h4>
@@ -488,9 +488,9 @@ export const CategoryPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-[#D7E0D6] p-4 flex items-center gap-3.5 shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-[#E9EBDD] text-[#173F30] flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5" />
+          <div className="bg-white rounded-2xl border border-[#D7E0D6] p-4 flex items-center gap-3.5 shadow-xs hover:border-[#173F30]/30 transition-all">
+            <div className="w-10 h-10 flex items-center justify-center shrink-0 text-[#173F30]">
+              <ShieldCheck className="w-6 h-6 stroke-[1.8]" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-[#2E342D]">Genuine Warranty</h4>
@@ -498,9 +498,9 @@ export const CategoryPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-[#D7E0D6] p-4 flex items-center gap-3.5 shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-[#E9EBDD] text-[#173F30] flex items-center justify-center shrink-0">
-              <RotateCcw className="w-5 h-5" />
+          <div className="bg-white rounded-2xl border border-[#D7E0D6] p-4 flex items-center gap-3.5 shadow-xs hover:border-[#173F30]/30 transition-all">
+            <div className="w-10 h-10 flex items-center justify-center shrink-0 text-[#173F30]">
+              <RotateCcw className="w-6 h-6 stroke-[1.8]" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-[#2E342D]">7-Day Easy Returns</h4>
@@ -508,9 +508,9 @@ export const CategoryPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-[#D7E0D6] p-4 flex items-center gap-3.5 shadow-xs">
-            <div className="w-10 h-10 rounded-xl bg-[#E9EBDD] text-[#173F30] flex items-center justify-center shrink-0">
-              <Tag className="w-5 h-5" />
+          <div className="bg-white rounded-2xl border border-[#D7E0D6] p-4 flex items-center gap-3.5 shadow-xs hover:border-[#173F30]/30 transition-all">
+            <div className="w-10 h-10 flex items-center justify-center shrink-0 text-[#173F30]">
+              <Tag className="w-6 h-6 stroke-[1.8]" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-[#2E342D]">Best Price Guarantee</h4>

@@ -4,44 +4,54 @@
     "name": "Himanshu Saini",
     "email": "himanshu0481@gmail.com",
     "role": "admin",
+    "passwordHash": "$2b$12$4.02kRD.tRVTg9.4z/8GGupd1E36s2Hogk5G8n6zKYvVlLLIzKEu6",
     "phone": "+91 93066 80944",
     "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    "createdAt": "2025-01-10"
+    "createdAt": "2025-01-10",
+    "isActive": true
   },
   {
     "id": "usr-admin-2",
     "name": "Velneer Sales Admin",
     "email": "sales.velneer@gmail.com",
     "role": "admin",
+    "passwordHash": "$2b$12$4.02kRD.tRVTg9.4z/8GGupd1E36s2Hogk5G8n6zKYvVlLLIzKEu6",
     "phone": "+91 74949 80621",
     "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    "createdAt": "2025-01-10"
+    "createdAt": "2025-01-10",
+    "isActive": true
   },
   {
     "id": "usr-admin-3",
     "name": "Himanshu Sharma",
     "email": "admin@velneer.in",
     "role": "admin",
+    "passwordHash": "$2b$12$4.02kRD.tRVTg9.4z/8GGupd1E36s2Hogk5G8n6zKYvVlLLIzKEu6",
     "phone": "+91 93066 80944",
     "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    "createdAt": "2025-01-10"
+    "createdAt": "2025-01-10",
+    "isActive": true
   },
   {
     "id": "usr-mgr-1",
     "name": "Ananya Verma",
     "email": "manager@velneer.in",
     "role": "manager",
+    "passwordHash": "$2b$12$j4WXgFhUnxlaoHbEXoHgsOu4r1EF8qUiaZXcn8o4fHjL7/7bjuXAe",
     "phone": "+91 98112 34567",
     "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
-    "createdAt": "2025-02-14"
+    "createdAt": "2025-02-14",
+    "isActive": true
   },
   {
     "id": "usr-cust-1",
     "name": "Rahul Mehta",
     "email": "rahul@example.com",
     "role": "customer",
+    "passwordHash": "$2b$12$8ISDUbPxfTvfvqA4p2BHsOImboLlyi2ygAsS4aaeVswIN1Wx3sAea",
     "phone": "+91 99887 76655",
     "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-    "createdAt": "2026-01-05"
+    "createdAt": "2026-01-05",
+    "isActive": true
   }
 ]

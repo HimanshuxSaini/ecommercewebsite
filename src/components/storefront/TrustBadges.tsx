@@ -42,8 +42,8 @@ export const TrustBadges: React.FC = () => {
                 idx === badges.length - 1 ? 'col-span-2 md:col-span-1 justify-center md:justify-start' : ''
               }`}
             >
-              <div className="w-10 h-10 rounded-xl bg-[#E9EBDD] text-[#173F30] flex items-center justify-center shrink-0 border border-[#B9A48B]">
-                <Icon className="w-5 h-5" />
+              <div className="w-10 h-10 flex items-center justify-center shrink-0 text-[#173F30]">
+                <Icon className="w-6 h-6 stroke-[1.8]" />
               </div>
               <div>
                 <h4 className="text-xs sm:text-sm font-bold text-[#2E342D] leading-tight">

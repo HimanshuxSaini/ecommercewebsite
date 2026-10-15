@@ -186,32 +186,72 @@ export function validateCardNumberLuhn(cardNumber: string): boolean {
   return sum % 10 === 0;
 }
 
+export const COMMON_PASSWORDS_DENYLIST = new Set([
+  'password',
+  'password123',
+  '12345678',
+  '123456789',
+  '1234567890',
+  'qwerty123',
+  'velneer123',
+  'admin123',
+  'welcome123',
+  'login123',
+  'pass1234',
+  'letmein123',
+  'iloveyou',
+  'monkey123',
+  'dragon123',
+  'football',
+  'superman123',
+  'trustno1',
+  'sunshine',
+  'princess',
+  'master123',
+]);
+
+export function isCommonPassword(password: string): boolean {
+  if (!password) return false;
+  return COMMON_PASSWORDS_DENYLIST.has(password.toLowerCase().trim());
+}
+
 /**
- * Evaluates password strength with granular metrics.
+ * Evaluates password strength with granular metrics and common breach checks.
  */
-export function evaluatePasswordStrength(password: string): {
+export function evaluatePasswordStrength(password: string, userEmail: string = ''): {
   score: number;
   level: 'Weak' | 'Fair' | 'Good' | 'Strong';
   hasMinLength: boolean;
   hasLetter: boolean;
   hasNumber: boolean;
   hasSpecial: boolean;
+  isNotCommon: boolean;
+  isNotEmail: boolean;
 } {
   const hasMinLength = password.length >= 8;
   const hasLetter = /[a-zA-Z]/.test(password);
   const hasNumber = /\d/.test(password);
   const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+  const isNotCommon = !isCommonPassword(password);
+
+  let isNotEmail = true;
+  if (userEmail && userEmail.includes('@')) {
+    const prefix = userEmail.split('@')[0].toLowerCase();
+    if (prefix.length >= 3 && password.toLowerCase().includes(prefix)) {
+      isNotEmail = false;
+    }
+  }
 
   let score = 0;
-  if (password.length >= 6) score++;
-  if (hasMinLength) score++;
+  if (password.length >= 8) score++;
   if (hasLetter && hasNumber) score++;
   if (hasSpecial) score++;
+  if (isNotCommon && isNotEmail && password.length >= 10) score++;
 
   let level: 'Weak' | 'Fair' | 'Good' | 'Strong' = 'Weak';
-  if (score >= 4) level = 'Strong';
-  else if (score === 3) level = 'Good';
-  else if (score === 2) level = 'Fair';
+  if (score >= 4 && isNotCommon) level = 'Strong';
+  else if (score === 3 && isNotCommon) level = 'Good';
+  else if (score >= 2 && isNotCommon) level = 'Fair';
 
   return {
     score,
@@ -220,6 +260,8 @@ export function evaluatePasswordStrength(password: string): {
     hasLetter,
     hasNumber,
     hasSpecial,
+    isNotCommon,
+    isNotEmail,
   };
 }
 
@@ -236,7 +278,7 @@ export class RateLimiter {
     this.lockoutTimeMs = lockoutSeconds * 1000;
   }
 
-  public recordFailedAttempt(key: string): { isLocked: boolean; remainingSeconds: number } {
+  public recordFailedAttempt(key: string): { isLocked: boolean; remainingSeconds: number; attemptsRemaining: number } {
     const now = Date.now();
     const entry = this.attempts.get(key) || { count: 0, lockedUntil: 0 };
 
@@ -244,6 +286,7 @@ export class RateLimiter {
       return {
         isLocked: true,
         remainingSeconds: Math.ceil((entry.lockedUntil - now) / 1000),
+        attemptsRemaining: 0,
       };
     }
 
@@ -256,11 +299,16 @@ export class RateLimiter {
       return {
         isLocked: true,
         remainingSeconds: Math.ceil(this.lockoutTimeMs / 1000),
+        attemptsRemaining: 0,
       };
     }
 
     this.attempts.set(key, entry);
-    return { isLocked: false, remainingSeconds: 0 };
+    return {
+      isLocked: false,
+      remainingSeconds: 0,
+      attemptsRemaining: Math.max(0, this.maxAttempts - entry.count),
+    };
   }
 
   public isLockedOut(key: string): { isLocked: boolean; remainingSeconds: number } {
@@ -303,7 +351,8 @@ export class RateLimiter {
 }
 
 // Global Specialized Limiters
-export const loginRateLimiter = new RateLimiter(5, 60); // 5 attempts per min
+export const loginRateLimiter = new RateLimiter(5, 15 * 60); // 5 attempts with 15-minute lockout
+export const signupRateLimiter = new RateLimiter(3, 30 * 60); // 3 registrations per 30 minutes
 export const checkoutRateLimiter = new RateLimiter(8, 120); // 8 orders per 2 mins
 export const couponRateLimiter = new RateLimiter(6, 60); // 6 coupon checks per min
 

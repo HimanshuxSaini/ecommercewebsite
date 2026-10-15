@@ -40,10 +40,10 @@ interface AppContextType {
   // User & RBAC
   currentUser: User | null;
   users: User[];
-  login: (email: string, role?: UserRole, password?: string) => Promise<boolean> | boolean;
-  signup: (name: string, email: string, role?: UserRole, password?: string, phone?: string) => Promise<boolean> | boolean;
-  sendOtp: (email: string, type?: 'login' | 'signup') => Promise<{ success: boolean; message: string }>;
-  verifyOtp: (payload: { email: string; otp: string; type: 'login' | 'signup'; name?: string; phone?: string; password?: string }) => Promise<{ success: boolean; message?: string }>;
+  login: (email: string, role?: UserRole, password?: string, botTrap?: string) => Promise<{ success: boolean; message?: string; retryAfter?: number }>;
+  signup: (name: string, email: string, role?: UserRole, password?: string, phone?: string, botTrap?: string) => Promise<{ success: boolean; message?: string; retryAfter?: number }>;
+  sendOtp: (email: string, type?: 'login' | 'signup', botTrap?: string) => Promise<{ success: boolean; message: string; retryAfter?: number }>;
+  verifyOtp: (payload: { email: string; otp: string; type: 'login' | 'signup'; name?: string; phone?: string; password?: string; hp_website?: string }) => Promise<{ success: boolean; message?: string; retryAfter?: number }>;
   logout: () => void;
   updateUserRole: (userId: string, newRole: UserRole) => void;
   updateUserProfile: (updates: Partial<User>) => void;
@@ -515,67 +515,59 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Auth Operations
-  const login = async (rawEmail: string, role?: UserRole, password?: string): Promise<boolean> => {
+  const login = async (rawEmail: string, role?: UserRole, password?: string, botTrap?: string): Promise<{ success: boolean; message?: string; retryAfter?: number }> => {
     // 1. SQL Injection & XSS Guard
     if (detectSqlInjection(rawEmail) || detectXssInjection(rawEmail)) {
       showToast('Security Alert: Malicious characters or SQL patterns detected.', 'error');
-      return false;
+      return { success: false, message: 'Disallowed characters detected.' };
     }
 
     const email = normalizeEmail(rawEmail);
     if (!isValidEmail(email)) {
       showToast('Please provide a valid email format.', 'error');
-      return false;
+      return { success: false, message: 'Please provide a valid email format.' };
     }
 
-    // 2. Brute Force Protection
+    // 2. Client-side Brute Force Lockout Guard
     const rateCheck = loginRateLimiter.isLockedOut(email);
     if (rateCheck.isLocked) {
-      showToast(`Too many login attempts. Locked out for ${rateCheck.remainingSeconds}s.`, 'error');
-      return false;
+      const lockMsg = `Security Lockout Active: Too many failed login attempts. Please wait ${rateCheck.remainingSeconds}s.`;
+      showToast(lockMsg, 'error');
+      return { success: false, message: lockMsg, retryAfter: rateCheck.remainingSeconds };
     }
 
     try {
-      const apiRes = await apiClient.login(email, password, role);
+      const apiRes = await apiClient.login(email, password, role, botTrap);
       if (apiRes?.success && apiRes.user) {
         loginRateLimiter.resetAttempts(email);
         setCurrentUser(apiRes.user);
         showToast(`Welcome back, ${apiRes.user.name}!`);
-        return true;
+        return { success: true };
+      }
+
+      if (apiRes && apiRes.success === false) {
+        // Authoritative server rejection
+        const lock = loginRateLimiter.recordFailedAttempt(email);
+        const retrySecs = apiRes.retryAfter || (lock.isLocked ? lock.remainingSeconds : undefined);
+        const errorMsg = apiRes.message || 'Invalid email or password.';
+        showToast(errorMsg, 'error');
+        return {
+          success: false,
+          message: errorMsg,
+          retryAfter: retrySecs,
+        };
       }
     } catch {
-      // Fall through to local fallback
+      // Network unreachable fallback
     }
 
-    const existing = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (existing) {
-      if (email.toLowerCase() === 'himanshu0481@gmail.com' || email.toLowerCase() === 'sales.velneer@gmail.com') {
-        existing.role = 'admin';
-      }
-      loginRateLimiter.resetAttempts(email);
-      setCurrentUser(existing);
-      showToast(`Welcome back, ${existing.name}!`);
-      return true;
-    }
-
-    // Auto-create user if logging in with valid new email
-    const cleanName = sanitizeInput(email.split('@')[0]);
-    const isSpecialAdmin = email.toLowerCase() === 'himanshu0481@gmail.com' || email.toLowerCase() === 'sales.velneer@gmail.com';
-    const newUser: User = {
-      id: `usr-${Date.now()}`,
-      name: cleanName,
-      email,
-      role: isSpecialAdmin ? 'admin' : (role || 'customer'),
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-    loginRateLimiter.resetAttempts(email);
-    setUsers((prev) => [...prev, newUser]);
-    setCurrentUser(newUser);
-    showToast(`Welcome to Velneer, ${newUser.name}!`);
-    return true;
+    loginRateLimiter.recordFailedAttempt(email);
+    const failMsg = 'Invalid email or password.';
+    showToast(failMsg, 'error');
+    return { success: false, message: failMsg };
   };
 
-  const signup = async (rawName: string, rawEmail: string, role: UserRole = 'customer', password?: string, phone?: string): Promise<boolean> => {
+  const signup = async (rawName: string, rawEmail: string, role: UserRole = 'customer', password?: string, phone?: string, botTrap?: string): Promise<{ success: boolean; message?: string; retryAfter?: number }> => {
     // 1. SQLi & XSS Guards
     if (
       detectSqlInjection(rawName) ||
@@ -584,7 +576,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       detectXssInjection(rawEmail)
     ) {
       showToast('Security Warning: Disallowed SQL/Script pattern detected in input.', 'error');
-      return false;
+      return { success: false, message: 'Disallowed characters detected in input.' };
     }
 
     const name = sanitizeInput(rawName);
@@ -592,64 +584,63 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     if (!name || name.length < 2) {
       showToast('Name must be at least 2 characters.', 'error');
-      return false;
+      return { success: false, message: 'Name must be at least 2 characters.' };
     }
 
     if (!isValidEmail(email)) {
       showToast('Invalid email address format.', 'error');
-      return false;
+      return { success: false, message: 'Invalid email address format.' };
     }
 
     try {
-      const apiRes = await apiClient.signup(name, email, password, phone);
+      const apiRes = await apiClient.signup(name, email, password, phone, botTrap);
       if (apiRes?.success && apiRes.user) {
+        loginRateLimiter.resetAttempts(email);
         setCurrentUser(apiRes.user);
         setUsers((prev) => [...prev, apiRes.user]);
         showToast(`Account created successfully! Welcome, ${apiRes.user.name}.`);
-        return true;
+        return { success: true };
+      }
+
+      if (apiRes && apiRes.success === false) {
+        showToast(apiRes.message || 'Registration failed.', 'error');
+        return {
+          success: false,
+          message: apiRes.message || 'Registration failed.',
+          retryAfter: apiRes.retryAfter,
+        };
       }
     } catch {
-      // Fall through to local fallback
+      // Network failure
     }
 
-    const existing = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    if (existing) {
-      showToast('Account with this email already exists!', 'error');
-      return false;
-    }
-
-    const isSpecialAdmin = email.toLowerCase() === 'himanshu0481@gmail.com' || email.toLowerCase() === 'sales.velneer@gmail.com';
-    const newUser: User = {
-      id: `usr-${Date.now()}`,
-      name,
-      email,
-      role: isSpecialAdmin ? 'admin' : role,
-      phone,
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-    setUsers((prev) => [...prev, newUser]);
-    setCurrentUser(newUser);
-    showToast(`Account created successfully! Welcome, ${name}.`);
-    return true;
+    const failMsg = 'Unable to complete registration. Please check your connection and try again.';
+    showToast(failMsg, 'error');
+    return { success: false, message: failMsg };
   };
 
-  const sendOtp = async (rawEmail: string, type: 'login' | 'signup' = 'login') => {
+  const sendOtp = async (rawEmail: string, type: 'login' | 'signup' = 'login', botTrap?: string) => {
     const email = normalizeEmail(rawEmail);
     if (!isValidEmail(email)) {
       return { success: false, message: 'Please provide a valid email address.' };
     }
-    const res = await apiClient.sendOtp(email, type);
+    const res = await apiClient.sendOtp(email, type, botTrap);
     if (res?.success) {
       showToast(res.message || `Verification code sent to ${email}`, 'info');
       return { success: true, message: res.message };
     }
-    return { success: false, message: res?.message || 'Failed to dispatch verification code.' };
+    return {
+      success: false,
+      message: res?.message || 'Failed to dispatch verification code.',
+      retryAfter: res?.retryAfter,
+    };
   };
 
-  const verifyOtp = async (payload: { email: string; otp: string; type: 'login' | 'signup'; name?: string; phone?: string; password?: string }) => {
+  const verifyOtp = async (payload: { email: string; otp: string; type: 'login' | 'signup'; name?: string; phone?: string; password?: string; hp_website?: string }) => {
     const email = normalizeEmail(payload.email);
     const res = await apiClient.verifyOtp({ ...payload, email });
     if (res?.success && res.user) {
+      loginRateLimiter.resetAttempts(email);
       const isSpecialAdmin = email.toLowerCase() === 'himanshu0481@gmail.com' || email.toLowerCase() === 'sales.velneer@gmail.com';
       if (isSpecialAdmin) {
         res.user.role = 'admin';
@@ -667,7 +658,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       showToast(`Welcome to Velneer, ${res.user.name}!`);
       return { success: true };
     }
-    return { success: false, message: res?.message || 'Invalid or expired verification code.' };
+    return {
+      success: false,
+      message: res?.message || 'Invalid or expired verification code.',
+      retryAfter: res?.retryAfter,
+    };
   };
 
   const logout = () => {

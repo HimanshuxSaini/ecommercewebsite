@@ -9,13 +9,13 @@ const API_BASE = import.meta.env.VITE_API_URL
 
 export const apiClient = {
   // Authentication
-  async login(email: string, password?: string, role?: string) {
+  async login(email: string, password?: string, role?: string, botTrap?: string) {
     try {
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ email, password, role }),
+        body: JSON.stringify({ email, password, role, hp_website: botTrap }),
       });
       return await res.json();
     } catch (err: unknown) {
@@ -24,13 +24,13 @@ export const apiClient = {
     }
   },
 
-  async signup(name: string, email: string, password?: string, phone?: string) {
+  async signup(name: string, email: string, password?: string, phone?: string, botTrap?: string) {
     try {
       const res = await fetch(`${API_BASE}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ name, email, password, phone }),
+        body: JSON.stringify({ name, email, password, phone, hp_website: botTrap }),
       });
       return await res.json();
     } catch (err: unknown) {
@@ -39,13 +39,13 @@ export const apiClient = {
     }
   },
 
-  async sendOtp(email: string, type: 'login' | 'signup' = 'login') {
+  async sendOtp(email: string, type: 'login' | 'signup' = 'login', botTrap?: string) {
     try {
       const res = await fetch(`${API_BASE}/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ email, type }),
+        body: JSON.stringify({ email, type, hp_website: botTrap }),
       });
       return await res.json();
     } catch (err: unknown) {
@@ -54,7 +54,7 @@ export const apiClient = {
     }
   },
 
-  async verifyOtp(payload: { email: string; otp: string; type: 'login' | 'signup'; name?: string; phone?: string; password?: string }) {
+  async verifyOtp(payload: { email: string; otp: string; type: 'login' | 'signup'; name?: string; phone?: string; password?: string; hp_website?: string }) {
     try {
       const res = await fetch(`${API_BASE}/auth/verify-otp`, {
         method: 'POST',

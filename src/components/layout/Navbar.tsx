@@ -75,9 +75,9 @@ export const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-[#F8F5EF] border-b border-[#D7E0D6] relative z-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between relative">
         {/* All Categories Dropdown Trigger */}
-        <div className="relative py-2" ref={menuRef}>
+        <div className="relative py-2 shrink-0 z-30" ref={menuRef}>
           <button
             onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
             className="bg-[#173F30] hover:bg-[#2E5E46] text-white font-medium text-xs sm:text-sm px-4 py-2 rounded-lg flex items-center gap-2.5 transition-all shadow-xs cursor-pointer"
@@ -183,8 +183,8 @@ export const Navbar: React.FC = () => {
           )}
         </div>
 
-        {/* Links Navigation Bar */}
-        <div className="flex items-center space-x-1 sm:space-x-3 md:space-x-5 overflow-x-auto py-2 no-scrollbar text-xs sm:text-sm font-medium text-[#2E342D]">
+        {/* Links Navigation Bar - Centered */}
+        <div className="flex-1 flex items-center justify-center space-x-1 sm:space-x-3 md:space-x-6 overflow-x-auto py-2 no-scrollbar text-xs sm:text-sm font-medium text-[#2E342D]">
           {activeNavItems.map((item) => {
             const isActive =
               (item.linkType === 'home' && currentPage === 'home') ||
@@ -206,6 +206,9 @@ export const Navbar: React.FC = () => {
             );
           })}
         </div>
+
+        {/* Right Balancer to guarantee true middle alignment relative to the page */}
+        <div className="hidden lg:block w-[155px] shrink-0 pointer-events-none" aria-hidden="true" />
       </div>
     </nav>
   );

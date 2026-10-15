@@ -12,6 +12,7 @@ import paymentRoutes from './server/routes/payments.js';
 import productRoutes from './server/routes/products.js';
 import uploadRoutes from './server/routes/upload.js';
 import { connectMongoDB, isMongoConnected } from './server/config/mongodb.js';
+import { noSqlSanitizer } from './server/middleware/securitySanitizer.js';
 
 // Initialize MongoDB connection on server startup
 connectMongoDB().catch((err) => console.warn('[MONGODB] Init notice:', err.message));
@@ -79,6 +80,7 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 app.use(cookieParser());
+app.use(noSqlSanitizer);
 
 // Global Security Headers Middleware
 app.use((req, res, next) => {

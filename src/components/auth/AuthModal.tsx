@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Lock,
   Mail,
@@ -38,14 +38,19 @@ export const AuthModal: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [otpCode, setOtpCode] = useState('');
 
+  // Security honeypot (empty for humans, filled by automated bot crawlers)
+  const [honeypot, setHoneypot] = useState('');
+  const formLoadedAt = useRef(Date.now());
+
   // UI state
   const [showPassword, setShowPassword] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [lockoutCooldown, setLockoutCooldown] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const passwordStrength = evaluatePasswordStrength(password);
+  const passwordStrength = evaluatePasswordStrength(password, email);
 
   // Resend cooldown timer
   useEffect(() => {
@@ -56,13 +61,31 @@ export const AuthModal: React.FC = () => {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  // Reset form when modal opens or closes
+  // Anti-brute-force lockout countdown timer
+  useEffect(() => {
+    if (lockoutCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setLockoutCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lockoutCooldown]);
+
+  // Reset form and wipe sensitive credential memory when modal opens or closes
   useEffect(() => {
     if (isAuthOpen) {
+      formLoadedAt.current = Date.now();
       setErrorMsg('');
       setIsOtpSent(false);
       setOtpCode('');
+      setHoneypot('');
       setResendCooldown(0);
+    } else {
+      // Memory wipe of sensitive plaintext password state
+      setPassword('');
+      setConfirmPassword('');
+      setOtpCode('');
+      setHoneypot('');
+      setErrorMsg('');
     }
   }, [isAuthOpen, mode]);
 
@@ -126,20 +149,35 @@ export const AuthModal: React.FC = () => {
     }
 
     // Rate limiter guard
+    if (lockoutCooldown > 0) {
+      setErrorMsg(`Security lockout active. Please wait ${lockoutCooldown}s.`);
+      return;
+    }
+
+    // Bot submission velocity protection (< 400ms after load indicates scripted bot)
+    if (Date.now() - formLoadedAt.current < 400 && !isOtpSent) {
+      setErrorMsg('Security Notice: Form submitted too quickly. Please review your details and submit again.');
+      return;
+    }
+
     const rateCheck = loginRateLimiter.isLockedOut(email);
     if (rateCheck.isLocked) {
-      setErrorMsg(`Too many attempts. Please wait ${rateCheck.remainingSeconds}s.`);
+      setLockoutCooldown(rateCheck.remainingSeconds);
+      setErrorMsg(`Too many attempts. Account protection active for ${rateCheck.remainingSeconds}s.`);
       return;
     }
 
     setIsLoading(true);
     try {
-      const res = await sendOtp(email.trim(), mode);
+      const res = await sendOtp(email.trim(), mode, honeypot);
       if (res.success) {
         setIsOtpSent(true);
         setResendCooldown(60);
       } else {
         setErrorMsg(res.message || 'Failed to dispatch verification code.');
+        if (res.retryAfter) {
+          setLockoutCooldown(res.retryAfter);
+        }
       }
     } catch {
       setErrorMsg('Network error sending verification code. Please try again.');
@@ -152,6 +190,11 @@ export const AuthModal: React.FC = () => {
   const handleVerifyOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+
+    if (lockoutCooldown > 0) {
+      setErrorMsg(`Security lockout active. Please wait ${lockoutCooldown}s.`);
+      return;
+    }
 
     const cleanOtp = otpCode.replace(/\D/g, '').trim();
     if (cleanOtp.length !== 6) {
@@ -168,12 +211,19 @@ export const AuthModal: React.FC = () => {
         name: name.trim() || undefined,
         phone: phone.trim() || undefined,
         password: password || undefined,
+        hp_website: honeypot,
       });
 
       if (res.success) {
+        setPassword('');
+        setConfirmPassword('');
+        setOtpCode('');
         setIsAuthOpen(false);
       } else {
         setErrorMsg(res.message || 'Invalid or expired verification code.');
+        if (res.retryAfter) {
+          setLockoutCooldown(res.retryAfter);
+        }
       }
     } catch {
       setErrorMsg('Verification failed. Please check the code and try again.');
@@ -187,6 +237,24 @@ export const AuthModal: React.FC = () => {
     e.preventDefault();
     setErrorMsg('');
 
+    if (lockoutCooldown > 0) {
+      setErrorMsg(`Account protection active. Please wait ${lockoutCooldown}s before trying again.`);
+      return;
+    }
+
+    // Bot submission velocity protection
+    if (Date.now() - formLoadedAt.current < 400) {
+      setErrorMsg('Security Notice: Fast automated interaction detected. Please try again.');
+      return;
+    }
+
+    const rateCheck = loginRateLimiter.isLockedOut(email);
+    if (rateCheck.isLocked) {
+      setLockoutCooldown(rateCheck.remainingSeconds);
+      setErrorMsg(`Account protection active. Please wait ${rateCheck.remainingSeconds}s.`);
+      return;
+    }
+
     if (!isValidEmail(email)) {
       setErrorMsg('Please enter a valid email address.');
       return;
@@ -198,11 +266,16 @@ export const AuthModal: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const success = await login(email.trim(), 'customer', password);
-      if (success) {
+      const res = await login(email.trim(), 'customer', password, honeypot);
+      if (res.success) {
+        setPassword('');
+        setConfirmPassword('');
         setIsAuthOpen(false);
       } else {
-        setErrorMsg('Invalid email or password. You can also sign in via Email OTP.');
+        setErrorMsg(res.message || 'Invalid email or password. You can also sign in via Email OTP.');
+        if (res.retryAfter) {
+          setLockoutCooldown(res.retryAfter);
+        }
       }
     } catch {
       setErrorMsg('Sign in failed. Please verify your credentials.');
@@ -215,6 +288,17 @@ export const AuthModal: React.FC = () => {
   const handlePasswordSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+
+    if (lockoutCooldown > 0) {
+      setErrorMsg(`Registration rate limit active. Please wait ${lockoutCooldown}s.`);
+      return;
+    }
+
+    // Bot submission velocity protection
+    if (Date.now() - formLoadedAt.current < 400) {
+      setErrorMsg('Security Notice: Automated form submission detected. Please review and try again.');
+      return;
+    }
 
     if (!name.trim() || name.trim().length < 2) {
       setErrorMsg('Please enter your full name (minimum 2 characters).');
@@ -241,6 +325,16 @@ export const AuthModal: React.FC = () => {
       return;
     }
 
+    if (!passwordStrength.isNotCommon) {
+      setErrorMsg('Security Alert: This password is too common or easily guessable. Please create a stronger password.');
+      return;
+    }
+
+    if (!passwordStrength.isNotEmail) {
+      setErrorMsg('Security Alert: Password must not contain parts of your email address.');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setErrorMsg('Passwords do not match.');
       return;
@@ -248,11 +342,16 @@ export const AuthModal: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const success = await signup(name.trim(), email.trim().toLowerCase(), 'customer', password, phone.trim());
-      if (success) {
+      const res = await signup(name.trim(), email.trim().toLowerCase(), 'customer', password, phone.trim(), honeypot);
+      if (res.success) {
+        setPassword('');
+        setConfirmPassword('');
         setIsAuthOpen(false);
       } else {
-        setErrorMsg('Registration failed. An account with this email may already exist.');
+        setErrorMsg(res.message || 'Registration failed. An account with this email may already exist.');
+        if (res.retryAfter) {
+          setLockoutCooldown(res.retryAfter);
+        }
       }
     } catch {
       setErrorMsg('Account registration failed. Please try again.');
@@ -464,11 +563,24 @@ export const AuthModal: React.FC = () => {
               </div>
             )}
 
+            {/* Lockout Warning Banner */}
+            {lockoutCooldown > 0 && (
+              <div className="mb-3 p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-center justify-between animate-in fade-in shadow-xs">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0" />
+                  <span className="font-semibold">Security Lockout Active</span>
+                </div>
+                <span className="font-mono font-extrabold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-md text-[11px]">
+                  {lockoutCooldown}s remaining
+                </span>
+              </div>
+            )}
+
             {/* Error Alert */}
             {errorMsg && (
               <div className="mb-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-[#E63946] text-xs flex items-center gap-2 animate-in fade-in">
                 <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{errorMsg}</span>
+                <span className="leading-relaxed">{errorMsg}</span>
               </div>
             )}
 
@@ -477,6 +589,20 @@ export const AuthModal: React.FC = () => {
             {/* ========================================================================= */}
             {isOtpSent ? (
               <form onSubmit={handleVerifyOtpSubmit} className="space-y-4">
+                {/* Security Honeypot (Invisible to humans, traps automated form-filling bots) */}
+                <div className="opacity-0 absolute -left-[9999px] top-0 h-0 w-0 pointer-events-none select-none overflow-hidden" aria-hidden="true" tabIndex={-1}>
+                  <label htmlFor="hp_otp_trap">Leave this blank</label>
+                  <input
+                    id="hp_otp_trap"
+                    type="text"
+                    name="hp_website"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+
                 <div className="p-3 bg-[#E9EBDD] border border-[#B9A48B] rounded-xl flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <Mail className="w-4 h-4 text-[#173F30]" />
@@ -510,6 +636,7 @@ export const AuthModal: React.FC = () => {
                       maxLength={6}
                       required
                       autoFocus
+                      autoComplete="one-time-code"
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                       placeholder="123456"
@@ -523,11 +650,13 @@ export const AuthModal: React.FC = () => {
 
                 <button
                   type="submit"
-                  disabled={isLoading || otpCode.length !== 6}
+                  disabled={isLoading || otpCode.length !== 6 || lockoutCooldown > 0}
                   className="w-full bg-[#173F30] hover:bg-[#2E5E46] disabled:bg-[#B9A48B] text-white font-bold text-xs sm:text-sm py-3 rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2"
                 >
                   {isLoading ? (
                     <span>Verifying Code...</span>
+                  ) : lockoutCooldown > 0 ? (
+                    <span>Locked ({lockoutCooldown}s)</span>
                   ) : (
                     <>
                       <ShieldCheck className="w-4 h-4" />
@@ -578,6 +707,20 @@ export const AuthModal: React.FC = () => {
               /* STAGE B: LOGIN VIA EMAIL OTP (EMAIL INPUT) */
               /* ========================================================================= */
               <form onSubmit={handleRequestOtp} className="space-y-3">
+                {/* Security Honeypot */}
+                <div className="opacity-0 absolute -left-[9999px] top-0 h-0 w-0 pointer-events-none select-none overflow-hidden" aria-hidden="true" tabIndex={-1}>
+                  <label htmlFor="hp_login_otp_trap">Leave this blank</label>
+                  <input
+                    id="hp_login_otp_trap"
+                    type="text"
+                    name="hp_website"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+
                 <div>
                   <label className="text-[11px] font-semibold text-[#2E342D] block mb-1">
                     Your Registered Email Address
@@ -587,6 +730,7 @@ export const AuthModal: React.FC = () => {
                     <input
                       type="email"
                       required
+                      autoComplete="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@example.com"
@@ -597,11 +741,13 @@ export const AuthModal: React.FC = () => {
 
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || lockoutCooldown > 0}
                   className="w-full bg-[#173F30] hover:bg-[#2E5E46] disabled:bg-[#B9A48B] text-white font-bold text-xs py-3 rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2 mt-2"
                 >
                   {isLoading ? (
                     <span>Sending Code...</span>
+                  ) : lockoutCooldown > 0 ? (
+                    <span>Locked ({lockoutCooldown}s)</span>
                   ) : (
                     <>
                       <KeyRound className="w-4 h-4" />
@@ -615,6 +761,20 @@ export const AuthModal: React.FC = () => {
               /* STAGE C: LOGIN VIA PASSWORD */
               /* ========================================================================= */
               <form onSubmit={handlePasswordLoginSubmit} className="space-y-3">
+                {/* Security Honeypot */}
+                <div className="opacity-0 absolute -left-[9999px] top-0 h-0 w-0 pointer-events-none select-none overflow-hidden" aria-hidden="true" tabIndex={-1}>
+                  <label htmlFor="hp_login_pass_trap">Leave this blank</label>
+                  <input
+                    id="hp_login_pass_trap"
+                    type="text"
+                    name="hp_website"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+
                 <div>
                   <label className="text-[11px] font-semibold text-[#2E342D] block mb-1">
                     Email Address
@@ -624,6 +784,7 @@ export const AuthModal: React.FC = () => {
                     <input
                       type="email"
                       required
+                      autoComplete="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@example.com"
@@ -641,6 +802,7 @@ export const AuthModal: React.FC = () => {
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
+                      autoComplete="current-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
@@ -658,11 +820,13 @@ export const AuthModal: React.FC = () => {
 
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || lockoutCooldown > 0}
                   className="w-full bg-[#173F30] hover:bg-[#2E5E46] disabled:bg-[#B9A48B] text-white font-bold text-xs py-3 rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2 mt-2"
                 >
                   {isLoading ? (
                     <span>Signing in...</span>
+                  ) : lockoutCooldown > 0 ? (
+                    <span>Locked ({lockoutCooldown}s)</span>
                   ) : (
                     <>
                       <ShieldCheck className="w-4 h-4" />
@@ -679,6 +843,20 @@ export const AuthModal: React.FC = () => {
                 onSubmit={signupMethod === 'password' ? handlePasswordSignupSubmit : handleRequestOtp}
                 className="space-y-2.5 sm:space-y-3"
               >
+                {/* Security Honeypot (Invisible to humans, traps automated form-filling bots) */}
+                <div className="opacity-0 absolute -left-[9999px] top-0 h-0 w-0 pointer-events-none select-none overflow-hidden" aria-hidden="true" tabIndex={-1}>
+                  <label htmlFor="hp_signup_trap">Leave this blank</label>
+                  <input
+                    id="hp_signup_trap"
+                    type="text"
+                    name="hp_website"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+
                 <div>
                   <label className="text-[11px] font-semibold text-[#2E342D] block mb-1">
                     Full Name *
@@ -688,6 +866,7 @@ export const AuthModal: React.FC = () => {
                     <input
                       type="text"
                       required
+                      autoComplete="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="e.g. Rahul Sharma"
@@ -706,6 +885,7 @@ export const AuthModal: React.FC = () => {
                       <input
                         type="email"
                         required
+                        autoComplete="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="name@example.com"
@@ -720,7 +900,8 @@ export const AuthModal: React.FC = () => {
                     <div className="relative">
                       <Phone className="w-3.5 h-3.5 text-[#6B7068] absolute left-3.5 top-1/2 -translate-y-1/2" />
                       <input
-                        type="text"
+                        type="tel"
+                        autoComplete="tel"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="+91 9XXXX XXXXX"
@@ -739,6 +920,7 @@ export const AuthModal: React.FC = () => {
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
+                      autoComplete="new-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
@@ -754,9 +936,9 @@ export const AuthModal: React.FC = () => {
                   </div>
 
                   {password.length > 0 && (
-                    <div className="mt-1 space-y-0.5">
+                    <div className="mt-1.5 space-y-1 bg-white/70 p-2 rounded-lg border border-[#D7E0D6]">
                       <div className="flex items-center justify-between text-[10px]">
-                        <span className="text-[#6B7068] font-medium">Password Strength:</span>
+                        <span className="text-[#6B7068] font-medium">Security Strength:</span>
                         <span
                           className={`font-bold ${
                             passwordStrength.level === 'Strong'
@@ -771,18 +953,47 @@ export const AuthModal: React.FC = () => {
                           {passwordStrength.level}
                         </span>
                       </div>
-                      <div className="w-full bg-[#D7E0D6] h-1 rounded-full overflow-hidden flex">
+                      <div className="w-full bg-[#E9EBDD] h-1.5 rounded-full overflow-hidden flex gap-0.5">
                         <div
-                          className={`h-full transition-all duration-300 ${
-                            passwordStrength.score >= 4
-                              ? 'w-full bg-[#2E7D32]'
-                              : passwordStrength.score === 3
-                              ? 'w-3/4 bg-[#173F30]'
-                              : passwordStrength.score === 2
-                              ? 'w-1/2 bg-amber-500'
-                              : 'w-1/4 bg-[#E63946]'
+                          className={`h-full flex-1 rounded-full transition-all duration-300 ${
+                            passwordStrength.score >= 1 ? (passwordStrength.score === 1 ? 'bg-rose-500' : 'bg-amber-500') : 'bg-gray-200'
                           }`}
                         />
+                        <div
+                          className={`h-full flex-1 rounded-full transition-all duration-300 ${
+                            passwordStrength.score >= 2 ? (passwordStrength.score === 2 ? 'bg-amber-500' : 'bg-emerald-500') : 'bg-gray-200'
+                          }`}
+                        />
+                        <div
+                          className={`h-full flex-1 rounded-full transition-all duration-300 ${
+                            passwordStrength.score >= 3 ? 'bg-emerald-600' : 'bg-gray-200'
+                          }`}
+                        />
+                        <div
+                          className={`h-full flex-1 rounded-full transition-all duration-300 ${
+                            passwordStrength.score >= 4 ? 'bg-[#173F30]' : 'bg-gray-200'
+                          }`}
+                        />
+                      </div>
+
+                      {/* Security Rules Checklist */}
+                      <div className="grid grid-cols-2 gap-1 pt-1 text-[10px]">
+                        <div className={`flex items-center gap-1 ${passwordStrength.hasMinLength ? 'text-emerald-700' : 'text-[#6B7068]'}`}>
+                          <CheckCircle2 className={`w-3 h-3 ${passwordStrength.hasMinLength ? 'text-emerald-600' : 'text-gray-300'}`} />
+                          <span>8+ characters</span>
+                        </div>
+                        <div className={`flex items-center gap-1 ${passwordStrength.hasLetter && passwordStrength.hasNumber ? 'text-emerald-700' : 'text-[#6B7068]'}`}>
+                          <CheckCircle2 className={`w-3 h-3 ${passwordStrength.hasLetter && passwordStrength.hasNumber ? 'text-emerald-600' : 'text-gray-300'}`} />
+                          <span>Letters & numbers</span>
+                        </div>
+                        <div className={`flex items-center gap-1 ${passwordStrength.isNotCommon ? 'text-emerald-700' : 'text-rose-600 font-semibold'}`}>
+                          <CheckCircle2 className={`w-3 h-3 ${passwordStrength.isNotCommon ? 'text-emerald-600' : 'text-rose-500'}`} />
+                          <span>{passwordStrength.isNotCommon ? 'Breach protected' : 'Common password'}</span>
+                        </div>
+                        <div className={`flex items-center gap-1 ${passwordStrength.isNotEmail ? 'text-emerald-700' : 'text-rose-600 font-semibold'}`}>
+                          <CheckCircle2 className={`w-3 h-3 ${passwordStrength.isNotEmail ? 'text-emerald-600' : 'text-rose-500'}`} />
+                          <span>Unique from email</span>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -797,6 +1008,7 @@ export const AuthModal: React.FC = () => {
                     <input
                       type={showPassword ? 'text' : 'password'}
                       required
+                      autoComplete="new-password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
@@ -807,11 +1019,13 @@ export const AuthModal: React.FC = () => {
 
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || lockoutCooldown > 0}
                   className="w-full bg-[#173F30] hover:bg-[#2E5E46] disabled:bg-[#B9A48B] text-white font-bold text-xs py-3 rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2 mt-2"
                 >
                   {isLoading ? (
                     <span>{signupMethod === 'password' ? 'Creating Account...' : 'Sending Verification Code...'}</span>
+                  ) : lockoutCooldown > 0 ? (
+                    <span>Rate Limited ({lockoutCooldown}s)</span>
                   ) : signupMethod === 'password' ? (
                     <>
                       <ShieldCheck className="w-4 h-4" />
@@ -826,11 +1040,6 @@ export const AuthModal: React.FC = () => {
                 </button>
               </form>
             )}
-
-            <div className="mt-3 sm:mt-4 pt-3 border-t border-[#D7E0D6] flex items-center justify-center gap-2 text-[10px] text-[#6B7068]">
-              <Shield className="w-3 h-3 text-[#173F30]" />
-              <span>Brevo Enterprise Email OTP &amp; 256-Bit SSL Protection</span>
-            </div>
           </div>
         </div>
       </main>
