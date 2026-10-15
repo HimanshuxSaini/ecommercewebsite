@@ -31,6 +31,10 @@ const PolicyPage = React.lazy(() =>
   import('./components/storefront/PolicyPage').then((m) => ({ default: m.PolicyPage }))
 );
 
+const LaunchingSoonPage = React.lazy(() =>
+  import('./components/storefront/LaunchingSoonPage').then((m) => ({ default: m.LaunchingSoonPage }))
+);
+
 const AdminFallback = () => (
   <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-white">
     <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-3" />
@@ -41,11 +45,14 @@ const AdminFallback = () => (
 );
 
 const StorefrontFallback = () => (
-  <div className="py-24 flex flex-col items-center justify-center text-[#173F30]">
-    <Loader2 className="w-7 h-7 text-[#173F30] animate-spin mb-2" />
-    <span className="text-xs font-semibold text-[#6B7068]">
-      Loading page details...
-    </span>
+  <div className="min-h-screen bg-[#071912] flex flex-col items-center justify-center text-white select-none">
+    <div className="relative mb-5">
+      <div className="absolute -inset-3 rounded-full bg-gradient-to-r from-emerald-400/20 via-amber-300/20 to-emerald-400/20 blur-md animate-pulse" />
+      <img src="/velneer_emblem_clean.png" alt="Velneer Logo" className="relative h-14 w-auto object-contain drop-shadow-xl" />
+    </div>
+    <div className="w-44 h-[2px] bg-emerald-950 rounded-full overflow-hidden border border-emerald-800/40 relative">
+      <div className="h-full bg-gradient-to-r from-emerald-400 via-amber-300 to-amber-400 animate-pulse w-3/4 rounded-full" />
+    </div>
   </div>
 );
 
@@ -57,6 +64,10 @@ const MainApp: React.FC = () => {
       {currentView === 'admin' ? (
         <Suspense fallback={<AdminFallback />}>
           <AdminLayout />
+        </Suspense>
+      ) : currentPage === 'launching-soon' ? (
+        <Suspense fallback={<StorefrontFallback />}>
+          <LaunchingSoonPage />
         </Suspense>
       ) : (
         <div className="min-h-screen bg-[#F8F5EF] text-[#2E342D] flex flex-col font-sans">
@@ -95,7 +106,7 @@ const MainApp: React.FC = () => {
 
       {/* Global Auth Modal, WhatsApp Concierge & Notification Toasts */}
       <AuthModal />
-      <WhatsAppWidget />
+      {currentPage !== 'launching-soon' && <WhatsAppWidget />}
       <ToastContainer />
     </>
   );

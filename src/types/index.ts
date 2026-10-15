@@ -152,7 +152,7 @@ export type PolicySlug =
   | 'about' 
   | 'contact';
 
-export type StorePage = 'home' | 'shop' | 'category' | 'policy';
+export type StorePage = 'home' | 'shop' | 'category' | 'policy' | 'launching-soon';
 
 export interface NavItem {
   id: string;

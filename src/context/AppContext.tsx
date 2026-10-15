@@ -124,6 +124,7 @@ interface AppContextType {
   navigateToShop: () => void;
   navigateToCategory: (categoryId: string) => void;
   navigateToPolicy: (tab?: PolicySlug) => void;
+  navigateToLaunchingSoon: () => void;
   adminTab: 'dashboard' | 'products' | 'inventory' | 'categories' | 'coupons' | 'banners' | 'orders' | 'flash-deals' | 'navigation' | 'brands';
   setAdminTab: (tab: 'dashboard' | 'products' | 'inventory' | 'categories' | 'coupons' | 'banners' | 'orders' | 'flash-deals' | 'navigation' | 'brands') => void;
   brands: Brand[];
@@ -278,8 +279,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // UI state
   const [currentView, setCurrentView] = useState<'store' | 'admin'>('store');
   const [currentPage, setCurrentPage] = useState<StorePage>(() => {
-    const saved = localStorage.getItem('sv_currentPage');
-    return saved === 'shop' || saved === 'category' || saved === 'policy' ? saved : 'home';
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const req = urlParams.get('page');
+      if (req === 'home' || req === 'shop' || req === 'category' || req === 'policy') {
+        return req as StorePage;
+      }
+      const entered = sessionStorage.getItem('sv_session_entered_store');
+      if (entered === 'true') {
+        const saved = localStorage.getItem('sv_currentPage');
+        if (saved === 'home' || saved === 'shop' || saved === 'category' || saved === 'policy') {
+          return saved as StorePage;
+        }
+        return 'home';
+      }
+    } catch {}
+    return 'launching-soon';
   });
   const [currentPolicyTab, setCurrentPolicyTab] = useState<PolicySlug>('privacy');
   const [adminTab, setAdminTab] = useState<'dashboard' | 'products' | 'inventory' | 'categories' | 'coupons' | 'banners' | 'orders' | 'flash-deals' | 'navigation' | 'brands'>('dashboard');
@@ -457,6 +472,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Page Navigation Helpers
   const navigateToHome = () => {
+    try {
+      sessionStorage.setItem('sv_session_entered_store', 'true');
+    } catch {}
     setCurrentView('store');
     setSelectedCategory(null);
     setCurrentPage('home');
@@ -464,6 +482,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const navigateToShop = () => {
+    try {
+      sessionStorage.setItem('sv_session_entered_store', 'true');
+    } catch {}
     setCurrentView('store');
     setSelectedCategory(null);
     setCurrentPage('shop');
@@ -482,6 +503,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSelectedCategory(null);
     setCurrentPolicyTab(tab);
     setCurrentPage('policy');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToLaunchingSoon = () => {
+    try {
+      sessionStorage.removeItem('sv_session_entered_store');
+    } catch {}
+    setCurrentView('store');
+    setSelectedCategory(null);
+    setCurrentPage('launching-soon');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -1384,6 +1415,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         navigateToShop,
         navigateToCategory,
         navigateToPolicy,
+        navigateToLaunchingSoon,
         adminTab,
         setAdminTab,
         brands,
